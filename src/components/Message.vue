@@ -106,7 +106,7 @@ function onAllRead() {
           <li :class="{ active: active === 1 }" @click="onChecked(1)">公告{{ unReadMessageCount2 }}</li>
         </ul>
       </nav>
-      <div v-loading="loading" element-loading-text="加载中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(255, 255, 255, 0.8)">
+      <div v-loading="loading" element-loading-text="加载中..." element-loading-background="rgba(255, 255, 255, 0.8)">
         <div class="message-box-wrapper__body">
           <ul v-if="showList.length">
             <li v-for="(item, index) in showList" :key="index" class="message-box-wrapper__body-item" :class="{ read: item.read }" @click="onItemChecked(item)">
