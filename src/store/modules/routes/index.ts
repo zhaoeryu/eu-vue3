@@ -93,7 +93,9 @@ function convertMenuToVueRouterFormat(menus) {
                 showHeader: item.showHeader,
                 showFooter: item.showFooter,
                 alwaysShow: item.alwaysShow,
-                sort: item.sortNum
+                sort: item.sortNum,
+                embed: item.embed,
+                embedUrl: item.embedUrl
             },
             // children: null,
             // component: loadComponent(item),
@@ -120,9 +122,15 @@ function convertMenuToVueRouterFormat(menus) {
  * @returns {(function(): Promise<*>)|null}
  */
 function loadComponent(menu) {
+    // 内嵌iframe
+    if (menu.meta.embed === true) {
+        return () => import('/src/layout/components/InnerIframe.vue')
+    }
+    // 是否有组件路径
     if (!menu.componentPath) {
         return null
     }
+    // 是否是外链
     if (isExternal(menu.path)) {
         return null
     }
