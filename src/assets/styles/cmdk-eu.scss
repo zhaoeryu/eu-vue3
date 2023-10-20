@@ -1,0 +1,165 @@
+.eu[command-theme="eu"] {
+  [command-dialog-wrapper] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  [command-dialog-header] {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 2px solid var(--color-neutral-2);
+    background: transparent;
+    outline: none;
+    .search-icon {
+      margin-right: 8px;
+    }
+    &:focus-within {
+      border-color: var(--color-primary);
+    }
+  }
+  [command-input] {
+    width: 100%;
+    outline: none;
+    background: transparent;
+    border: none;
+    &::placeholder {
+      color: var(--color-text-3);
+    }
+  }
+
+  [command-dialog-body] {
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-size: 14px;
+    user-select: none;
+  }
+
+
+  [command-group-heading] {
+    //font-size: 12px;
+    color: var(--color-neutral-6);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  [command-item] {
+    padding: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    margin-top: 4px;
+    &[aria-selected='true'],&:hover {
+      background-color: rgb(var(--gray-2));
+      .command-palette-item__body__enter {
+        display: block;
+      }
+    }
+    &:active {
+      transition-property: background;
+      background: rgb(var(--gray-2));
+    }
+    &[aria-disabled='true'] {
+      color: rgb(var(--gray-8));
+      cursor: not-allowed;
+    }
+  }
+
+  [command-group] {
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  [command-list] {
+
+  }
+
+  [command-separator] {
+    height: 1px;
+    width: 100%;
+    background: rgb(var(--gray-2));
+    margin: 4px 0;
+  }
+
+  [command-dialog-footer] {
+    border-top: 1px solid rgb(var(--gray-2));
+  }
+  .command-palette-commands {
+    display: flex;
+    list-style: none;
+
+    li {
+      display: flex;
+      align-items: center;
+    }
+    li:not(:last-of-type) {
+      margin-right: 0.8em;
+    }
+  }
+
+  .command-palette-commands-key {
+    align-items: center;
+    background: rgb(var(--gray-3));
+    border-radius: 2px;
+    display: flex;
+    height: 18px;
+    justify-content: center;
+    margin-right: 0.4em;
+    padding: 0 0 1px;
+    color: rgb(var(--gray-11));
+    border: 0;
+    width: 20px;
+  }
+
+  [command-empty] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    white-space: pre-wrap;
+    color: rgb(var(--gray-10));
+  }
+
+  .command-palette-item__body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .command-palette-item__body__enter {
+      display: none;
+    }
+  }
+
+  .command-palette-logo {
+    color: var(--color-neutral-6);
+  }
+}
+
+.command-dialog-enter-active {
+  transition-duration: .2s;
+}
+
+.command-dialog-enter-active [command-dialog-mask] {
+  animation: backdropFilter .2s;
+}
+
+.command-dialog-enter-from [command-dialog-wrapper],
+.command-dialog-leave-to [command-dialog-wrapper] {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.command-dialog-enter-active [command-dialog-wrapper] {
+  transition: transform ease-out .2s;
+}
+
+@keyframes backdropFilter {
+  0% {
+    backdrop-filter: blur(0);
+  }
+  100% {
+    backdrop-filter: blur(3px);
+  }
+}

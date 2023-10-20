@@ -1,0 +1,21 @@
+@mixin scrollBar {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #6B6B6B;
+    border-radius: 20px;
+  }
+}
+
+@mixin scrollBarX {
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #6B6B6B;
+    border-radius: 20px;
+  }
+}

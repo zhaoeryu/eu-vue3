@@ -1,0 +1,84 @@
+.eu-ui {
+  background: var(--theme-base-bg);
+  color: var(--theme-text-primary-color);
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+#app {
+  height: 100%;
+}
+
+.page-body {
+  //margin: 0 16px;
+  padding: 16px;
+  background: var(--theme-base-second-bg);
+  box-sizing: border-box;
+}
+
+.query-wrapper {
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .el-form-item {
+    margin-bottom: 0;
+  }
+}
+
+.eu-dot {
+  position: relative;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 3px;
+  vertical-align: middle;
+  border-radius: 50%;
+  &.eu-dot-error {
+    background: #ff4d4f;
+    span {
+      background: #ff4d4f;
+    }
+  }
+  span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    animation: euDot 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes euDot {
+  0% {
+    opacity: .6;
+    transform: scale(.8)
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(2.4)
+  }
+}
+
+.page-container {
+  padding: 0 16px 16px;
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+.text-success {
+  color: var(--color-success-light-4);
+}
+
+// 进度条
+#nprogress .bar {
+  background: var(--color-primary) !important; // 自定义颜色
+}

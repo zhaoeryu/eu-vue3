@@ -1,0 +1,42 @@
+// el-dialog
+.el-dialog__header {
+  border-bottom: 1px solid var(--color-border);
+  margin-right: 0;
+}
+
+.el-dialog .eu-submit-btn {
+  width: 150px;
+}
+
+.dialog-footer-flex {
+  .el-dialog__footer {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+// el-pagination
+//.el-pagination {
+//  --el-pagination-button-width: 26px;
+//  --el-pagination-button-height: 26px;
+//  --el-component-size: 26px;
+//  --el-pagination-font-size: 13px;
+//  --el-font-size-base: 13px;
+//}
+.el-pagination {
+  justify-content: right;
+}
+* ~ .el-pagination {
+  margin-top: 12px;
+}
+
+.el-button.is-text + .el-button.is-text {
+  margin-left: 0;
+}
+
+.el-loading-spinner .path {
+  stroke: var(--color-neutral-2) !important;
+}
+.el-loading-spinner .el-loading-text {
+  color: var(--color-neutral-2) !important;
+}
