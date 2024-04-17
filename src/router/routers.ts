@@ -1,5 +1,7 @@
 import {createRouter, createWebHistory} from 'vue-router'
 
+import Layout from '@/layout/index.vue'
+
 export const constantRouteList = [
     {
         path: '/login',
@@ -25,6 +27,34 @@ export const constantRouteList = [
         component: () => import('@/views/demo.vue'),
         hidden: true
     }
+]
+
+export const layoutRouteList = [
+  {
+    path: '/',
+    name: 'Home',
+    component: Layout,
+    meta: {
+      title: '工作台',
+      icon: 'workbench'
+    },
+    redirect: '/workbench',
+    children: [
+      {
+        path: '/workbench',
+        name: 'Workbench',
+        component: () => import('@/views/workbench/index.vue'),
+        meta: {
+          title: '工作台',
+          icon: 'workbench',
+          affix: true,
+          showHeader: false,
+          showFooter: true
+        }
+      }
+    ],
+    hidden: false,
+  }
 ]
 
 const router = createRouter({

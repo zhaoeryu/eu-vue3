@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import {RoutesState} from "./types";
 import {getRouters} from "@/api/system/menu";
-import {constantRouteList} from "@/router/routers";
+import {constantRouteList, layoutRouteList} from "@/router/routers";
 import MiddleDirectory from "@/layout/components/MiddleDirectory.vue";
 import {MenuTypeEnums} from "@/utils/enums";
 import { STORAGE_KEY_USUAL_MENUS } from '@/utils/constants'
@@ -14,7 +14,6 @@ import {
     removeLeadingSlash
 } from '@/utils'
 import Layout from "@/layout/index.vue";
-import {defineAsyncComponent} from "vue";
 import NotFound from '@/views/404.vue'
 
 const VIEW_MODULES: {} = import.meta.glob('@/views/**/*.vue')
@@ -37,6 +36,8 @@ const useRouteStore = defineStore('route', {
                     // 将后台返回的菜单数据转换为vue-router的格式
                     const routers = convertMenuToVueRouterFormat(menus)
 
+                    routers.unshift(...layoutRouteList)
+
                     // 兜底方案（放到最后）：当用户访问的路由不存在时，跳转到404页面
                     routers.push({
                         path: '/:pathMatch(.*)*',
@@ -44,7 +45,7 @@ const useRouteStore = defineStore('route', {
                         hidden: true
                     })
 
-                    this.routes = constantRouteList.concat(routers)
+                    this.routes = routers
                     this.sidebarRoutes = routers
                     resolve(routers)
                 }).catch(error => {
