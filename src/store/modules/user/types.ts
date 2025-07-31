@@ -1,6 +1,6 @@
 export interface UserState {
-    token?: string,
-    user?: {},
-    roles?: Array<string>,
-    permissions?: Array<string>,
+  token?: string,
+  user?: {},
+  roles?: Array<string>,
+  permissions?: Array<string>,
 }

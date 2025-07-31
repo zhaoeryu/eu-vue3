@@ -20,7 +20,7 @@ function onNavFold() {
   height: 50px;
   position: absolute;
   right: -15px;
-  top: 40px;
+  top: calc(var(--layout-header-nav-height) + 54px);
   transform: translateY(-50%);
   background-color: var(--color-fill-3);
   border-radius: 0 5px 5px 0;

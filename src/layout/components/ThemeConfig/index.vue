@@ -52,6 +52,20 @@ function onRestoreDefault() {
     <div style="display: flex;flex-direction: column;height: 100%;overflow: hidden;">
       <div style="flex: 1;overflow-y: auto;">
         <el-form :model="form" label-position="left">
+          <el-form-item label="菜单布局" class="eu-form-item__layout">
+            <el-radio-group v-model="form.layout">
+              <el-radio-button label="column">
+                <el-tooltip content="分栏布局" placement="top">
+                  <svg-icon icon-class="layout-column" />
+                </el-tooltip>
+              </el-radio-button>
+              <el-radio-button label="vertical">
+                <el-tooltip content="垂直布局" placement="top">
+                  <svg-icon icon-class="layout-vertical" />
+                </el-tooltip>
+              </el-radio-button>
+            </el-radio-group>
+          </el-form-item>
           <!--          <el-form-item label="头部">-->
           <!--            <el-switch v-model="form.showHeader" />-->
           <!--          </el-form-item>-->
@@ -66,9 +80,6 @@ function onRestoreDefault() {
           </el-form-item>
           <el-form-item label="进度条" prop="showProgressBar">
             <el-switch v-model="form.showProgressBar" />
-          </el-form-item>
-          <el-form-item label="开启快捷菜单">
-            <el-switch v-model="form.useUsualMenu" />
           </el-form-item>
           <el-form-item label="开启水印">
             <el-switch v-model="form.enabledWatermark" />
@@ -115,6 +126,34 @@ function onRestoreDefault() {
     .el-form-item__content {
       flex: unset;
     }
+  }
+}
+.eu-form-item__layout {
+  align-items: flex-start !important;
+  flex-direction: column;
+
+  :deep(.el-radio-button__inner) {
+    background-color: unset !important;
+    padding: 0;
+    border: none;
+  }
+
+  .svg-icon {
+    width: 75px;
+    height: 50px;
+
+    border: 1px solid var(--color-border-2);
+    border-radius: var(--border-radius-medium);
+  }
+
+  .is-active {
+    .svg-icon {
+      box-shadow: 0 0 2px 2px var(--color-primary);
+    }
+  }
+
+  .el-radio-button + .el-radio-button {
+    margin-left: 12px;
   }
 }
 </style>

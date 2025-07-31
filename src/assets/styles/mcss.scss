@@ -1,0 +1,175 @@
+// 定义字体大小
+$m-text-size-arr: (xs: 12px, sm: 14px, df: 16px, lg: 18px, xl: 20px, xxl: 22px, sl: 24px, xsl: 26px);
+// .text-xs, .text-sm ...
+@each $key, $value in $m-text-size-arr {
+  .text-#{$key} {
+    font-size: $value;
+  }
+}
+
+// 定义字体对齐
+$m-text-align-arr: left, center, right;
+// .text-left ...
+@each $item in $m-text-align-arr {
+  .text-#{$item} {
+    text-align: $item;
+  }
+}
+
+// 定义字体粗细
+$m-text-weight-arr: (bold: 500);
+// .text-bold ...
+@each $key, $value in $m-text-weight-arr {
+  .text-#{$key} {
+    font-weight: $value;
+  }
+}
+
+// 定义单词命名方式
+$m-text-transform-arr: (Abc: Capitalize, ABC: Uppercase, abc: Lowercase);
+// .text-Abc ...
+@each $key, $value in $m-text-transform-arr {
+  .text-#{$key} {
+    text-transform: $value;
+  }
+}
+
+.text-overflow {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+// margin / padding
+$m-margin-arr: (xs: 6px, sm: 12px, df: 14px, none: 16px, lg: 20px, xl: 24px, xxl: 28px, sl: 40px, xsl: 50px);
+// .margin, .margin-xs, .margin-top-xs, margin-vertical ...
+@each $parent in margin, padding {
+  @each $key, $value in $m-margin-arr {
+    @if $key != none {
+      // .margin-xs, .margin-top-xs ...
+      $key: -#{$key};
+    } @else {
+      // .margin, .margin-top
+      $key: '';
+    }
+    .#{$parent}#{$key} {
+      #{$parent}: $value;
+    }
+    .#{$parent}-vertical#{$key} {
+      #{$parent}-top: $value;
+      #{$parent}-bottom: $value;
+    }
+    .#{$parent}-horizontal#{$key} {
+      #{$parent}-left: $value;
+      #{$parent}-right: $value;
+    }
+    @each $item in top, bottom, left, right {
+      .#{$parent}-#{$item}#{$key} {
+        #{$parent}-#{$item}: $value;
+      }
+    }
+  }
+}
+
+// 定义圆角
+$m-border-radius-arr: (xs: 4px, sm: 6px, df: 8px, none: 10px, lg: 12px, xl: 14px, xxl: 16px, sl: 18px, xsl: 20px);
+@each $key, $value in $m-border-radius-arr {
+  @if $key != none {
+    $key: -#{$key};
+  } @else {
+    $key: '';
+  }
+  .border-radius#{$key} {
+    border-radius: $value;
+  }
+  @each $item in top, bottom, left, right {
+    .border-radius-#{$item}#{$key} {
+      border-radius-#{$item}: $value;
+    }
+  }
+}
+
+// grid布局
+.grid {
+  display: grid;
+}
+@each $key in (1, 2, 3, 4, 5, 6, 7, 8) {
+  .grid-cols-#{$key} {
+    grid-template-columns: repeat($key, minmax(0, 1fr));
+  }
+  .col-span-#{$key} {
+    grid-column: span $key;
+  }
+}
+// grid布局下，某个item单独占一行
+.grid-item-row {
+  grid-column: 1 / -1;
+}
+$m-gap-arr: (xs: 6px, sm: 12px, df: 14px, none: 16px, lg: 20px, xl: 24px, xxl: 28px, sl: 40px, xsl: 50px);
+@each $key, $value in $m-gap-arr {
+  @if $key != none {
+    // .margin-xs, .margin-top-xs ...
+    $key: -#{$key};
+  } @else {
+    // .margin, .margin-top
+    $key: '';
+  }
+  .gap#{$key} {
+    gap: $value;
+  }
+}
+
+// flex布局
+.flex {
+  display: flex;
+}
+.flex-wrap {
+  flex-wrap: wrap;
+}
+// .flex-sub, .flex-twice, .flex-treble ...
+@each $key, $value in (sub: 1, twice: 2, treble: 3) {
+  .flex-#{$key} {
+    flex: $value;
+  }
+}
+@each $key in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10) {
+  .flex-#{$key} {
+    flex: $key;
+  }
+}
+$m-justify-arr: (start: flex-start, center: center, end: flex-end, around: space-around, between: space-between);
+@each $key, $value in $m-justify-arr {
+  .justify-#{$key} {
+    justify-content: $value;
+  }
+}
+$m-align-arr: (start: flex-start, center: center, end: flex-end);
+@each $key, $value in $m-align-arr {
+  .align-#{$key} {
+    align-items: $value;
+  }
+}
+
+.flex-direction {
+  flex-direction: column;
+}
+
+// 鼠标行为
+.cursor {
+  cursor: pointer;
+}
+
+// 文本颜色
+.text-blue,.text-primary {
+  color: var(--color-primary);
+}
+
+.text-warning {
+  color: var(--color-warning);
+}
+.text-error {
+  color: var(--color-danger);
+}
+.text-success {
+  color: var(--color-success);
+}

@@ -249,7 +249,7 @@ defineExpose({
       }
     }
     .el-step__line {
-      background-color: unset;
+      background-color: unset !important;
     }
     .is-success {
       .el-step__line:before {

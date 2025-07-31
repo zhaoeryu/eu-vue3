@@ -49,7 +49,7 @@ onMounted(() => {
 })
 
 function onSelectable(row) {
-  return row.username !== 'admin'
+  return row.admin !== 1
 }
 function onFilterNode(value, node) {
   if (!value) {
@@ -306,7 +306,7 @@ function onImport() {
               <el-table-column prop="lastActiveTime" label="最后活跃时间"></el-table-column>
               <el-table-column label="操作" fixed="right" width="200">
                 <template v-slot:default="{ row }">
-                  <template v-if="row.username !== 'admin'">
+                  <template v-if="row.admin !== 1">
                     <el-button-group>
                       <el-button v-permissions="['system:user:edit']" type="primary" text @click="onRowUpdate(row)">修改</el-button>
                       <el-button v-permissions="['system:user:del']" type="primary" text @click="onRowDelete(row)">删除</el-button>

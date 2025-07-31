@@ -69,7 +69,7 @@ const onLogout = () => {
       <el-divider direction="horizontal"></el-divider>
       <el-row style="display: flex;">
         <el-col :span="11">
-          <el-button text type="primary" style="width: 100%;" @click="$router.push('/system/personal-center')">个人中心</el-button>
+          <el-button text type="primary" style="width: 100%;" @click="$router.push('/personal-center')">个人中心</el-button>
         </el-col>
         <el-col :span="2">
           <el-divider direction="vertical" content-position="center"></el-divider>

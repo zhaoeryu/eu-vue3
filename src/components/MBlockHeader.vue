@@ -11,12 +11,21 @@ defineProps({
   question: {
     type: String,
     default: null
+  },
+  background: {
+    type: Boolean,
+    default: true
   }
 })
 </script>
 
 <template>
-  <div class="m-block-header">
+  <div
+    class="m-block-header"
+    :class="{
+      'background': background
+    }"
+  >
     <div class="m-block-header__title">
       <slot v-if="$slots.title" name="title" />
       <h3 v-else>{{ title }}</h3>
@@ -28,6 +37,9 @@ defineProps({
         </template>
         <i class="el-icon-question" />
       </el-tooltip>
+    </div>
+    <div class="text-block-header__sub-title">
+      <slot v-if="$slots.subTitle" name="subTitle" />
     </div>
     <div v-if="$slots.content || content" class="m-block-header__content">
       <slot v-if="$slots.content" name="content" />
@@ -46,16 +58,20 @@ html.dark {
   margin-top: 16px;
 }
 .m-block-header {
-  background-color: #f7f7f7;
+  //background-color: #f7f7f7;
   display: flex;
   justify-content: flex-start;
   align-content: center;
   align-items: center;
-  margin-bottom: 16px;
+  //margin-bottom: 16px;
   padding: 10px 12px;
   height: 40px;
   box-sizing: border-box;
   font-size: 14px;
+  &.background {
+    background-color: var(--color-fill-2);
+    margin-bottom: 16px;
+  }
   .m-block-header__title {
     display: flex;
     align-items: center;
@@ -65,6 +81,7 @@ html.dark {
       height: 14px;
       background-color: #155bd4;
       margin-right: 8px;
+      border-radius: 4px;
     }
     h3 {
       font-size: 14px;
@@ -74,6 +91,9 @@ html.dark {
       margin: 0;
       padding: 0;
     }
+  }
+  .text-block-header__sub-title {
+    margin-left: 16px;
   }
   .m-block-header__pop {
     color: #ccc;

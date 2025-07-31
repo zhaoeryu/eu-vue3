@@ -11,7 +11,8 @@ const DEFAULT_QUERY_PARAMS = {
   pid: null,
   dictKey: null,
   page: 1,
-  size: 10
+  size: 10,
+  sort: 'sort_num,asc'
 }
 
 const show = ref(false)

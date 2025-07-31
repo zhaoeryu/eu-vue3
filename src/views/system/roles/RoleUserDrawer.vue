@@ -95,7 +95,7 @@ function onBatchDel() {
 }
 
 function onSelectable(row) {
-  return row.username !== 'admin'
+  return row.admin !== 1
 }
 
 function onDeptQuery() {

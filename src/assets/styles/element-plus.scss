@@ -1,22 +1,22 @@
 $--colors: (
-        'primary': (
-                'base': #155bd4,
-        ),
-        'success': (
-                'base': #5BD415,
-        ),
-        'warning': (
-                'base': #ED6A18,
-        ),
-        'danger': (
-                'base': #D42F15,
-        ),
-        'error': (
-                'base': #D42F15,
-        ),
-        'info': (
-                'base': #909399
-        )
+  'primary': (
+    'base': #155bd4,
+  ),
+  'success': (
+    'base': #5BD415,
+  ),
+  'warning': (
+    'base': #ED6A18,
+  ),
+  'danger': (
+    'base': #D42F15,
+  ),
+  'error': (
+    'base': #D42F15,
+  ),
+  'info': (
+    'base': #909399
+  )
 );
 
 @use "element-plus/theme-chalk/src/common/var.scss" with (

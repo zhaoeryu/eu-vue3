@@ -52,6 +52,10 @@
   // Popover二级菜单栏悬浮的文字颜色
   --theme-nav-pop-hover-color: #FFF;
 
+  // 顶部布局高度
+  --layout-header-nav-height: 50px;
+
+  // 分栏菜单
   // 菜单栏总宽度
   --sidebar-width: 264px;
   // 菜单栏第一级宽度
@@ -60,6 +64,11 @@
   --sidebar-second-width: 140px;
   // 菜单栏折叠后的宽度
   --sidebar-collapse-width: 64px;
+
+  // 垂直菜单
+  // 菜单栏总宽度
+  --sidebar-vertical-width: 150px;
+
   // 主题色
   --color-primary: #155bd4;
 }

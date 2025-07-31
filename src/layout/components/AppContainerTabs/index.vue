@@ -15,7 +15,7 @@ const routeStore = useRouteStore()
 const tabActive = ref(null)
 const moreIconMouseenter = ref(false)
 
-const routes = computed(() => routeStore.sidebarRoutes)
+const routes = computed(() => routeStore.routes)
 const curView = computed(() => tabsViewStore.visitedViews.find(item => item.path === route.path))
 
 watch(route, (newRoute, oldRoute) => {

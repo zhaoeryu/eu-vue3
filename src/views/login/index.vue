@@ -129,7 +129,7 @@ function onSubmit(formEl: FormInstance) {
         <el-form-item style="margin-bottom: 0;">
           <el-button
             :loading="loginLoading"
-            style="width: 100%;background-color: #155bd4;border-color: #155bd4;"
+            style="width: 100%;"
             type="primary"
             @click="onSubmit(refForm)"
           >登 录</el-button>

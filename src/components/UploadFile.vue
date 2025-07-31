@@ -5,6 +5,7 @@ import { getToken } from '@/utils/auth'
 import { defaultSetting } from '@/settings'
 import { ElMessage } from 'element-plus'
 import { downloadFile } from '@/utils'
+import { commonReqHeaders } from '@/utils/request'
 
 const props = defineProps({
   /**
@@ -67,7 +68,8 @@ const emit = defineEmits(['update:modelValue'])
 const attrs = useAttrs()
 
 const headers = reactive({
-  [REQUEST_HEADER_TOKEN]: getToken()
+  [REQUEST_HEADER_TOKEN]: getToken(),
+  ...commonReqHeaders
 })
 
 const files = ref([])

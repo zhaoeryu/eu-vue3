@@ -71,8 +71,8 @@ function onSubmit() {
 
     formLoading.value = true
     const reqPromise = form.value.id ? update(form.value) : add(form.value)
-    reqPromise.then(() => {
-      ElMessage.success(form.value.id ? '修改成功' : '新增成功')
+    reqPromise.then(res => {
+      ElMessage.success(form.value.id ? '修改成功' : `新增成功，默认密码为：${res.data}`)
       show.value = false
       emit('complete')
     }).finally(() => {

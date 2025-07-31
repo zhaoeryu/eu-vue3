@@ -6,10 +6,10 @@ import Eu from './eu'
 import VueDataDict from './dict'
 
 export default {
-    install: (Vue: App) => {
-        Vue.use(ElementPlus)
-        Vue.use(ThirdParty)
-        Vue.use(Eu)
-        Vue.use(VueDataDict)
-    }
+  install: (Vue: App) => {
+    Vue.use(ElementPlus)
+    Vue.use(ThirdParty)
+    Vue.use(Eu)
+    Vue.use(VueDataDict)
+  }
 }

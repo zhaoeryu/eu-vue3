@@ -1,3 +1,4 @@
+import _ from 'lodash'
 /**
  * @description: 判断是否是外部链接
  * @param {string} path 路径
@@ -13,7 +14,10 @@ export function isExternal(path) {
  * @returns {string} 处理后的路径
  */
 export function pathTrim(path) {
-  return isExternal(path) ? path : path.replace(/\/+/g, '/').replace(/\/$/, '')
+  if (isExternal(path)) {
+    return path;
+  }
+  return _.trimEnd(_.replace(path, /\/+/g, '/'), '/');
 }
 
 /**
@@ -24,10 +28,12 @@ export function pathTrim(path) {
  */
 export function removeLeadingSlash(str, isOnlyKeep = false) {
   if (!str) {
-    return str
+    return str;
   }
-  const regx = isOnlyKeep ? /^\/(.+)/ : /^\/(.*)/
-  return str.replace(regx, '$1');
+  if (isOnlyKeep) {
+    return _.startsWith(str, '/') ? str.slice(1) : str;
+  }
+  return _.trimStart(str, '/');
 }
 
 /**
@@ -37,11 +43,16 @@ export function removeLeadingSlash(str, isOnlyKeep = false) {
  */
 export function addLeadingSlash(str) {
   if (!str) {
-    return str
+    return str;
   }
-  return str.replace(/^\/?/, '/')
+  return _.startsWith(str, '/') ? str : '/' + str;
 }
-
+export function removeEndSlash(str) {
+  if (!str) {
+    return str;
+  }
+  return _.endsWith(str, '/') ? str.slice(0, -1) : str;
+}
 /**
  * 解析url参数
  * @param {string} url httpUrl
@@ -166,13 +177,15 @@ export function getChildrenFields(node, { fieldKey, childrenKey = 'children' } =
  * @param {Object} node 当前节点
  * @param {String} fieldKey 需要获取的属性
  * @param {String} childrenKey 子节点的属性名
+ * @param {Function} condition 自定义条件
  * @returns {*[]}
  */
-export function getFirstChildrenFields(node, { fieldKey, childrenKey = 'children' } = {}) {
+export function getFirstChildrenFields(node, { fieldKey, childrenKey = 'children', condition = () => true } = {}) {
   const childrenProps = []
   childrenProps.push(node[fieldKey])
-  if (node[childrenKey] && node[childrenKey].length) {
-    childrenProps.push(...getFirstChildrenFields(node[childrenKey][0], { fieldKey, childrenKey }))
+  const extraCondition = condition(node)
+  if (node[childrenKey] && node[childrenKey].length && extraCondition) {
+    childrenProps.push(...getFirstChildrenFields(node[childrenKey][0], { fieldKey, childrenKey, condition }))
   }
   return childrenProps
 }

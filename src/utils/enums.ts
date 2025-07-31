@@ -7,6 +7,14 @@ export const DeviceTypeEnums = {
 }
 
 /**
+ * 权限判断模式
+ */
+export const PermissionModeEnums = {
+  AND: 'and',
+  OR: 'or'
+}
+
+/**
  * 操作日志 - 业务类型
  */
 export const BusinessTypeEnums = {

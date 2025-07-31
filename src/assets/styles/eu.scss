@@ -68,7 +68,13 @@
 }
 
 .page-container {
-  padding: 0 16px 16px;
+  padding: 12px;
+}
+// 如果route.meta.showHeader=true, 则不需要设置padding-top
+#app-container__header ~ #app-container__body {
+  .page-container {
+    padding-top: 0;
+  }
 }
 
 .text-primary {

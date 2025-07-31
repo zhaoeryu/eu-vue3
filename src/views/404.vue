@@ -4,6 +4,7 @@
       <img src="@/assets/images/notfound.png" alt="" width="200">
       <div class="not-found">
         <div class="not-found__404">抱歉，页面暂时无法访问</div>
+        <div class="not-found__url">来源：{{ $route.redirectedFrom?.path || '-' }}</div>
         <div class="not-found__desc">
           <p>可能有以下原因：</p>
           <p>网址错误：请检查地址是否完整或存在多余字符</p>
@@ -37,6 +38,13 @@ html.dark {
 }
 .not-found__404 {
   font-size: 20px;
+}
+.not-found__url {
+  margin-top: 16px;
+  font-size: 14px;
+  p {
+    line-height: 2.5em;
+  }
 }
 .not-found__desc {
   margin: 30px 0;
