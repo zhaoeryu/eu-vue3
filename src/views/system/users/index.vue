@@ -1,92 +1,95 @@
 <script setup lang="ts">
-import {onMounted, ref, watch} from "vue";
-import { list as deptListApi } from '@/api/system/dept'
+import {onMounted, ref, useTemplateRef, watch} from "vue";
+import {list as deptListApi} from '@/api/system/dept'
 import {getParentFieldsByLeafId, handleTreeData} from "@/utils";
 import {batchDel, getUserInfo, page, resetPwd, updateStatus} from "@/api/system/user";
-import {ElMessage, ElMessageBox} from "element-plus";
+import {ElMessage, ElMessageBox, type TableInstance, type TreeInstance} from "element-plus";
 import {download} from "@/utils/request";
 import {Key, Link, Refresh, Search} from "@element-plus/icons-vue";
 import UserEditDialog from "@/views/system/users/UserEditDialog.vue";
 import AssignRoleDialog from "@/views/system/users/AssignRoleDialog.vue";
 import ImportDialog from "@/components/ImportDialog.vue";
+import useLoading from "@/hooks/loading";
+import {useResettableReactive} from "@/hooks/resettable";
+import type {User} from "@/types/system/user";
+import type {ANY_OBJECT} from "@/types/generic";
+import type {Dept, DeptTree} from "@/types/system/dept";
+import {hasPermission} from "@/utils/permission";
 
-const DEFAULT_QUERY_PARAMS = {
-  deptId: null,
-  nickname: null,
-  mobile: null,
-  username: null,
-  lastActiveTime: null,
-
+const DEFAULT_PAGE = {
   page: 1,
   size: 10,
+  sort: [],
 }
 
-const list = ref([])
-const total = ref(0)
-const loading = ref(false)
-const isQueryShow = ref(true)
-const queryParams = ref(DEFAULT_QUERY_PARAMS)
-const multipleDisabled = ref(true)
-const deptTree = ref([])
-const deptLoading = ref(false)
-const deptFilterKeyword = ref("")
-const deptList  = ref([])
+type State = {
+  deptList: Dept[];
+  deptTree: DeptTree[];
+} & Partial<ANY_OBJECT>
 
-const refDeptTree = ref(null)
-const refTable = ref(null)
-const refUserEditDialog = ref(null)
-const refImportDialog = ref(null)
-const refAssignRoleDialog = ref(null)
+const refUserEditDialog = useTemplateRef<InstanceType<typeof UserEditDialog>>('refUserEditDialog')
+const refTable = useTemplateRef<TableInstance>('refTable')
+const refImportDialog = useTemplateRef<InstanceType<typeof ImportDialog>>('refImportDialog')
+const refAssignRoleDialog = useTemplateRef<InstanceType<typeof AssignRoleDialog>>('refAssignRoleDialog')
+const {loading, setLoading} = useLoading(false);
+const {loading: deptLoading, setLoading: setDeptLoading} = useLoading(false);
+const [state, reset] = useResettableReactive<State>({
+  list: [],
+  total: 0,
+  isQueryShow: true,
+  multipleDisabled: true,
+  queryParams: {
+    deptId: null,
+    nickname: null,
+    mobile: null,
+    username: null,
+    lastActiveTime: null,
 
-// 根据名称筛选部门树
-watch(deptFilterKeyword, (val) => {
-  refDeptTree.value.filter(val)
+    ...DEFAULT_PAGE
+  },
+
+  deptList: [] as Dept[],
+  deptTree: [] as DeptTree[],
 })
 
 onMounted(() => {
   onRefresh()
-  onDeptQuery()
+  onLoadDept()
 })
 
-function onSelectable(row) {
+function onSelectable(row: User) {
   return row.admin !== 1
 }
-function onFilterNode(value, node) {
-  if (!value) {
-    return true
-  }
-  return node.deptName.indexOf(value) !== -1;
-}
-function onDeptTreeClick(node) {
-  queryParams.value.deptId = node.id
-  queryParams.value.page = DEFAULT_QUERY_PARAMS.page
-  queryParams.value.size = DEFAULT_QUERY_PARAMS.size
-  onQuery()
-}
-function onDeptQuery() {
-  deptLoading.value = true
+
+function onLoadDept() {
+  setDeptLoading(true)
   deptListApi({}).then(res => {
-    deptList.value = res.data
-    deptTree.value = handleTreeData(deptList.value)
+    state.deptList = res.data
+    state.deptTree = handleTreeData(state.deptList) as DeptTree[]
   }).finally(() => {
-    deptLoading.value = false
+    setDeptLoading(false)
   })
 }
+
+const filterNodeMethod = (value: string, data: DeptTree) => data.deptName.includes(value)
+
 function onQuery() {
-  loading.value = true
-  page(queryParams.value).then(res => {
-    list.value = res.data.records
-    total.value = res.data.total
+  setLoading(true)
+  page(state.queryParams).then(res => {
+    state.list = res.data.records
+    state.total = res.data.total
   }).finally(() => {
-    loading.value = false
+    setLoading(false)
   })
 }
+
 function onRefresh() {
-  queryParams.value = {...DEFAULT_QUERY_PARAMS}
+  reset('queryParams')
   onQuery()
 }
-function onResetPassword(row) {
-  ElMessageBox.prompt(`请输入"${ row.nickname }"的新密码`, '提示', {
+
+function onResetPassword(row: User) {
+  ElMessageBox.prompt(`请输入"${row.nickname}"的新密码`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     closeOnClickModal: false,
@@ -107,11 +110,13 @@ function onResetPassword(row) {
     }
   })
 }
-function onAssignRoles(row) {
-  refAssignRoleDialog.value.open(row.id)
+
+function onAssignRoles(row: User) {
+  refAssignRoleDialog.value?.open(row.id)
 }
-function onRowDelete(row) {
-  ElMessageBox.confirm(`确认要删除"${ row.nickname }"吗？`, '提示', {
+
+function onRowDelete(row: User) {
+  ElMessageBox.confirm(`确认要删除"${row.nickname}"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
@@ -131,29 +136,33 @@ function onRowDelete(row) {
     }
   });
 }
-function onRowUpdate(row) {
+
+function onRowUpdate(row: User) {
   // 加载用户的岗位和角色
   getUserInfo(row.id).then(res => {
     const data = JSON.parse(JSON.stringify(row))
-    data._deptIds = getParentFieldsByLeafId(deptTree.value, row.deptId, {
+    data._deptIds = getParentFieldsByLeafId(state.deptTree, row.deptId!, {
       fieldKey: 'id'
     })
     data.postIds = res.data.postIds || []
     data.roleIds = res.data.roleIds || []
-    refUserEditDialog.value.open(data, deptTree.value)
+    refUserEditDialog.value?.open(data, state.deptTree)
   })
 }
-function onSelectionChange(selection) {
-  multipleDisabled.value = !selection.length
+
+function onSelectionChange(selection: User[]) {
+  state.multipleDisabled = !selection.length
 }
+
 function onAdd() {
-  refUserEditDialog.value.open({
+  refUserEditDialog.value?.open({
     sex: 1,
     status: 0
-  }, deptTree.value)
+  } as User, state.deptTree)
 }
+
 function onBatchDel() {
-  const ids = refTable.value.getSelectionRows().map(item => item.id)
+  const ids = refTable.value?.getSelectionRows().map(item => item.id) || []
   ElMessageBox.confirm(`确认要删除选中的${ids.length}条记录吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -174,12 +183,14 @@ function onBatchDel() {
     }
   });
 }
-function convertToDeptName(deptId) {
-  return getParentFieldsByLeafId(deptTree.value, deptId, { fieldKey: 'deptName' }).join('/')
+
+function convertToDeptName(deptId: number) {
+  return getParentFieldsByLeafId(state.deptTree, deptId, {fieldKey: 'deptName'}).join('/')
 }
-function onStatusChange(row) {
+
+function onStatusChange(row: User) {
   const status = row.status
-  ElMessageBox.confirm(`确认要${status === 0 ? '启用' : '禁用'}"${ row.nickname }"吗？`, '提示', {
+  ElMessageBox.confirm(`确认要${status === 0 ? '启用' : '禁用'}"${row.nickname}"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
@@ -204,141 +215,141 @@ function onStatusChange(row) {
     row.status = status === 0 ? 1 : 0
   });
 }
+
 function onExport() {
-  download('/api/system/user/export', queryParams.value, `user_${new Date().getTime()}.xlsx`)
+  download('/api/system/user/export', state.queryParams, `user_${new Date().getTime()}.xlsx`)
 }
+
 function onImport() {
-  refImportDialog.value.open()
+  refImportDialog.value?.open()
 }
 </script>
 
 <template>
   <div class="page-container">
-    <el-row :gutter="16">
-      <el-col :md="4" :sm="6" :xs="24">
-        <div class="page-body">
-          <el-input placeholder="输入关键字进行过滤" v-model="deptFilterKeyword" style="margin-bottom: 12px;" clearable></el-input>
-          <el-tree
-            ref="refDeptTree"
-            v-loading="deptLoading"
-            :data="deptTree"
-            :props="{ label: 'deptName', children: 'children' }"
-            node-key="id"
-            default-expand-all
-            :highlight-current="true"
-            :expand-on-click-node="false"
-            :filter-node-method="onFilterNode"
-            @node-click="onDeptTreeClick"
-          ></el-tree>
-        </div>
-      </el-col>
-      <el-col :md="20" :sm="18" :xs="24">
-        <div class="page-body">
-          <query-expand-wrapper :show="isQueryShow">
-            <el-form :model="queryParams" :inline="true">
-              <el-form-item label="用户名称">
-                <el-input v-model="queryParams.nickname" placeholder="输入要查找的用户名称" clearable />
-              </el-form-item>
-              <el-form-item label="手机号">
-                <el-input v-model="queryParams.mobile" placeholder="输入要查找的手机号" clearable />
-              </el-form-item>
-              <el-form-item label="登录名">
-                <el-input v-model="queryParams.username" placeholder="输入要查找的登录名" clearable />
-              </el-form-item>
-              <el-form-item label="最后活跃时间">
-                <el-date-picker
-                  v-model="queryParams.lastActiveTime"
-                  type="datetimerange"
-                  range-separator="至"
-                  start-placeholder="开始时间"
-                  end-placeholder="结束时间"
-                  value-format="YYYY-MM-DD HH:mm:ss"
-                  align="right">
-                </el-date-picker>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" :icon="Search" @click="onQuery">查询</el-button>
-                <el-button :icon="Refresh" @click="onRefresh">重置</el-button>
-              </el-form-item>
-            </el-form>
-          </query-expand-wrapper>
+    <div class="page-body">
+      <query-expand-wrapper :show="state.isQueryShow">
+        <el-form :model="state.queryParams" :inline="true">
+          <el-form-item label="用户名称">
+            <el-input v-model="state.queryParams.nickname" placeholder="输入要查找的用户名称"
+              clearable />
+          </el-form-item>
+          <el-form-item label="手机号">
+            <el-input v-model="state.queryParams.mobile" placeholder="输入要查找的手机号"
+              clearable />
+          </el-form-item>
+          <el-form-item label="登录名">
+            <el-input v-model="state.queryParams.username" placeholder="输入要查找的登录名"
+              clearable />
+          </el-form-item>
+          <el-form-item label="部门">
+            <el-tree-select
+              v-model="state.queryParams.deptId"
+              :loading="deptLoading"
+              :data="state.deptTree"
+              :filter-node-method="filterNodeMethod"
+              :props="{
+                children: 'children',
+                label: 'deptName',
+              }"
+              :default-expand-all="true"
+              node-key="id"
+              check-strictly
+              show-checkbox
+              filterable
+              clearable
+            />
+          </el-form-item>
+          <el-form-item label="最后活跃时间">
+            <el-date-picker
+              v-model="state.queryParams.lastActiveTime"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              value-format="YYYY-MM-DD HH:mm:ss">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" :icon="Search" @click="onQuery">查询</el-button>
+            <el-button :icon="Refresh" @click="onRefresh">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </query-expand-wrapper>
 
-          <div v-loading="loading">
-            <eu-table-toolbar
-              :multiple-disabled="multipleDisabled"
-              :opt-show="{
-                sort: false
-              }"
-              :permission="{
-                add: ['system:user:add'],
-                del: ['system:user:del'],
-                export: ['system:user:export'],
-                import: ['system:user:import'],
-              }"
-              :ref-table="refTable"
-              @add="onAdd"
-              @batchDel="onBatchDel"
-              @export="onExport"
-              @import="onImport"
-              @refresh="onRefresh"
-              v-model:searchToggle="isQueryShow"
-            />
-            <el-table
-              ref="refTable"
-              :data="list"
-              @selection-change="onSelectionChange"
-              style="width: 100%"
-            >
-              <el-table-column type="selection" label="#" :selectable="onSelectable"></el-table-column>
-              <el-table-column prop="username" label="登录名" width="100"></el-table-column>
-              <el-table-column prop="nickname" label="用户昵称" width="100"></el-table-column>
-              <el-table-column prop="deptId" label="部门">
-                <template #default="{ row }">
-                  <span>{{ convertToDeptName(row.deptId) }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="mobile" label="手机号码"></el-table-column>
-              <el-table-column prop="status" label="状态" width="80">
-                <template v-slot:default="{ row }">
-                  <el-switch v-model="row.status" :disabled="row.username === 'admin'" :active-value="0" :inactive-value="1" @change="onStatusChange(row)" />
-                </template>
-              </el-table-column>
-              <el-table-column prop="lastActiveTime" label="最后活跃时间"></el-table-column>
-              <el-table-column label="操作" fixed="right" width="200">
-                <template v-slot:default="{ row }">
-                  <template v-if="row.admin !== 1">
-                    <el-button-group>
-                      <el-button v-permissions="['system:user:edit']" type="primary" text @click="onRowUpdate(row)">修改</el-button>
-                      <el-button v-permissions="['system:user:del']" type="primary" text @click="onRowDelete(row)">删除</el-button>
-                      <!--                    <el-button v-permissions="['system:user:resetPwd']" type="primary" text @click="onResetPassword(row)">重置密码</el-button>-->
-                      <!--                    <el-button v-permissions="['system:user:assignRole']" type="primary" text @click="onAssignRoles(row)">分配角色</el-button>-->
-                      <el-dropdown
-                        v-permissions="['system:user:resetPwd', 'system:user:assignRole']"
-                        trigger="click"
-                      >
-                        <el-button text type="primary">更多</el-button>
-                        <template #dropdown>
-                          <el-dropdown-menu>
-                            <el-dropdown-item :icon="Key" @click="onResetPassword(row)">重置密码</el-dropdown-item>
-                            <el-dropdown-item :icon="Link" @click="onAssignRoles(row)">分配角色</el-dropdown-item>
-                          </el-dropdown-menu>
-                        </template>
-                      </el-dropdown>
-                    </el-button-group>
-                  </template>
-                </template>
-              </el-table-column>
-            </el-table>
-            <pagination
-              v-model:page="queryParams.page"
-              v-model:limit="queryParams.size"
-              :total="total"
-              @pagination="onQuery"
-            />
-          </div>
-        </div>
-      </el-col>
-    </el-row>
+      <div v-loading="loading">
+        <eu-table-toolbar
+          :multiple-disabled="state.multipleDisabled"
+          :opt-show="{
+            sort: false
+          }"
+          :permission="{
+            add: ['system:user:add'],
+            del: ['system:user:del'],
+            export: ['system:user:export'],
+            import: ['system:user:import'],
+          }"
+          :ref-table="refTable"
+          @add="onAdd"
+          @batchDel="onBatchDel"
+          @export="onExport"
+          @import="onImport"
+          @refresh="onRefresh"
+          v-model:searchToggle="state.isQueryShow"
+        />
+        <el-table
+          ref="refTable"
+          :data="state.list"
+          @selection-change="onSelectionChange"
+          style="width: 100%"
+        >
+          <el-table-column type="selection" label="#" :selectable="onSelectable"></el-table-column>
+          <el-table-column prop="username" label="登录名" width="100"></el-table-column>
+          <el-table-column prop="nickname" label="用户昵称" width="100"></el-table-column>
+          <el-table-column prop="deptId" label="部门">
+            <template #default="{ row }">
+              <span>{{ convertToDeptName(row.deptId) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="mobile" label="手机号码"></el-table-column>
+          <el-table-column prop="status" label="状态" width="80">
+            <template v-slot:default="{ row }">
+              <el-switch v-model="row.status" :disabled="row.username === 'admin'" :active-value="0"
+                :inactive-value="1" @change="onStatusChange(row)" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="lastActiveTime" label="最后活跃时间"></el-table-column>
+          <el-table-column label="操作" fixed="right" width="200">
+            <template v-slot:default="{ row }">
+              <template v-if="row.admin !== 1">
+                <el-button-group>
+                  <el-button v-permissions="['system:user:edit']" type="primary" text @click="onRowUpdate(row)">修改</el-button>
+                  <el-button v-permissions="['system:user:del']" type="primary" text @click="onRowDelete(row)">删除</el-button>
+                  <el-dropdown
+                    v-if="hasPermission(['system:user:resetPwd', 'system:user:assignRole'])"
+                    trigger="click"
+                  >
+                    <el-button text type="primary">更多</el-button>
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <el-dropdown-item v-if="hasPermission(['system:user:resetPwd'])" :icon="Key" @click="onResetPassword(row)">重置密码</el-dropdown-item>
+                        <el-dropdown-item v-if="hasPermission(['system:user:assignRole'])" :icon="Link" @click="onAssignRoles(row)">分配角色</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                </el-button-group>
+              </template>
+            </template>
+          </el-table-column>
+        </el-table>
+        <pagination
+          v-model:page="state.queryParams.page"
+          v-model:limit="state.queryParams.size"
+          :total="state.total"
+          @pagination="onQuery"
+        />
+      </div>
+    </div>
 
     <user-edit-dialog ref="refUserEditDialog" @complete="onRefresh" />
 

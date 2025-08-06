@@ -1,9 +1,9 @@
-import type {DefaultTheme} from "@/settings";
+import type {EuTheme} from "@/settings";
 
 export type DeviceType = 'desktop' | 'mobile'
 
 export interface SettingsState {
-  theme: DefaultTheme,
+  theme: EuTheme,
   device: DeviceType,
   sidebarCollapsed: boolean
 }

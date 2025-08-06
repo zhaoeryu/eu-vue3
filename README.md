@@ -25,16 +25,19 @@
 - `前端-Vue3`：👉[点我进入 eu-vue3](https://gitee.com/zhaoeryu/eu-vue3)
 
 ## 开发环境
-- NodeJs: v16.18.0
-- npm: 8.19.2
-- vite: 4.4.9
+- NodeJs: v22.17.1
+- npm: 10.9.2
 
 ## 主框架选型
-- `vue` 3.3.4
+- `vue` 3.5.18
+- `vite` 7.0.6
 - `pinia` 2.1.6
-- `vue-router` 4.2.4
-- `axios` 1.5.0
-- `element-plus` 2.3.12
+- `eslint` 8.54.0
+- `vue-router` 4.5.1
+- `axios` 1.11.0
+- `element-plus` 2.10.4
+- `sass` 1.89.2
+- `typescript` 5.5.4
 
 ## 内置功能
 1. 用户管理

@@ -3,38 +3,44 @@ import {Refresh, Search} from "@element-plus/icons-vue";
 import { onlineList, onlineKickout, onlineLogout } from '@/api/system/user'
 import {onMounted, ref} from "vue";
 import {ElMessage, ElMessageBox} from "element-plus";
+import useLoading from "@/hooks/loading";
+import {useResettableReactive} from "@/hooks/resettable";
+import type {Online} from "@/types/system/online";
 
-const DEFAULT_QUERY_PARAMS = {
-  nickname: null,
-  page: 1,
-  size: 10
-}
+const { loading, setLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
+  list: [],
+  total: 0,
+  isQueryShow: true,
+  queryParams: {
+    nickname: null,
 
-const loading = ref(false)
-const list = ref([])
-const total = ref(0)
-const queryParams = ref(DEFAULT_QUERY_PARAMS)
+    page: 1,
+    size: 10,
+    sort: [],
+  },
+})
 
 onMounted(() => {
   onRefresh()
 })
 
 function onQuery() {
-  loading.value = true
-  onlineList(queryParams.value).then(res => {
-    list.value = res.data.records
-    total.value = res.data.total
+  setLoading(true)
+  onlineList(state.queryParams).then(res => {
+    state.list = res.data.records
+    state.total = res.data.total
   }).finally(() => {
-    loading.value = false
+    setLoading(false)
   })
 }
 
 function onRefresh() {
-  queryParams.value = { ...DEFAULT_QUERY_PARAMS }
+  reset('queryParams')
   onQuery()
 }
 
-function onLogout(row) {
+function onLogout(row: Online) {
   ElMessageBox.confirm(`确认要强制注销"${ row.username }"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -56,7 +62,7 @@ function onLogout(row) {
   });
 }
 
-function onKictout(row) {
+function onKictout(row: Online) {
   ElMessageBox.confirm(`确认要踢"${ row.username }"下线吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -84,9 +90,9 @@ function onKictout(row) {
   <div class="page-container">
     <div class="page-body">
       <div class="query-wrapper">
-        <el-form :model="queryParams" :inline="true">
+        <el-form :model="state.queryParams" :inline="true">
           <el-form-item label="用户昵称">
-            <el-input v-model="queryParams.nickname" placeholder="输入要查找的用户昵称" />
+            <el-input v-model="state.queryParams.nickname" placeholder="输入要查找的用户昵称" />
           </el-form-item>
         </el-form>
         <div>
@@ -97,7 +103,7 @@ function onKictout(row) {
       <el-divider />
       <div v-loading="loading">
         <el-table
-          :data="list"
+          :data="state.list"
           style="width: 100%"
         >
           <el-table-column type="index" label="#"></el-table-column>
@@ -117,9 +123,9 @@ function onKictout(row) {
           </el-table-column>
         </el-table>
         <pagination
-          v-model:page="queryParams.page"
-          v-model:limit="queryParams.size"
-          :total="total"
+          v-model:page="state.queryParams.page"
+          v-model:limit="state.queryParams.size"
+          :total="state.total"
           @pagination="onQuery"
         />
       </div>

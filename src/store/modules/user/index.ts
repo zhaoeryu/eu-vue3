@@ -1,19 +1,25 @@
 import {defineStore} from 'pinia';
-import {UserState} from "./types";
-import type {LoginBody} from "@/api/types";
 import {getInfo, login, logout} from "@/api/system/login";
 import {getToken, removeToken, setToken} from "@/utils/auth";
+import type {LoginInfo} from "@/types/system/user";
+
+interface UserState {
+  token: string | null,
+  user: LoginInfo,
+  roles: Array<string>,
+  permissions: Array<string>,
+}
 
 const useUserStore = defineStore('user', {
   state: (): UserState => ({
     token: getToken(),
-    user: {},
+    user: {} as LoginInfo,
     roles: [],
     permissions: []
   }),
   getters: {},
   actions: {
-    login(loginBody: LoginBody) {
+    login(loginBody: any) {
       return new Promise((resolve, reject) => {
         login(loginBody).then((res) => {
           if (res.code != 200) {
@@ -22,7 +28,9 @@ const useUserStore = defineStore('user', {
           }
           setToken(res.data)
           this.token = res.data
-          resolve()
+          resolve({
+            token: res.data
+          })
         }).catch(error => {
           removeToken()
           reject(error)
@@ -49,13 +57,13 @@ const useUserStore = defineStore('user', {
     logout() {
       return new Promise((resolve, reject) => {
         logout().then(() => {
-          resolve()
+          resolve({})
         }).catch(error => {
           reject(error)
         }).finally(() => {
           // 清空登录状态
           this.token = ''
-          this.user = {}
+          this.user = {} as LoginInfo
           this.roles = []
           this.permissions = []
           removeToken()

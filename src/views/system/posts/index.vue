@@ -1,63 +1,66 @@
 <script setup lang="ts">
 import ImportDialog from "@/components/ImportDialog.vue";
 import PostEditDialog from "@/views/system/posts/PostEditDialog.vue";
-import {onMounted, ref} from "vue";
+import {onMounted, useTemplateRef} from "vue";
 import {batchDel, page} from "@/api/system/post";
 import {download} from "@/utils/request";
-import {ElMessage, ElMessageBox} from "element-plus";
+import {ElMessage, ElMessageBox, type TableInstance} from "element-plus";
 import {Refresh, Search} from "@element-plus/icons-vue";
+import useLoading from "@/hooks/loading";
+import {useResettableReactive} from "@/hooks/resettable";
+import {EnableFlagEnums} from "@/utils/enums";
+import type {Post} from "@/types/system/post";
 
-const DEFAULT_QUERY_PARAMS = {
-  postName: null,
-  page: 1,
-  size: 10
-}
+const refPostEditDialog = useTemplateRef<InstanceType<typeof PostEditDialog>>('refPostEditDialog')
+const refTable = useTemplateRef<TableInstance>('refTable')
+const refImportDialog = useTemplateRef<InstanceType<typeof ImportDialog>>('refImportDialog')
+const { loading, setLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
+  list: [],
+  total: 0,
+  isQueryShow: true,
+  multipleDisabled: true,
+  queryParams: {
+    postName: null,
 
-const list = ref([])
-const total = ref(0)
-const loading = ref(false)
-const isQueryShow = ref(true)
-const queryParams = ref(DEFAULT_QUERY_PARAMS)
-const multipleDisabled = ref(true)
-
-const refTable = ref(null)
-const refPostEditDialog = ref(null)
-const refImportDialog = ref(null)
+    page: 1,
+    size: 10,
+    sort: [],
+  },
+})
 
 onMounted(() => {
   onRefresh()
 })
 
 function onQuery() {
-  loading.value = true
-  page(queryParams.value).then(res => {
-    list.value = res.data.records
-    total.value = res.data.total
+  setLoading(true)
+  page(state.queryParams).then(res => {
+    state.list = res.data.records
+    state.total = res.data.total
   }).finally(() => {
-    loading.value = false
+    setLoading(false)
   })
 }
 function onRefresh() {
-  queryParams.value = {...DEFAULT_QUERY_PARAMS}
+  reset('queryParams')
   onQuery()
 }
 
 function onAdd() {
-  refPostEditDialog.value.open({
-    status: 0
-  })
+  refPostEditDialog.value?.open({} as Post)
 }
 
 function onExport() {
-  download('/api/system/post/export', queryParams.value, `post_${new Date().getTime()}.xlsx`)
+  download('/api/system/post/export', state.queryParams, `post_${new Date().getTime()}.xlsx`)
 }
 
 function onImport() {
-  refImportDialog.value.open()
+  refImportDialog.value?.open()
 }
 
 function onBatchDel() {
-  const ids = refTable.value.getSelectionRows().map(item => item.id)
+  const ids = refTable.value?.getSelectionRows().map(item => item.id) || []
   ElMessageBox.confirm(`确认要删除选中的${ids.length}条记录吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -79,15 +82,15 @@ function onBatchDel() {
   });
 }
 
-function onSelectionChange(selection) {
-  multipleDisabled.value = !selection.length
+function onSelectionChange(selection: Post[]) {
+  state.multipleDisabled = !selection.length
 }
 
-function onRowUpdate(row) {
-  refPostEditDialog.value.open(row)
+function onRowUpdate(row: Post) {
+  refPostEditDialog.value?.open(row)
 }
 
-function onRowDelete(row) {
+function onRowDelete(row: Post) {
   ElMessageBox.confirm(`确认要删除"${ row.postName }"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -114,10 +117,10 @@ function onRowDelete(row) {
 <template>
   <div class="page-container">
     <div class="page-body">
-      <query-expand-wrapper :show="isQueryShow">
-        <el-form :model="queryParams" :inline="true">
+      <query-expand-wrapper :show="state.isQueryShow">
+        <el-form :model="state.queryParams" :inline="true">
           <el-form-item label="岗位名称">
-            <el-input v-model="queryParams.postName" placeholder="输入要查找的岗位名称" />
+            <el-input v-model="state.queryParams.postName" placeholder="输入要查找的岗位名称" />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" :icon="Search" @click="onQuery">查询</el-button>
@@ -127,7 +130,7 @@ function onRowDelete(row) {
       </query-expand-wrapper>
       <div v-loading="loading">
         <eu-table-toolbar
-          :multiple-disabled="multipleDisabled"
+          :multiple-disabled="state.multipleDisabled"
           :opt-show="{
             sort: false
           }"
@@ -143,11 +146,11 @@ function onRowDelete(row) {
           @export="onExport"
           @import="onImport"
           @refresh="onRefresh"
-          v-model:searchToggle="isQueryShow"
+          v-model:searchToggle="state.isQueryShow"
         />
         <el-table
           ref="refTable"
-          :data="list"
+          :data="state.list"
           @selection-change="onSelectionChange"
           style="width: 100%"
         >
@@ -156,8 +159,7 @@ function onRowDelete(row) {
           <el-table-column prop="code" label="岗位编码"></el-table-column>
           <el-table-column prop="status" label="状态">
             <template #default="{ row }">
-              <el-tag v-if="row.status === 0">正常</el-tag>
-              <el-tag v-else-if="row.status === 1" type="danger">停用</el-tag>
+              <enum-tag :value="row.status" :enums="EnableFlagEnums" />
             </template>
           </el-table-column>
           <el-table-column v-permissions="['system:post:edit', 'system:post:del']" label="操作">
@@ -168,9 +170,9 @@ function onRowDelete(row) {
           </el-table-column>
         </el-table>
         <pagination
-          v-model:page="queryParams.page"
-          v-model:limit="queryParams.size"
-          :total="total"
+          v-model:page="state.queryParams.page"
+          v-model:limit="state.queryParams.size"
+          :total="state.total"
           @pagination="onQuery"
         />
       </div>

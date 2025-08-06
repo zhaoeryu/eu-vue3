@@ -1,60 +1,64 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, useTemplateRef} from "vue";
 import {useUserStore} from "@/store";
 import UserAvatar from "@/views/system/personal-center/UserAvatar.vue";
 import {updatePassword, updateProfile} from "@/api/system/user";
-import {ElMessage, ElMessageBox} from "element-plus";
+import {ElMessage, ElMessageBox, type FormInstance} from "element-plus";
+import useLoading from "@/hooks/loading";
 
+const refFormBasic = useTemplateRef<FormInstance>('refFormBasic')
+const refFormPassword = useTemplateRef<FormInstance>('refFormPassword')
 const userStore = useUserStore()
-
+const { loading: userFormLoading, setLoading: setUserFormLoading } = useLoading(false)
+const { loading: updatePasswordFormLoading, setLoading: setUpdatePasswordFormLoading } = useLoading(false)
 const tabActive = ref('userinfo')
-const userFormLoading = ref(false)
 const userForm = ref({
   nickname: null,
   mobile: null,
   email: null,
   sex: null
 })
-const userRules = {
-  nickname: [
-    { required: true, message: '请输入姓名', trigger: 'blur' },
-    { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' }
-  ],
-  mobile: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^((0\d{2,3}-\d{7,8})|(1[3584]\d{9}))$/, message: '请输入正确的手机号', trigger: 'blur' }
-  ],
-  email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
-  ],
-  sex: [
-    { required: true, message: '请选择性别', trigger: 'blur' }
-  ]
-}
-const updatePasswordFormLoading = ref(false)
 const updatePasswordForm = ref({
   oldPassword: null,
   newPassword: null,
   confirmPassword: null
 })
+const userRules = {
+  nickname: [
+    {required: true, message: '请输入姓名', trigger: 'blur'},
+    {min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur'}
+  ],
+  mobile: [
+    {required: true, message: '请输入手机号', trigger: 'blur'},
+    {
+      pattern: /^((0\d{2,3}-\d{7,8})|(1[3584]\d{9}))$/,
+      message: '请输入正确的手机号',
+      trigger: 'blur'
+    }
+  ],
+  email: [
+    {required: true, message: '请输入邮箱', trigger: 'blur'},
+    {type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change']}
+  ],
+  sex: [
+    {required: true, message: '请选择性别', trigger: 'blur'}
+  ]
+}
 const updatePasswordRules = {
   oldPassword: [
-    { required: true, message: '请输入旧密码', trigger: 'blur' },
-    { min: 6, max: 30, message: '长度在 6 到 30 个字符', trigger: 'blur' }
+    {required: true, message: '请输入旧密码', trigger: 'blur'},
+    {min: 6, max: 30, message: '长度在 6 到 30 个字符', trigger: 'blur'}
   ],
   newPassword: [
-    { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, max: 30, message: '长度在 6 到 30 个字符', trigger: 'blur' }
+    {required: true, message: '请输入新密码', trigger: 'blur'},
+    {min: 6, max: 30, message: '长度在 6 到 30 个字符', trigger: 'blur'}
   ],
   confirmPassword: [
-    { required: true, message: '请再次输入新密码', trigger: 'blur' },
-    { min: 6, max: 30, message: '长度在 6 到 30 个字符', trigger: 'blur' }
+    {required: true, message: '请再次输入新密码', trigger: 'blur'},
+    {min: 6, max: 30, message: '长度在 6 到 30 个字符', trigger: 'blur'}
   ]
 }
 
-const refFormBasic = ref(null)
-const refFormPassword = ref(null)
 const user = computed(() => userStore.user)
 const deptNames = computed(() => {
   return (userStore.user.deptNames || []).join(' / ') || '暂无部门'
@@ -67,52 +71,52 @@ onMounted(() => {
 })
 
 function onSave() {
-    refFormBasic.value.validate(valid => {
-        if (!valid) {
-            return
-        }
-        userFormLoading.value = true
-        updateProfile(userForm.value).then(() => {
-            ElMessage.success('保存成功')
-            userStore.getInfo()
-        }).finally(() => {
-            userFormLoading.value = false
-        })
+  refFormBasic.value?.validate(valid => {
+    if (!valid) {
+      return
+    }
+    setUserFormLoading(true)
+    updateProfile(userForm.value).then(() => {
+      ElMessage.success('保存成功')
+      userStore.getInfo()
+    }).finally(() => {
+      setUserFormLoading(false)
     })
+  })
 }
 
 function onPasswordSave() {
-    refFormPassword.value.validate((valid) => {
-        if (!valid) {
-            return
-        }
+  refFormPassword.value?.validate((valid) => {
+    if (!valid) {
+      return
+    }
 
-        // 验证旧密码和新密码是否一致
-        if (updatePasswordForm.value.oldPassword === updatePasswordForm.value.newPassword) {
-            ElMessage.error('新密码不能和旧密码相同')
-            return
-        }
+    // 验证旧密码和新密码是否一致
+    if (updatePasswordForm.value.oldPassword === updatePasswordForm.value.newPassword) {
+      ElMessage.error('新密码不能和旧密码相同')
+      return
+    }
 
-        // 验证新密码和确认密码是否一致
-        if (updatePasswordForm.value.newPassword !== updatePasswordForm.value.confirmPassword) {
-            ElMessage.error('新密码和确认密码不一致')
-            return
-        }
+    // 验证新密码和确认密码是否一致
+    if (updatePasswordForm.value.newPassword !== updatePasswordForm.value.confirmPassword) {
+      ElMessage.error('新密码和确认密码不一致')
+      return
+    }
 
-        ElMessageBox.confirm('确认修改密码吗?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-        }).then(() => {
-            updatePasswordFormLoading.value = true
-            updatePassword(updatePasswordForm.value.oldPassword, updatePasswordForm.value.newPassword).then(() => {
-                ElMessage.success('密码修改成功')
-                userStore.getInfo()
-            }).finally(() => {
-                updatePasswordFormLoading.value = false
-            })
-        })
+    ElMessageBox.confirm('确认修改密码吗?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      setUpdatePasswordFormLoading(true)
+      updatePassword(updatePasswordForm.value.oldPassword!, updatePasswordForm.value.newPassword!).then(() => {
+        ElMessage.success('密码修改成功')
+        userStore.getInfo()
+      }).finally(() => {
+        setUpdatePasswordFormLoading(false)
+      })
     })
+  })
 }
 
 </script>
@@ -128,12 +132,16 @@ function onPasswordSave() {
             </div>
             <div style="margin-left: 16px;">
               <div>
-                <span style="font-size: 23px;color: var(--theme-text-primary-color);font-weight: 500;display: inline-block;margin-right: 0.3em;">{{ user.nickname || '-' }}</span>
+                <span style="font-size: 23px;color: var(--theme-text-primary-color);font-weight: 500;display: inline-block;margin-right: 0.3em;">{{ user.nickname || '-'}}</span>
                 <svg-icon v-if="user.sex === 1" icon-class="sex_man" />
                 <svg-icon v-else-if="user.sex === 0" icon-class="sex_woman" />
               </div>
-              <div style="margin-top: 15px;color: var(--theme-text-second-color);font-size: 14px;">{{ user.mobile || '未绑定手机号' }}</div>
-              <div style="margin-top: 10px;color: var(--theme-text-second-color);font-size: 14px;">{{ deptNames }}</div>
+              <div style="margin-top: 15px;color: var(--theme-text-second-color);font-size: 14px;">
+                {{ user.mobile || '未绑定手机号' }}
+              </div>
+              <div style="margin-top: 10px;color: var(--theme-text-second-color);font-size: 14px;">
+                {{ deptNames }}
+              </div>
             </div>
           </div>
           <el-divider></el-divider>
@@ -178,8 +186,8 @@ function onPasswordSave() {
                 </el-form-item>
                 <el-form-item label="性别" prop="sex">
                   <el-radio-group v-model="userForm.sex">
-                    <el-radio :label="1">男</el-radio>
-                    <el-radio :label="0">女</el-radio>
+                    <el-radio :value="1">男</el-radio>
+                    <el-radio :value="0">女</el-radio>
                   </el-radio-group>
                 </el-form-item>
               </el-form>
@@ -212,20 +220,23 @@ function onPasswordSave() {
 
 <style scoped lang="scss">
 .el-col {
-  >div {
+  > div {
     background-color: var(--theme-base-second-bg);
     padding: 16px;
   }
 }
+
 .person-info {
   font-size: 14px;
   color: var(--theme-text-primary-color);
-  &>div {
+
+  & > div {
     display: flex;
     justify-content: space-between;
     align-items: center;
     line-height: 2em;
-    >div:nth-child(2) {
+
+    > div:nth-child(2) {
       color: var(--theme-text-second-color);
     }
   }

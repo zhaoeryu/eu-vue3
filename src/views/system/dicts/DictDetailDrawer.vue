@@ -2,86 +2,97 @@
 import { page, batchDel } from '@/api/system/dictDetail'
 import ImportDialog from "@/components/ImportDialog.vue";
 import DictDetailEditDialog from '@/views/system/dicts/DictDetailEditDialog.vue'
-import {computed, ref} from "vue";
+import {computed, useTemplateRef} from "vue";
 import {download} from "@/utils/request";
-import {ElMessage, ElMessageBox} from "element-plus";
+import {ElMessage, ElMessageBox, type TableInstance} from "element-plus";
 import {Refresh, Search} from "@element-plus/icons-vue";
+import useVisible from "@/hooks/visible";
+import useLoading from "@/hooks/loading";
+import {useResettableReactive} from "@/hooks/resettable";
+import type { DictDetail } from "@/types/system/dict";
+import type {ANY_OBJECT} from "@/types/generic";
+import {EnableFlagEnums} from "@/utils/enums";
 
-const DEFAULT_QUERY_PARAMS = {
-  pid: null,
+type State = {
+  dictId: number | null;
+  dictKey: string | null;
+} & Partial<ANY_OBJECT>
+
+const refTable = useTemplateRef<TableInstance>('refTable')
+const refDictDetailEditDialog = useTemplateRef('refDictDetailEditDialog')
+const refImportDialog = useTemplateRef<InstanceType<typeof ImportDialog>>('refImportDialog')
+const { visible, setVisible } = useVisible(false)
+const { loading, setLoading } = useLoading(false)
+const [state, reset] = useResettableReactive<State>({
+  list: [],
+  total: 0,
+  isQueryShow: true,
+  multipleDisabled: true,
+  queryParams: {
+    pid: null,
+    dictKey: null,
+
+    page: 1,
+    size: 10,
+    sort: ['sort_num,asc']
+  },
+
+  dictId: null,
   dictKey: null,
-  page: 1,
-  size: 10,
-  sort: 'sort_num,asc'
-}
-
-const show = ref(false)
-const list = ref([])
-const total = ref(0)
-const loading = ref(false)
-const isQueryShow = ref(true)
-const queryParams = ref(DEFAULT_QUERY_PARAMS)
-const multipleDisabled = ref(true)
-const dictId = ref(null)
-const dictKey = ref(null)
-
-const refTable = ref(null)
-const refDictDetailEditDialog = ref(null)
-const refImportDialog = ref(null)
-
-const pageTitle = computed(() => {
-  return `字典详情${dictKey.value ? ` - ${dictKey.value}` : ''}`
 })
 
-function open(_dictId: string | number, _dictKey: string) {
-  dictId.value = _dictId
-  dictKey.value = _dictKey
-  show.value = true
+const pageTitle = computed(() => {
+  return `字典详情${state.dictKey ? ` - ${state.dictKey}` : ''}`
+})
 
+function open(_dictId: number, _dictKey: string) {
+  reset()
+  state.dictId = _dictId
+  state.dictKey = _dictKey
+  setVisible(true)
   onRefresh()
 }
 
 function onQuery() {
-  loading.value = true
-  queryParams.value.pid = dictId.value
-  page(queryParams.value).then(res => {
-    list.value = res.data.records
-    total.value = res.data.total
+  setLoading(true)
+  state.queryParams.pid = state.dictId
+  page(state.queryParams).then(res => {
+    state.list = res.data.records
+    state.total = res.data.total
   }).finally(() => {
-    loading.value = false
+    setLoading(false)
   })
 }
 
 function onRefresh() {
-  queryParams.value = {...DEFAULT_QUERY_PARAMS}
+  reset('queryParams')
   onQuery()
 }
 
 function onAdd() {
-  refDictDetailEditDialog.value.open({
-    pid: dictId.value,
-    status: 0,
-    dictKey: dictKey.value
-  })
+  refDictDetailEditDialog.value?.open({
+    pid: state.dictId,
+    dictKey: state.dictKey
+  } as DictDetail)
 }
 
 function onExport() {
-  download('/api/system/dict-detail/export', queryParams.value, `dictDetail_${new Date().getTime()}.xlsx`)
+  download('/api/system/dict-detail/export', state.queryParams, `dictDetail_${new Date().getTime()}.xlsx`)
 }
 
 function onImport() {
-  refImportDialog.value.open()
+  refImportDialog.value?.open()
 }
 
-function onSelectionChange(selection) {
-  multipleDisabled.value = !selection.length
+function onSelectionChange(selection: DictDetail[]) {
+  state.multipleDisabled = !selection.length
 }
 
-function onRowUpdate(row) {
-  refDictDetailEditDialog.value.open(row)
+function onRowUpdate(row: DictDetail) {
+  refDictDetailEditDialog.value?.open(row)
 }
 
-function onRowDelete(row) {
+function onRowDelete(row: DictDetail) {
   ElMessageBox.confirm(`确认要删除"${ row.dictLabel }"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -104,7 +115,7 @@ function onRowDelete(row) {
 }
 
 function onBatchDel() {
-  const ids = refTable.value.getSelectionRows().map(item => item.id)
+  const ids = refTable.value?.getSelectionRows().map(item => item.id) || []
   ElMessageBox.confirm(`确认要删除选中的${ids.length}条记录吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -134,14 +145,14 @@ defineExpose({
 <template>
   <el-drawer
     :title="pageTitle"
-    v-model="show"
+    v-model="visible"
     size="800px"
     direction="rtl"
   >
-    <query-expand-wrapper :show="isQueryShow">
-      <el-form :model="queryParams" :inline="true">
+    <query-expand-wrapper :show="state.isQueryShow">
+      <el-form :model="state.queryParams" :inline="true">
         <el-form-item label="字典KEY" prop="dictKey">
-          <el-input v-model="queryParams.dictKey" placeholder="输入要查找的字典KEY" maxlength="30" />
+          <el-input v-model="state.queryParams.dictKey" placeholder="输入要查找的字典KEY" maxlength="30" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="onQuery">查询</el-button>
@@ -152,7 +163,7 @@ defineExpose({
 
     <div v-loading="loading">
       <eu-table-toolbar
-        :multiple-disabled="multipleDisabled"
+        :multiple-disabled="state.multipleDisabled"
         :opt-show="{
           sort: false
         }"
@@ -168,11 +179,11 @@ defineExpose({
         @export="onExport"
         @import="onImport"
         @refresh="onRefresh"
-        v-model:searchToggle="isQueryShow"
+        v-model:searchToggle="state.isQueryShow"
       />
       <el-table
         ref="refTable"
-        :data="list"
+        :data="state.list"
         @selection-change="onSelectionChange"
         style="width: 100%"
       >
@@ -182,8 +193,7 @@ defineExpose({
         <el-table-column prop="sortNum" label="字典排序"></el-table-column>
         <el-table-column prop="status" label="是否启用">
           <template #default="{ row }">
-            <el-tag v-if="row.status === 0">正常</el-tag>
-            <el-tag v-else type="danger">禁用</el-tag>
+            <enum-tag :value="row.status" :enums="EnableFlagEnums" />
           </template>
         </el-table-column>
         <el-table-column prop="remark" label="备注"></el-table-column>
@@ -195,9 +205,9 @@ defineExpose({
         </el-table-column>
       </el-table>
       <pagination
-        v-model:page="queryParams.page"
-        v-model:limit="queryParams.size"
-        :total="total"
+        v-model:page="state.queryParams.page"
+        v-model:limit="state.queryParams.size"
+        :total="state.total"
         @pagination="onQuery"
       />
     </div>
@@ -206,8 +216,8 @@ defineExpose({
     <import-dialog
       ref="refImportDialog"
       :req-data="{
-        dictId,
-        dictKey
+        dictId: state.dictId,
+        dictKey: state.dictKey
       }"
       upload-url="/api/system/dict-detail/import"
       tpl-export-url="/api/system/dict-detail/export-template"

@@ -1,28 +1,14 @@
 <script setup lang="ts">
 import TreeDirectoryItem from '@/views/tools/generate/TreeDirectory/TreeDirectoryItem.vue'
-import {ref, watch} from "vue";
+import {ref, watch, defineProps} from "vue";
+import type {GeneratePreviewTree} from "@/types/system/generate";
 
-const props = defineProps({
-  tree: {
-    type: Array,
-    default: () => []
-  },
-  active: {
-    type: String
-  }
-})
+type State = {
+  tree: GeneratePreviewTree[]
+}
 
-const emit = defineEmits(['update:active'])
-
-const innerActive = ref(null)
-
-watch(() => props.active, (value) => {
-  innerActive.value = value
-}, { immediate: true })
-
-watch(innerActive, (value) => {
-  emit('update:active', value)
-})
+const model = defineModel()
+defineProps<State>()
 </script>
 
 <template>
@@ -34,20 +20,20 @@ watch(innerActive, (value) => {
       v-for="(item, index) in tree"
       :key="index"
       :item="item"
-      v-model:active="innerActive"
+      v-model="model"
     />
   </details>
 </template>
 
 <style scoped lang="scss">
-@import "@/assets/styles/mixin.scss";
+@use "@/assets/styles/mixin.scss";
 .eu-directory {
   width: 200px;
   overflow: auto;
   color: var(--theme-nav-first-color);
   font-size: 14px;
   user-select: none;
-  @include scrollBarX;
+  @include mixin.scrollBarX;
 
   :deep(details) {
     padding-left: 10px;

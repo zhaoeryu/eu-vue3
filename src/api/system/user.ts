@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function page(params) {
+export function page(params: any) {
   return request({
     url: '/api/system/user/page',
     method: 'get',
@@ -8,7 +8,7 @@ export function page(params) {
   })
 }
 
-export function add(data) {
+export function add(data: any) {
   return request({
     url: '/api/system/user',
     method: 'post',
@@ -16,14 +16,14 @@ export function add(data) {
   })
 }
 
-export function update(data) {
+export function update(data: any) {
   return request({
     url: '/api/system/user',
     method: 'put',
     data
   })
 }
-export function updateStatus(data) {
+export function updateStatus(data: any) {
   return request({
     url: '/api/system/user/updateStatus',
     method: 'put',
@@ -31,7 +31,7 @@ export function updateStatus(data) {
   })
 }
 
-export function updateProfile(data) {
+export function updateProfile(data: any) {
   return request({
     url: '/api/system/user/profile',
     method: 'put',
@@ -39,7 +39,7 @@ export function updateProfile(data) {
   })
 }
 
-export function updatePassword(oldPassword, newPassword) {
+export function updatePassword(oldPassword: string, newPassword: string) {
   return request({
     url: '/api/system/user/update-pwd',
     method: 'put',
@@ -50,7 +50,7 @@ export function updatePassword(oldPassword, newPassword) {
   })
 }
 
-export function resetPwd(id, password) {
+export function resetPwd(id: string | number, password: string) {
   return request({
     url: '/api/system/user/reset-pwd',
     method: 'put',
@@ -61,7 +61,7 @@ export function resetPwd(id, password) {
   })
 }
 
-export function uploadAvatar(data) {
+export function uploadAvatar(data: any) {
   return request({
     url: '/api/system/user/upload-avatar',
     method: 'post',
@@ -72,7 +72,7 @@ export function uploadAvatar(data) {
   })
 }
 
-export function batchDel(ids) {
+export function batchDel(ids: any[]) {
   return request({
     url: '/api/system/user/batch',
     method: 'delete',
@@ -80,7 +80,7 @@ export function batchDel(ids) {
   })
 }
 
-export function getUserInfo(id) {
+export function getUserInfo(id: string | number) {
   return request({
     url: '/api/system/user/info',
     method: 'get',
@@ -90,28 +90,28 @@ export function getUserInfo(id) {
   })
 }
 
-export function assignRole(data) {
+export function assignRole(data: any) {
   return request({
     url: '/api/system/user/assignRole',
     method: 'post',
     data
   })
 }
-export function roleUserList(params) {
+export function roleUserList(params: any) {
   return request({
     url: '/api/system/user/roleUserList',
     method: 'get',
     params
   })
 }
-export function cancelAuth(data) {
+export function cancelAuth(data: any) {
   return request({
     url: '/api/system/user/cancelAuth',
     method: 'delete',
     data
   })
 }
-export function batchAssignRole(data) {
+export function batchAssignRole(data: any) {
   return request({
     url: '/api/system/user/batchAssignRole',
     method: 'post',
@@ -119,14 +119,14 @@ export function batchAssignRole(data) {
   })
 }
 
-export function onlineList(params) {
+export function onlineList(params: any) {
   return request({
     url: '/api/auth/online',
     method: 'get',
     params
   })
 }
-export function onlineKickout(userId) {
+export function onlineKickout(userId: string | number) {
   return request({
     url: '/api/auth/online/kickout',
     method: 'post',
@@ -135,7 +135,7 @@ export function onlineKickout(userId) {
     }
   })
 }
-export function onlineLogout(userId) {
+export function onlineLogout(userId: string | number) {
   return request({
     url: '/api/auth/online/logout',
     method: 'post',

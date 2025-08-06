@@ -1,3 +1,4 @@
+// @ts-ignore
 import JSEncrypt from 'jsencrypt/bin/jsencrypt.min'
 
 const publicKey = 'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJ7ajt/v+aA25UPRgU/wh3+jjIk4VVJA1mMp7tBktPSOF7jxzm+G+2VK5MIYpomN7LPb90XraofsD7NT1iK0j/0CAwEAAQ=='

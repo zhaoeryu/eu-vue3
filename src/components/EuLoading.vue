@@ -10,6 +10,12 @@
   </div>
 </template>
 
+<script lang="ts">
+export default {
+  name: 'EuLoading'
+}
+</script>
+
 <style lang="scss" scoped>
 .loading-container {
   width: 100%;

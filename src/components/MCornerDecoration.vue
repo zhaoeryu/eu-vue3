@@ -10,6 +10,8 @@
 </template>
 
 <script setup lang="ts">
+import { defineProps, computed } from 'vue'
+
 const TYPE_MAP = {
   'success': 'var(--color-success)',
   'warning': 'var(--color-warning)',
@@ -18,45 +20,29 @@ const TYPE_MAP = {
   'info': 'var(--color-info)'
 }
 
-import { defineProps, computed } from 'vue'
+type TYPE = 'success' | 'warning' | 'error' | 'primary' | 'info'
 
-const props = defineProps({
-  text: {
-    type: String,
-    default: ''
-  },
-  top: {
-    type: String,
-    default: null
-  },
-  left: {
-    type: String,
-    default: null
-  },
-  bottom: {
-    type: String,
-    default: null
-  },
-  right: {
-    type: String,
-    default: null
-  },
-  rotate: {
-    type: String,
-    default: '0'
-  },
-  type: {
-    type: String,
-    default: 'primary'
-  }
+interface Props {
+  text: string;
+  top?: string;
+  left?: string;
+  bottom?: string;
+  right?: string;
+  rotate?: number;
+  type?: TYPE;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  rotate: 0,
+  type: 'primary'
 })
 
 const elStyle = computed(() => {
   let tmp = {
-    top: props.top || null,
-    left: props.left || null,
-    bottom: props.bottom || null,
-    right: props.right || null,
+    top: props.top || 'unset',
+    left: props.left || 'unset',
+    bottom: props.bottom || 'unset',
+    right: props.right || 'unset',
     transform: `rotate(${props.rotate}deg)`,
     '--decoration-color': TYPE_MAP[props.type] || TYPE_MAP['primary']
   }
@@ -70,6 +56,11 @@ const elStyle = computed(() => {
 })
 </script>
 
+<script lang="ts">
+export default {
+  name: 'MCornerDecoration'
+}
+</script>
 
 <style lang="scss" scoped>
 .m-corner-decoration {

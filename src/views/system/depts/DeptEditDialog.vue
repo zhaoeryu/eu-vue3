@@ -1,24 +1,15 @@
 <script setup lang="ts">
 import {add, update} from '@/api/system/dept'
-import {computed, nextTick, ref} from "vue";
-import {ElMessage} from "element-plus";
-
-const DEFAULT_FORM = {
-  deptName: null,
-  status: null,
-  sortNum: 999,
-
-  parentId: null,
-  parentIds: null,
-  _parentIds: []
-}
+import {computed, nextTick, ref, useTemplateRef} from "vue";
+import {ElMessage, type FormInstance} from "element-plus";
+import useVisible from "@/hooks/visible";
+import useLoading from "@/hooks/loading";
+import {useResettableReactive} from "@/hooks/resettable";
+import type {Dept, DeptTree} from "@/types/system/dept";
+import {EnableFlagEnums} from "@/utils/enums";
 
 const emit = defineEmits(['complete'])
 
-const show = ref(false)
-const list = ref([])
-const formLoading = ref(false)
-const form = ref(DEFAULT_FORM)
 const rules = {
   deptName: [
     {required: true, message: '请输入部门名称', trigger: 'blur'}
@@ -27,41 +18,64 @@ const rules = {
     {required: true, message: '请选择部门状态', trigger: 'change'}
   ]
 }
-const refForm = ref(null)
+const DEFAULT_FORM = {
+  id: null,
+  deptName: null,
+  status: null,
+  sortNum: 999,
 
-const title = computed(() => {
-  return form.value.id ? '修改部门' : '新增部门'
+  parentId: null as number | null,
+  parentIds: null as string | null,
+  _parentIds: []
+}
+
+const refForm = useTemplateRef<FormInstance>('refForm')
+const { visible, setVisible } = useVisible(false)
+const { loading: formLoading, setLoading: setFormLoading } = useLoading(false)
+const [ state, reset ] = useResettableReactive({
+  form: {
+    ...DEFAULT_FORM
+  }
 })
 
-function open(row, _list) {
-  form.value = Object.assign({...DEFAULT_FORM}, row)
+const list = ref<DeptTree[]>([])
+
+const title = computed(() => {
+  return state.form.id ? '修改部门' : '新增部门'
+})
+
+function open(row: DeptTree & {
+  _parentIds: string[]
+}, _list: DeptTree[]) {
+  reset()
+  state.form = Object.assign({...DEFAULT_FORM}, row)
   list.value = _list
-  show.value = true
+  setVisible(true)
 }
 
 function onSubmit() {
-  refForm.value.validate(valid => {
+  refForm.value?.validate(valid => {
     if (!valid) {
-      return false
+      return
     }
 
     // 设置直接父级ID
-    if (form.value._parentIds.length) {
-      form.value.parentId = form.value._parentIds[form.value._parentIds.length - 1]
-      form.value.parentIds = '0,' + form.value._parentIds.join(',')
+    if (state.form._parentIds.length) {
+      state.form.parentId = state.form._parentIds[state.form._parentIds.length - 1]
+      state.form.parentIds = '0,' + state.form._parentIds.join(',')
     } else {
-      form.value.parentId = 0
-      form.value.parentIds = '0'
+      state.form.parentId = 0
+      state.form.parentIds = '0'
     }
 
-    formLoading.value = true
-    const reqPromise = form.value.id ? update(form.value) : add(form.value)
+    setFormLoading(true)
+    const reqPromise = state.form.id ? update(state.form) : add(state.form)
     reqPromise.then(() => {
-      ElMessage.success(form.value.id ? '修改成功' : '新增成功')
-      show.value = false
+      ElMessage.success(state.form.id ? '修改成功' : '新增成功')
+      setVisible(false)
       emit('complete')
     }).finally(() => {
-      formLoading.value = false
+      setFormLoading(false)
     })
   })
 }
@@ -82,17 +96,17 @@ defineExpose({
 <template>
   <el-dialog
     :title="title"
-    v-model="show"
+    v-model="visible"
     :close-on-click-modal="false"
     width="600px"
     @open="onDialogOpen"
   >
-    <el-form ref="refForm" :model="form" :rules="rules" label-width="80px">
+    <el-form ref="refForm" :model="state.form" :rules="rules" label-width="80px">
       <el-row :gutter="16">
         <el-col :span="24">
           <el-form-item label="上级部门" prop="parentId">
             <el-cascader
-              v-model="form._parentIds"
+              v-model="state.form._parentIds"
               :options="list"
               :props="{ checkStrictly: true, value: 'id', label: 'deptName', children: 'children' }"
               placeholder="请选择上级部门"
@@ -104,28 +118,25 @@ defineExpose({
         </el-col>
         <el-col :span="12">
           <el-form-item label="部门名称" prop="deptName">
-            <el-input v-model="form.deptName" placeholder="请输入部门名称" maxlength="20" />
+            <el-input v-model="state.form.deptName" placeholder="请输入部门名称" maxlength="20" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="部门状态" prop="status">
-            <el-radio-group v-model="form.status">
-              <el-radio :label="0">正常</el-radio>
-              <el-radio :label="1">停用</el-radio>
-            </el-radio-group>
+            <enum-radio-group v-model="state.form.status" :enums="EnableFlagEnums" />
           </el-form-item>
         </el-col>
       </el-row>
       <el-row :gutter="16">
         <el-col :span="12">
           <el-form-item label="排序" prop="sortNum">
-            <el-input-number v-model="form.sortNum" :min="0" :max="9999" />
+            <el-input-number v-model="state.form.sortNum" :min="0" :max="9999" />
           </el-form-item>
         </el-col>
       </el-row>
     </el-form>
     <template #footer>
-      <el-button @click="show = false">取 消</el-button>
+      <el-button @click="setVisible(false)">取 消</el-button>
       <el-button :loading="formLoading" class="eu-submit-btn" type="primary" @click="onSubmit">确 定</el-button>
     </template>
   </el-dialog>

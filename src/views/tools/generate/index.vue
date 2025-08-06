@@ -1,58 +1,69 @@
 <script setup lang="ts">
 import { page, syncTable } from '@/api/system/generate'
 import GeneratePreview from '@/views/tools/generate/GeneratePreview.vue'
-import GenerateSettingDrawer from '@/views/tools/generate/GenerateSettingDrawer.vue'
-import {onMounted, ref} from "vue";
+import GenerateSettingDrawer from '@/views/tools/generate/GenerateSettingDrawer/index.vue'
+import {onMounted, ref, useTemplateRef} from "vue";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {download} from "@/utils/request";
 import {Refresh, Search} from "@element-plus/icons-vue";
+import useLoading from "@/hooks/loading";
+import {useResettableReactive} from "@/hooks/resettable";
+import type {GenerateTable} from "@/types/system/generate";
 
-const DEFAULT_QUERY_PARAMS = {
-  tableName: null,
-  tableComment: null,
-  page: 1,
-  size: 10
+type GenerateRow = GenerateTable & {
+  _genLoading: boolean
 }
 
-const loading = ref(false)
-const list = ref([])
-const total = ref(0)
-const queryParams = ref(DEFAULT_QUERY_PARAMS)
+const refGeneratePreview = useTemplateRef<InstanceType<typeof GeneratePreview>>('refGeneratePreview')
+const refGenerateSettingDrawer = useTemplateRef<InstanceType<typeof GenerateSettingDrawer>>('refGenerateSettingDrawer')
+const { loading, setLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
+  list: [] as GenerateRow[],
+  total: 0,
+  isQueryShow: true,
+  queryParams: {
+    tableName: null,
+    tableComment: null,
 
-const refGeneratePreview = ref(null)
-const refGenerateSettingDrawer = ref(null)
+    page: 1,
+    size: 10,
+    sort: [],
+  },
+})
 
 onMounted(() => {
   onRefresh()
 })
 
 function onQuery() {
-  loading.value = true
-  page(queryParams.value).then(res => {
-    list.value = res.data.records.map(item => {
-      item._genLoading = false
-      return item
+  setLoading(true)
+  page(state.queryParams).then(res => {
+    state.list = res.data.records.map(item => {
+      return {
+        ...item,
+        _genLoading: false
+      } as GenerateRow
     })
-    total.value = res.data.total
+    state.total = res.data.total
   }).finally(() => {
-    loading.value = false
+    setLoading(false)
   })
 }
 
 function onRefresh() {
-  queryParams.value = { ...DEFAULT_QUERY_PARAMS }
+  reset('queryParams')
   onQuery()
 }
 
-function onRowPreview(row) {
-  refGeneratePreview.value.open(row)
+function onRowPreview(row: GenerateRow) {
+  refGeneratePreview.value?.open(row)
 }
 
-function onRowSetting(row) {
-  refGenerateSettingDrawer.value.open(row)
+function onRowSetting(row: GenerateRow) {
+  refGenerateSettingDrawer.value?.open(row)
 }
 
-function onRowSync(row) {
+function onRowSync(row: GenerateRow) {
   ElMessageBox.confirm('同步后会覆盖已配置信息，确定要同步吗？', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -76,10 +87,13 @@ function onRowSync(row) {
   });
 }
 
-function onRowGen(row) {
+function onRowGen(row: GenerateRow) {
+  row._genLoading = true
   download('/api/gen/gen', {
     tableName: row.tableName
-  }, `${row.tableName}.zip`)
+  }, `${row.tableName}.zip`).finally(() => {
+    row._genLoading = false
+  })
 }
 </script>
 
@@ -87,12 +101,12 @@ function onRowGen(row) {
   <div class="page-container">
     <div class="page-body">
       <query-expand-wrapper>
-        <el-form :model="queryParams" :inline="true">
+        <el-form :model="state.queryParams" :inline="true">
           <el-form-item label="表名称">
-            <el-input v-model="queryParams.tableName" placeholder="输入要查找的表名称" clearable />
+            <el-input v-model="state.queryParams.tableName" placeholder="输入要查找的表名称" clearable />
           </el-form-item>
           <el-form-item label="表描述">
-            <el-input v-model="queryParams.tableComment" placeholder="输入要查找的表描述" clearable />
+            <el-input v-model="state.queryParams.tableComment" placeholder="输入要查找的表描述" clearable />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" :icon="Search" @click="onQuery">查询</el-button>
@@ -103,10 +117,9 @@ function onRowGen(row) {
       <div v-loading="loading">
         <el-table
           ref="table"
-          :data="list"
+          :data="state.list"
           style="width: 100%"
         >
-          <el-table-column type="selection"></el-table-column>
           <el-table-column prop="tableName" label="表名称"></el-table-column>
           <el-table-column prop="tableComment" label="表描述"></el-table-column>
           <el-table-column prop="createTime" label="表创建时间"></el-table-column>
@@ -125,9 +138,9 @@ function onRowGen(row) {
           </el-table-column>
         </el-table>
         <pagination
-          v-model:page="queryParams.page"
-          v-model:limit="queryParams.size"
-          :total="total"
+          v-model:page="state.queryParams.page"
+          v-model:limit="state.queryParams.size"
+          :total="state.total"
           @pagination="onQuery"
         />
       </div>

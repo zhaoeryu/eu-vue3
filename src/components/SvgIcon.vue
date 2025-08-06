@@ -1,16 +1,12 @@
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, defineProps} from "vue";
 
-const props = defineProps({
-  iconClass: {
-    type: String,
-    required: true,
-  },
-  className: {
-    type: String,
-    default: '',
-  }
-})
+interface Props {
+  iconClass: string;
+  className?: string;
+}
+
+const props = defineProps<Props>()
 
 const iconName = computed(() => `#icon-${props.iconClass}`)
 const svgClass = computed(() => {
@@ -19,9 +15,14 @@ const svgClass = computed(() => {
 })
 </script>
 
+<script lang="ts">
+export default {
+  name: 'SvgIcon'
+}
+</script>
+
 <template>
-  <!-- aria-hidden: 让这个元素对浏览器隐藏 -->
-  <svg :class="svgClass" aria-hidden="true" v-bind="$attrs" v-if="iconClass">
+  <svg :class="svgClass" v-bind="$attrs" v-if="iconClass">
     <use :href="iconName" />
   </svg>
 </template>

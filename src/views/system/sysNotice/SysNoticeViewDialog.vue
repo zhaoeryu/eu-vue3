@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import {ref} from "vue";
+import type {Notice} from "@/types/system/notice";
 
 const show = ref(false)
-const notice = ref({})
+const notice = ref<Notice>({} as Notice)
 
-function open(_notice) {
+function open(_notice: Notice) {
   notice.value = _notice || {}
   show.value = true
 }
@@ -36,5 +37,5 @@ defineExpose({
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/eu-editor.scss';
+@use '@/assets/styles/eu-editor.scss';
 </style>

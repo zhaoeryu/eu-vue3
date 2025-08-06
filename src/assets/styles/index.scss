@@ -1,12 +1,12 @@
 @charset "UTF-8";
 
-@import "reset";
-@import "theme";
-@import "theme-dark";
-@import "light";
-@import "dark";
-@import "eu";
-@import "mixin";
-@import "screen";
-@import "element-plus-patch";
-@import "mcss";
+@use "reset";
+@use "theme";
+@use "theme-dark";
+@use "light";
+@use "dark";
+@use "eu";
+@use "mixin";
+@use "screen" as *;
+@use "element-plus-patch";
+@use "mcss";

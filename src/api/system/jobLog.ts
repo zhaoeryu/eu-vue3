@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function page(params) {
+export function page(params: any) {
   return request({
     url: '/api/system/job-log/page',
     method: 'get',
@@ -8,7 +8,7 @@ export function page(params) {
   })
 }
 
-export function batchDel(ids) {
+export function batchDel(ids: any[]) {
   return request({
     url: '/api/system/job-log/batch',
     method: 'delete',

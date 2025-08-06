@@ -5,6 +5,7 @@ import {useRouteStore, useUserStore} from '@/store'
 import {getToken} from '@/utils/auth'
 import {defaultSetting} from '@/settings'
 import {isExternal} from "@/utils";
+import {type RouteRecordRaw} from "vue-router";
 
 NProgress.configure({showSpinner: false})
 
@@ -21,12 +22,12 @@ router.beforeEach((to, from, next) => {
       next({path: '/'})
     } else {
       // 为了避免重复设置路由
-      if (useUserStore().roles?.length < 1) {
+      if (!useUserStore().roles || (useUserStore().roles as string[]).length < 1) {
         useUserStore().getInfo().then(() => {
           useRouteStore().generateRoutes().then(res => {
             res.forEach(route => {
               if (!isExternal(route.path)) {
-                router.addRoute(route)
+                router.addRoute(route as RouteRecordRaw)
               }
             })
             next({...to, replace: true})

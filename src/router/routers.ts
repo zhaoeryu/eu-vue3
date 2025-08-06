@@ -21,12 +21,6 @@ export const constantRouteList = [
     component: () => import('@/views/401.vue'),
     hidden: true
   },
-  {
-    path: '/demo',
-    name: 'Demo',
-    component: () => import('@/views/demo.vue'),
-    hidden: true
-  }
 ]
 
 export const layoutRouteList = [

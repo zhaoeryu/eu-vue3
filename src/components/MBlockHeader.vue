@@ -1,22 +1,21 @@
 <script setup lang="ts">
-defineProps({
-  title: {
-    type: String,
-    default: ''
-  },
-  content: {
-    type: String,
-    default: null
-  },
-  question: {
-    type: String,
-    default: null
-  },
-  background: {
-    type: Boolean,
-    default: true
-  }
+import { defineProps, withDefaults } from 'vue';
+
+interface Props {
+  title: string;
+  content?: string;
+  question?: string;
+  background?: boolean;
+}
+withDefaults(defineProps<Props>(), {
+  background: true
 })
+</script>
+
+<script lang="ts">
+export default {
+  name: 'MBlockHeader'
+}
 </script>
 
 <template>

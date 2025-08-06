@@ -3,67 +3,79 @@ import { assignRole, getUserInfo } from '@/api/system/user'
 import { page as roleListApi } from '@/api/system/role'
 import {computed, ref} from "vue";
 import {ElMessage} from "element-plus";
+import useVisible from "@/hooks/visible";
+import useLoading from "@/hooks/loading";
+import {useResettableReactive} from "@/hooks/resettable";
+import type {ANY_OBJECT} from "@/types/generic";
+import type {Role} from "@/types/system/role";
 
 const emit = defineEmits(['success'])
 
-const show = ref(false)
-const loading = ref(false)
-const roleIds = ref([])
-const roleId = ref('')
-const userId = ref(null)
-const roleList = ref([])
+type State = {
+  roleIds: number[],
+  roleId: string,
+  userId: string | null,
+  roleList: Role[],
+} & Partial<ANY_OBJECT>
+
+const { visible, setVisible } = useVisible(false)
+const {loading, setLoading} = useLoading(false);
+const [state, reset] = useResettableReactive<State>({
+  roleIds: [],
+  roleId: '',
+  userId: null,
+  roleList: [],
+})
 
 const assignRoleList = computed(() => {
-  return roleIds.value.map(id => {
-    const role = roleList.value.find(item => item.id === id)
+  return state.roleIds.map(id => {
+    const role = state.roleList.find(item => item.id === id)
     if (role) {
       return role
     }
-  }).filter(item => item)
+  }).filter(item => item !== undefined)
 })
 
-function open(_userId) {
-  userId.value = _userId
-  show.value = true
-  loading.value = true
+function open(_userId: string) {
+  reset()
+  state.userId = _userId
+  setVisible(true)
+  setLoading(true)
   Promise.all([
     roleListApi({ page: 1, size: 999 }),
     getUserInfo(_userId)
   ]).then(res => {
-    roleList.value = res[0].data.records || []
-    roleIds.value = res[1].data.roleIds || []
+    state.roleList = res[0].data.records || []
+    state.roleIds = res[1].data.roleIds || []
   }).finally(() => {
-    loading.value = false
+    setLoading(false)
   })
 }
 
-function onRemoveRole(tag) {
-  roleIds.value = roleIds.value.filter(item => item !== tag.id)
+function onRemoveRole(tag: Role) {
+  state.roleIds = state.roleIds.filter(item => item !== tag.id)
 }
 
-function onAssignRoleSelectChange(_roleId) {
-  roleIds.value.push(_roleId)
-  roleId.value = null
+function onAssignRoleSelectChange(_roleId: number) {
+  state.roleIds.push(_roleId)
+  state.roleId = ''
 }
 
 function onAssignRoleSave() {
-  loading.value = true
+  setLoading(true)
   assignRole({
-    id: userId.value,
-    roleIds: roleIds.value
+    id: state.userId,
+    roleIds: state.roleIds
   }).then(() => {
     ElMessage.success('分配角色成功')
-    show.value = false
+    setVisible(false)
     emit('success')
   }).finally(() => {
-    loading.value = false
+    setLoading(false)
   })
 }
 function onDialogClose() {
-  roleIds.value = []
-  roleId.value = ''
-  userId.value = null
-  roleList.value = []
+  reset()
 }
 
 defineExpose({
@@ -74,7 +86,7 @@ defineExpose({
 <template>
   <el-dialog
     title="分配角色"
-    v-model="show"
+    v-model="visible"
     width="700px"
     @close="onDialogClose"
   >
@@ -87,13 +99,13 @@ defineExpose({
         @close="onRemoveRole(tag)">
         {{tag.roleName}}
       </el-tag>
-      <el-select v-model="roleId" @change="onAssignRoleSelectChange" placeholder="请选择角色" filterable class="input-new-tag">
-        <el-option v-for="item in roleList" :disabled="assignRoleList.some(v => v.id === item.id)" :key="item.id" :label="item.roleName" :value="item.id" />
+      <el-select v-model="state.roleId" @change="onAssignRoleSelectChange" placeholder="请选择角色" filterable class="input-new-tag">
+        <el-option v-for="item in state.roleList" :disabled="assignRoleList.some(v => v.id === item.id)" :key="item.id" :label="item.roleName" :value="item.id" />
       </el-select>
     </div>
 
     <template #footer>
-      <el-button @click="show = false">取 消</el-button>
+      <el-button @click="setVisible(false)">取 消</el-button>
       <el-button :loading="loading" type="primary" @click="onAssignRoleSave">确 定</el-button>
     </template>
   </el-dialog>

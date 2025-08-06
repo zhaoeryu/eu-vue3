@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function page(params) {
+export function page(params: any) {
   return request({
     url: '/api/system/job/page',
     method: 'get',
@@ -8,7 +8,7 @@ export function page(params) {
   })
 }
 
-export function add(data) {
+export function add(data: any) {
   return request({
     url: '/api/system/job',
     method: 'post',
@@ -16,7 +16,7 @@ export function add(data) {
   })
 }
 
-export function update(data) {
+export function update(data: any) {
   return request({
     url: '/api/system/job',
     method: 'put',
@@ -24,7 +24,7 @@ export function update(data) {
   })
 }
 
-export function batchDel(ids) {
+export function batchDel(ids: any[]) {
   return request({
     url: '/api/system/job/batch',
     method: 'delete',
@@ -32,14 +32,14 @@ export function batchDel(ids) {
   })
 }
 
-export function pauseOrResume(data) {
+export function pauseOrResume(data: any) {
   return request({
     url: '/api/system/job/pause-or-resume',
     method: 'post',
     data
   })
 }
-export function execJob(id) {
+export function execJob(id: string | number) {
   return request({
     url: '/api/system/job/exec',
     method: 'post',

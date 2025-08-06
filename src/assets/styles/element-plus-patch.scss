@@ -2,9 +2,10 @@
 .el-dialog__header {
   border-bottom: 1px solid var(--color-border);
   margin-right: 0;
+  margin-bottom: 12px;
 }
 
-.el-dialog .eu-submit-btn {
+.eu-submit-btn {
   width: 150px;
 }
 
@@ -35,8 +36,39 @@
 }
 
 .el-loading-spinner .path {
-  stroke: var(--color-neutral-2) !important;
+  stroke: var(--color-white) !important;
 }
 .el-loading-spinner .el-loading-text {
-  color: var(--color-neutral-2) !important;
+  color: var(--color-white) !important;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.eu-drawer {
+  .el-drawer__header {
+    position: relative;
+    font-size: 16px;
+    margin-bottom: 16px;
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: -16px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background-color: var(--color-border);
+    }
+  }
+  .el-drawer__body {
+    padding: 0;
+  }
+  .drawer-body {
+    height: 100%;
+    .drawer-body__footer {
+      width: 100%;
+      // 上阴影
+      box-shadow: 0 0 10px 0 var(--color-border-3);
+      z-index: 1;
+    }
+  }
 }

@@ -1,43 +1,38 @@
 import request from '@/utils/request'
+import type {PageResult, ResultBody} from "@/types/api";
+import type {GenerateTable} from "@/types/system/generate";
 
-export function page(params) {
+export function page(params: any): Promise<ResultBody<PageResult<GenerateTable>>> {
   return request({
     url: '/api/gen/page',
     method: 'get',
     params
   })
 }
-export function preview(params) {
+export function preview(params: any) {
   return request({
     url: '/api/gen/preview',
     method: 'get',
     params
   })
 }
-export function tableInfo(params) {
+export function tableInfo(params: any) {
   return request({
     url: '/api/gen/tableInfo',
     method: 'get',
     params
   })
 }
-export function syncTable(params) {
+export function syncTable(params: any) {
   return request({
     url: '/api/gen/sync',
     method: 'post',
     params
   })
 }
-export function saveTable(data) {
+export function save(data: any) {
   return request({
-    url: '/api/gen/table',
-    method: 'post',
-    data
-  })
-}
-export function saveColumns(data) {
-  return request({
-    url: '/api/gen/columns',
+    url: '/api/gen/save',
     method: 'post',
     data
   })

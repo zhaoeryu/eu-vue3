@@ -1,87 +1,50 @@
 <script setup lang="ts">
-import { computed, reactive, ref, useAttrs, watch } from 'vue'
+import { computed, reactive, ref, useAttrs, watch, defineProps } from 'vue'
 import { REQUEST_HEADER_TOKEN } from '@/utils/constants'
 import { getToken } from '@/utils/auth'
 import { defaultSetting } from '@/settings'
-import { ElMessage } from 'element-plus'
+import {ElMessage, type UploadFile} from 'element-plus'
 import { downloadFile } from '@/utils'
 import { commonReqHeaders } from '@/utils/request'
+import {type UploadResult} from "@/types/api";
 
-const props = defineProps({
-  /**
-   * 上传接口
-   */
-  uploadApi: {
-    type: String,
-    required: true
-  },
-  /**
-   * 文件地址，多个文件使用，分隔
-   */
-  modelValue: {
-    type: String,
-    default: ''
-  },
-  /**
-   * 文件大小限制：单位MB
-   */
-  sizeLimit: {
-    type: Number,
-    required: false,
-    default: 10
-  },
-  /**
-   * 是否禁用删除: 默认不禁用
-   */
-  delEnable: {
-    type: Boolean,
-    required: false,
-    default: true
-  },
-  /**
-   * 提示说明的内容
-   */
-  tip: {
-    type: String,
-    required: false
-  },
-  /**
-   * 是否单个文件模式
-   * 单个文件模式下，文件列表只会保存最后一次上传成功的文件，重复上传会进行覆盖
-   */
-  singleMode: {
-    type: Boolean,
-    required: false,
-    default: false
-  },
-  /**
-   * 上传成功的回调
-   */
-  onSuccessCallback: {
-    type: Function,
-    required: false
-  }
+interface Props {
+  uploadApi: string;
+  sizeLimit?: number;
+  delEnable?: boolean;
+  tip?: string;
+  singleMode?: boolean;
+  onSuccessCallback?: Function;
+}
+
+type EuUploadFile = Omit<UploadFile, 'response'> & {
+  response?: UploadResult;
+};
+
+const props = withDefaults(defineProps<Props>(), {
+  sizeLimit: 10,
+  delEnable: true,
+  singleMode: false,
 })
-
-const emit = defineEmits(['update:modelValue'])
 
 const attrs = useAttrs()
-
-const headers = reactive({
-  [REQUEST_HEADER_TOKEN]: getToken(),
-  ...commonReqHeaders
+const model = defineModel<string|null>()
+const state = reactive({
+  files: [] as EuUploadFile[],
+  previewShow: false,
+  previewUrl: null as (string | null),
+  headers: {
+    [REQUEST_HEADER_TOKEN]: getToken(),
+    ...commonReqHeaders
+  },
 })
-
-const files = ref([])
-const previewShow = ref(false)
-const previewUrl = ref(null)
 
 const action = computed(() => defaultSetting.BASE_API + props.uploadApi)
 
-watch(() => props.modelValue, (val, oldVal) => {
+watch(() => model.value, (val, oldVal) => {
   if (!val) {
     // 如果value为空，则清空文件列表
-    files.value.splice(0, files.value.length)
+    state.files.splice(0, state.files.length)
     return
   }
 
@@ -91,23 +54,23 @@ watch(() => props.modelValue, (val, oldVal) => {
     urls = urls.slice(-1)
   }
   urls.forEach(url => {
-    const isExists = files.value.some(file => file.response && file.response.link === url)
+    const isExists = state.files.some(file => file.response && file.response.link === url)
     if (isExists) {
       return
     }
-    files.value.push({
+    state.files.push({
       name: url.substring(url.lastIndexOf('/') + 1, url.length),
       url: url,
       response: {
         link: url
       }
-    })
+    } as EuUploadFile)
   })
 }, {
   immediate: true
 })
 
-function successHandle(response, file, fileList) {
+function successHandle(response: { link: string, msg: string }, file: EuUploadFile, fileList: EuUploadFile[]) {
   const isContinue = props.onSuccessCallback && props.onSuccessCallback(response, file, fileList)
   if (isContinue !== undefined && !isContinue) {
     // 回调返回false，不进行后续处理
@@ -115,13 +78,13 @@ function successHandle(response, file, fileList) {
   }
   if (!verifySuccessResponse(response, !props.onSuccessCallback)) {
     // 校验失败
-    files.value = fileList.filter(item => item.response.link)
+    state.files = fileList.filter(item => item.response?.link)
     return
   }
 
   syncValue(file, fileList)
 }
-function removeHandle(file, fileList) {
+function removeHandle(file: EuUploadFile, fileList: EuUploadFile[]) {
   syncValue(file, fileList, true)
 }
 function previewHandle() {
@@ -134,18 +97,18 @@ function previewHandle() {
     // 非图片类型，下载
     downloadFile(link, fileName + ext)
   } else {
-    previewShow.value = true
-    previewUrl.value = link;
+    state.previewShow = true
+    state.previewUrl = link;
   }
 }
 function beforeRemoveHandle() {
   return props.delEnable
 }
-function errorHandle(e) {
-  ElMessage.error(e.message && e.message.message || e.message || '上传失败')
+function errorHandle(e: Error) {
+  ElMessage.error(e.message || '上传失败')
 }
-function beforeUploadHandle(file) {
-  const isLtM = file.size / 1024 / 1024 < props.sizeLimit
+function beforeUploadHandle(file: EuUploadFile) {
+  const isLtM = (file.size as number) / 1024 / 1024 < props.sizeLimit
   if (!isLtM) {
     ElMessage.error('上传文件大小不能超过 ' + props.sizeLimit + 'MB!')
   }
@@ -158,7 +121,7 @@ function exceedHandle() {
   })
 }
 
-function verifySuccessResponse(response, isTip) {
+function verifySuccessResponse(response: { link: string, msg: string }, isTip: boolean) {
   if (response && response.link) {
     return true
   }
@@ -167,7 +130,7 @@ function verifySuccessResponse(response, isTip) {
   }
   return false
 }
-function syncValue(file, fileList, isRemove = false) {
+function syncValue(file: EuUploadFile, fileList: EuUploadFile[], isRemove = false) {
   if (file.status !== 'success') {
     // 非成功状态不进行处理
     return
@@ -175,17 +138,23 @@ function syncValue(file, fileList, isRemove = false) {
 
   if (props.singleMode) {
     // 单个文件模式下，文件列表只会保存最后一次上传成功的文件，重复上传会进行覆盖
-    files.value = isRemove ? fileList : [file]
+    state.files = isRemove ? fileList : [file]
   } else {
-    files.value = fileList
+    state.files = fileList
   }
   // 从文件列表中获取文件地址，拼接成字符串(多个文件，分隔)，同步给v-model绑定的值
-  const urls = files.value.filter(item => item.response && item.response.link)
-    .map(item => item.response.link)
+  const urls = state.files.filter(item => item.response && item.response.link)
+    .map(item => item.response?.link)
     .join(',')
-  emit('update:modelValue', urls)
+  model.value = urls
 }
 
+</script>
+<script lang="ts">
+
+export default {
+  name: 'UploadFile'
+}
 </script>
 
 <template>
@@ -196,8 +165,8 @@ function syncValue(file, fileList, isRemove = false) {
     }"
 
     :action="action"
-    :headers="headers"
-    :file-list="files"
+    :headers="state.headers"
+    :file-list="state.files"
 
     :on-success="successHandle"
     :on-remove="removeHandle"
@@ -220,9 +189,9 @@ function syncValue(file, fileList, isRemove = false) {
     <template #default>
       <!-- 图片预览 -->
       <el-image-viewer
-        v-if="previewShow"
-        :url-list="[previewUrl]"
-        @close="previewShow = false"
+        v-if="state.previewShow"
+        :url-list="[state.previewUrl]"
+        @close="state.previewShow = false"
       />
     </template>
   </el-upload>

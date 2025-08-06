@@ -1,6 +1,7 @@
 import type {App} from "vue";
+// @ts-ignore 忽略类型检查
 import VueDataDict from 'vue3-data-dict'
-import {listByDictKey} from '@/api/system/dictDetail'
+import useDict from "@/hooks/dict";
 
 export default {
   install: (Vue: App) => {
@@ -15,10 +16,12 @@ export default {
       // DEFAULT_VALUE_FIELDS: ['value', 'id', 'uid', 'key'],
       metas: {
         '*': {
-          request(dictMeta) {
-            return listByDictKey(dictMeta.type)
+          request(dictMeta: any) {
+            return useDict().fetchOptions(dictMeta.type)
           },
+          // @ts-ignore 忽略类型检查
           responseConverter(response, dictMeta) {
+            // @ts-ignore 忽略类型检查
             return (response.data || []).map(item => VueDataDict.convertData(item, dictMeta))
           },
           labelField: 'dictLabel',

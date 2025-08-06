@@ -12,10 +12,6 @@ import { useWindowSize } from '@vueuse/core'
 import {useRoute} from "vue-router";
 import {DeviceTypeEnums} from "@/utils/enums";
 
-defineOptions({
-  name: 'Layout'
-})
-
 const route = useRoute()
 const settingsStore = useSettingsStore()
 const routeStore = useRouteStore()
@@ -47,6 +43,12 @@ watchEffect(() => {
   settingsStore.toggleDevice(isMobile ? DeviceTypeEnums.MOBILE : DeviceTypeEnums.DESKTOP)
   settingsStore.toggleCollapsed(isCollapse)
 })
+</script>
+
+<script lang="ts">
+export default {
+  name: 'Layout'
+}
 </script>
 
 <template>

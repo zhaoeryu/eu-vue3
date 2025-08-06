@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function page(params) {
+export function page(params: any) {
   return request({
     url: '/api/system/dict-detail/page',
     method: 'get',
@@ -8,7 +8,7 @@ export function page(params) {
   })
 }
 
-export function add(data) {
+export function add(data: any) {
   return request({
     url: '/api/system/dict-detail',
     method: 'post',
@@ -16,7 +16,7 @@ export function add(data) {
   })
 }
 
-export function update(data) {
+export function update(data: any) {
   return request({
     url: '/api/system/dict-detail',
     method: 'put',
@@ -24,7 +24,7 @@ export function update(data) {
   })
 }
 
-export function batchDel(ids) {
+export function batchDel(ids: any[]) {
   return request({
     url: '/api/system/dict-detail/batch',
     method: 'delete',
@@ -32,12 +32,18 @@ export function batchDel(ids) {
   })
 }
 
-export function listByDictKey(dictKey) {
+export function listByDictKey(params: any) {
   return request({
     url: '/api/system/dict-detail/listByDictKey',
     method: 'get',
-    params: {
-      dictKey
-    }
+    params
+  })
+}
+
+export function fetchOne(params: any) {
+  return request({
+    url: '/api/system/dict-detail/fetchOne',
+    method: 'get',
+    params
   })
 }

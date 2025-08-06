@@ -1,15 +1,14 @@
 <template>
   <editor
-    v-model="content"
+    v-model="model"
     :init="init"
     :enabled="!disabled"
     :id="tinymceId"
   />
 </template>
-
-<script setup>
+<script setup lang="ts">
 import { uploadFile } from '@/api/upload'
-import {reactive, watch, ref } from "vue";
+import {reactive, watch, ref, defineProps } from "vue";
 
 import tinymce from "tinymce/tinymce";
 import Editor from "@tinymce/tinymce-vue";
@@ -53,18 +52,9 @@ const content_style =
   p { margin: 5px 0px;}
 `
 
-// 语言配置
-const LanguageConfig = {
-  // 根据自己文件的位置，填写正确的路径，注意/可以直接访问到public文件
-  language_url: '/tinymce/langs/zh_CN.js',
-  language: 'zh_CN'
-}
+const model = defineModel<string>()
 
 const props = defineProps({
-  modelValue: {
-    type: String,
-    default: ''
-  },
   disabled: {
     type: Boolean,
     default: false
@@ -78,8 +68,8 @@ const props = defineProps({
     default: '400px'
   },
   minHeight: {
-    type: String,
-    default: '400px'
+    type: Number,
+    default: 400
   },
   // 编辑器初始可编辑状态
   editable_root: {
@@ -96,23 +86,10 @@ const props = defineProps({
   }
 });
 
-const emits = defineEmits(['update:modelValue']);
-
-const content = ref(props.modelValue);
-
-// 监听外部值变化
-watch(() => props.modelValue, (newVal) => {
-  content.value = newVal;
-});
-
-// 同步编辑器内容到父组件
-watch(content, (newVal) => {
-  emits('update:modelValue', newVal);
-});
-
 //定义一个对象 init初始化
 const init = reactive({
   selector: "#" + tinymceId.value, //富文本编辑器的id,
+  license_key: 'gpl',
   language_url: "/tinymce/langs/zh_CN.js", // 语言包的路径，具体路径看自己的项目
   language: "zh_CN",
   skin_url: '/tinymce/skins/ui/oxide',
@@ -154,7 +131,9 @@ const init = reactive({
   min_height: props.minHeight,
   content_css: "/tinymce/skins/content/default/content.css", //以css文件方式自定义可编辑区域的css样式，css文件需自己创建并引入
   //图片上传  -实列 具体请根据官网补充-
-  images_upload_handler: (blobInfo, progress) => {
+  images_upload_handler: (blobInfo: {
+    blob: () => Blob;
+  }, progress: number) => {
     return new Promise((resolve, reject) => {
       const formData = new FormData()
       formData.append('file', blobInfo.blob());
@@ -169,4 +148,11 @@ const init = reactive({
     })
   },
 });
+
+</script>
+
+<script lang="ts">
+export default {
+  name: 'EuEditor'
+}
 </script>

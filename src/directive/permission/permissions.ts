@@ -1,9 +1,10 @@
 import {PermissionModeEnums} from '@/utils/enums'
 import {hasPermission} from '@/utils/permission'
+import {type DirectiveBinding} from "vue";
 
 export default {
   // 默认 v-permissions:or
-  mounted(el, binding, vnode) {
+  mounted(el: HTMLElement, binding: DirectiveBinding) {
     const {value, arg} = binding
     const mode = arg || PermissionModeEnums.OR
 

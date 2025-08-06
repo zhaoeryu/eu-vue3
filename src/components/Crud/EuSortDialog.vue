@@ -1,48 +1,46 @@
 <script setup lang="ts">
 import Sortable from 'sortablejs'
 import { camelCaseToUnderline } from '@/utils'
-import {ref, nextTick} from "vue";
+import {ref, nextTick, useTemplateRef} from "vue";
 import {Delete} from "@element-plus/icons-vue";
+import {type DialogInstance, type TableInstance} from "element-plus";
+import useVisible from "@/hooks/visible";
 
-const props = defineProps({
-  modelValue: Array || String
-})
-
-const emit = defineEmits(['update:modelValue', 'complete'])
-
-interface IColumns {
+type IColumns = {
   fieldName: string
   fieldLabel: string
   sort: string
   checked: boolean
 }
 
-const show = ref(false)
+const model = defineModel<string[]>()
+const emit = defineEmits(['complete'])
+
+const { visible, setVisible } = useVisible(false)
 const columns = ref<IColumns[]>([])
 const sortResult = ref<IColumns[]>([])
+const refDialog = useTemplateRef<DialogInstance>('refDialog')
 
-const refDialog = ref(null)
-
-function open(refTable) {
-  show.value = true
+function open(refTable: TableInstance) {
+  setVisible(true)
 
   // 获取表格列配置
-  const _columns = refTable.store.states._columns.value.filter(item => item && item.property && item.label)
+  const _columns: IColumns[] = refTable.store.states._columns.value.filter(item => item && item.property && item.label)
     .map(column => {
       const columnName = camelCaseToUnderline(column.property)
       return {
         fieldName: columnName,
         fieldLabel: column.label,
         sort: sortResult.value.find(item => item.fieldName === columnName)?.sort
-      }
+      } as IColumns
     })
 
   // 初始化排序项
-  let _sort = []
-  if (typeof props.modelValue === 'string') {
-    _sort.push(props.modelValue)
-  } else if (Array.isArray(props.modelValue)) {
-    _sort = props.modelValue
+  let _sort: string[] = []
+  if (typeof model.value === 'string') {
+    _sort.push(model.value)
+  } else if (Array.isArray(model.value)) {
+    _sort = model.value
   }
   sortResult.value = _sort.map(item => {
     const column = _columns.find(column => column.fieldName === item.split(',')[0]) || {
@@ -51,7 +49,7 @@ function open(refTable) {
     return {
       ...column,
       sort: item.split(',')[1]
-    }
+    } as IColumns
   })
 
   // 设置选项禁用
@@ -65,28 +63,30 @@ function open(refTable) {
 
 async function initSortable() {
   await nextTick()
-  const el = refDialog.value.dialogContentRef.$el.querySelector('.sort-column-content')
+  const el = refDialog.value?.dialogContentRef.$el.querySelector('.sort-column-content')
   Sortable.create(el, {
     animation: 200,
     ghostClass: 'sortable-ghost',
     dragClass: 'sortable-drag',
     onEnd: function (evt) {
-      const item = sortResult.value[evt.oldIndex]
-      sortResult.value.splice(evt.oldIndex, 1)
-      sortResult.value.splice(evt.newIndex, 0, item)
+      if (typeof evt.oldIndex === 'number' && typeof evt.newIndex === 'number') {
+        const item = sortResult.value[evt.oldIndex]
+        sortResult.value.splice(evt.oldIndex, 1)
+        sortResult.value.splice(evt.newIndex, 0, item)
+      }
     }
   })
 }
 
 function onSave() {
   const _sort = sortResult.value.map(item => `${item.fieldName},${item.sort}`)
-  emit('update:modelValue', _sort)
+  model.value = _sort
   emit('complete')
-  show.value = false
+  setVisible(false)
 }
 
-function onCommand(fieldName) {
-  const item = columns.value.find(item => item.fieldName === fieldName)
+function onCommand(fieldName: string) {
+  const item = columns.value.find(item => item.fieldName === fieldName) as IColumns
   const newItem = { ...item }
   if (!newItem.sort) {
     newItem.sort = 'desc'
@@ -107,10 +107,16 @@ defineExpose({
 })
 </script>
 
+<script lang="ts">
+export default {
+  name: 'EuSortDialog'
+}
+</script>
+
 <template>
   <el-dialog
     title="设置排序规则"
-    v-model="show"
+    v-model="visible"
     width="560px"
     ref="refDialog"
     append-to-body
@@ -142,8 +148,8 @@ defineExpose({
           <li v-for="(item, index) in sortResult" :key="item.fieldName">
             <div>{{ item.fieldLabel }}</div>
             <el-radio-group v-model="item.sort">
-              <el-radio-button label="asc">升序</el-radio-button>
-              <el-radio-button label="desc">降序</el-radio-button>
+              <el-radio-button value="asc">升序</el-radio-button>
+              <el-radio-button value="desc">降序</el-radio-button>
             </el-radio-group>
             <div class="handle">
               <svg-icon icon-class="drag" />
@@ -156,7 +162,7 @@ defineExpose({
     <template #footer>
       <el-button @click="onClear">清空排序</el-button>
       <div>
-        <el-button @click="show = false">取 消</el-button>
+        <el-button @click="setVisible(false)">取 消</el-button>
         <el-button type="primary" class="eu-submit-btn" @click="onSave">排 序</el-button>
       </div>
     </template>

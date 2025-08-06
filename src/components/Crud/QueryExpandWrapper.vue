@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {defineProps} from "vue";
 defineProps({
   show: {
     type: Boolean,
@@ -6,7 +7,11 @@ defineProps({
   }
 })
 </script>
-
+<script lang="ts">
+export default {
+  name: 'QueryExpandWrapper'
+}
+</script>
 <template>
   <div class="query-expand-wrapper" :class="{
     'query-wrapper__show': show

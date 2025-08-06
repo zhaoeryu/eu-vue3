@@ -1,6 +1,5 @@
 <script setup>
 import SidebarItem from '@/layout/components/Sidebar/vertical/SidebarItem.vue'
-import { getMaxMatchedMenu } from '@/utils/route-helpers'
 import { useRouteStore, useSettingsStore } from '@/store'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -8,7 +7,6 @@ import { useRoute } from 'vue-router'
 const routeStore = useRouteStore()
 const route = useRoute()
 
-const activeMenu = ref('')
 const refMenu = ref(null)
 
 const sidebarCollapsed = computed(() => {
@@ -23,45 +21,13 @@ const menuUniqueOpened = computed(() => {
   return true
 })
 
-onMounted(async () => {
-  activeMenu.value = route.path
-  await tryHighlightMenu()
-})
-
-async function tryHighlightMenu() {
-  await nextTick()
-  const isNotActive = refMenu.value.activeIndex === null
-  if (isNotActive) {
-    // 首页特殊处理
-    const foundHomeMenu = menuList.value.find(item => item.path === '/' && item.redirect === route.path)
-    if (foundHomeMenu) {
-      activeMenu.value = foundHomeMenu.path
-      return
-    }
-
-    if (route.meta.hidden === true) {
-      // 支持模糊匹配
-      const matched = getMaxMatchedMenu(activeMenu.value, menuList)
-      if (matched) {
-        activeMenu.value = matched
-      }
-    }
-  }
-}
-
-watch(route, (newRoute, oldRoute) => {
-  activeMenu.value = newRoute.path
-  tryHighlightMenu()
-}, {
-  immediate: true
-})
 </script>
 
 <template>
   <el-scrollbar wrap-class="eu-scrollbar-wrapper">
     <el-menu
       ref="refMenu"
-      :default-active="activeMenu"
+      :default-active="route.path"
       :collapse="sidebarCollapsed"
       :unique-opened="menuUniqueOpened"
       :collapse-transition="false"
@@ -87,11 +53,11 @@ watch(route, (newRoute, oldRoute) => {
   --eu-menu-level: 0;
   --eu-menu-base-level-padding: calc(1.3em + 8px);
 }
-::v-deep .el-menu {
+:deep(.el-menu) {
   background-color: var(--theme-nav-first-bg);
   border-right: unset !important;
 }
-::v-deep .eu-menu {
+:deep(.eu-menu) {
   height: 100%;
   padding: 12px 0;
   border-right-color: var(--color-border);
@@ -168,14 +134,12 @@ watch(route, (newRoute, oldRoute) => {
     color: var(--theme-nav-first-active-color);
   }
 }
-::v-deep {
-  .eu-scrollbar-wrapper {
-    margin-right: unset !important;
-    overflow-x: hidden !important;
+:deep(.eu-scrollbar-wrapper) {
+  margin-right: unset !important;
+  overflow-x: hidden !important;
 
-    &::-webkit-scrollbar {
-      width: 0;
-    }
+  &::-webkit-scrollbar {
+    width: 0;
   }
 }
 </style>

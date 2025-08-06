@@ -1,47 +1,58 @@
 <script setup lang="ts">
-import {computed, ref} from "vue";
-import {ElMessage, ElMessageBox} from "element-plus";
+import {computed, ref, useTemplateRef} from "vue";
+import {ElMessage, ElMessageBox, type TableInstance} from "element-plus";
 import {Delete, Plus, Refresh, Search} from "@element-plus/icons-vue";
 import { cancelAuth, roleUserList } from '@/api/system/user'
 import { list as deptList } from '@/api/system/dept'
 import { getParentFieldsByLeafId, handleTreeData } from '@/utils'
 import AddAuthUserDialog from "@/views/system/roles/AddAuthUserDialog.vue";
+import useVisible from "@/hooks/visible";
+import useLoading from "@/hooks/loading";
+import {useResettableReactive} from "@/hooks/resettable";
+import type {Role} from "@/types/system/role";
+import type {DeptTree} from "@/types/system/dept";
+import EnumTag from "@/components/EnumTag.vue";
+import {EnableFlagEnums} from "@/utils/enums";
+import type {User} from "@/types/system/user";
 
-const DEFAULT_QUERY_PARAMS = {
-  nickname: null,
-  mobile: null,
-  roleId: null,
-  hasRole: 1,
-  page: 1,
-  size: 10
-}
+const refTable = useTemplateRef<TableInstance>('refTable')
+const refAddAuthUserDialog = useTemplateRef<InstanceType<typeof AddAuthUserDialog>>('refAddAuthUserDialog')
+const { visible, setVisible } = useVisible(false)
+const { loading, setLoading } = useLoading(false)
+const [state, reset] = useResettableReactive({
+  list: [],
+  total: 0,
+  isQueryShow: true,
+  multipleDisabled: true,
+  queryParams: {
+    nickname: null,
+    mobile: null,
+    roleId: null as number | null,
+    hasRole: 1,
 
-const show = ref(false)
-const queryParams = ref(DEFAULT_QUERY_PARAMS)
-const list = ref([])
-const total = ref(0)
-const loading = ref(false)
-const isQueryShow = ref(true)
-const multipleDisabled = ref(true)
-const deptTree = ref([])
-const roleId = ref(null)
-const role = ref({})
+    page: 1,
+    size: 10,
+    sort: []
+  },
 
-const refAddAuthUserDialog = ref(null)
-const refTable = ref(null)
+  deptTree: [] as DeptTree[],
+  roleId: null as number | null,
+  role: {} as Role,
+})
 
 const title = computed(() => {
   let title = '分配用户'
-  if (role.value.roleName) {
-    title += ` - ${role.value.roleName}`
+  if (state.role.roleName) {
+    title += ` - ${state.role.roleName}`
   }
   return title
 })
 
-function open(_role) {
-  role.value = _role
-  roleId.value = _role.id
-  show.value = true
+function open(_role: Role) {
+  reset()
+  state.role = _role
+  state.roleId = _role.id
+  setVisible(true)
 
   onDeptQuery()
   onRefresh()
@@ -49,30 +60,30 @@ function open(_role) {
 
 function onQuery() {
   loading.value = true
-  queryParams.value.roleId = roleId.value
-  roleUserList(queryParams.value).then(res => {
-    list.value = res.data.records
-    total.value = res.data.total
+  state.queryParams.roleId = state.roleId
+  roleUserList(state.queryParams).then(res => {
+    state.list = res.data.records
+    state.total = res.data.total
   }).finally(() => {
     loading.value = false
   })
 }
 
 function onRefresh() {
-  queryParams.value = {...DEFAULT_QUERY_PARAMS}
+  reset('queryParams')
   onQuery()
 }
 
-function onSelectionChange(selection) {
-  multipleDisabled.value = !selection.length
+function onSelectionChange(selection: User[]) {
+  state.multipleDisabled = !selection.length
 }
 
 function onAdd() {
-  refAddAuthUserDialog.value.open(roleId.value)
+  refAddAuthUserDialog.value?.open(state.roleId!)
 }
 
 function onBatchDel() {
-  const ids = refTable.value.getSelectionRows().map(item => item.id)
+  const ids = refTable.value?.getSelectionRows().map(item => item.id) || []
   ElMessageBox.confirm(`确认要删除选中的${ids.length}条记录吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -80,7 +91,10 @@ function onBatchDel() {
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
         instance.confirmButtonLoading = true;
-        cancelAuth(ids, roleId.value).then(() => {
+        cancelAuth({
+          roleId: state.roleId,
+          userIds: ids
+        }).then(() => {
           ElMessage.success('删除成功')
           done()
           onRefresh()
@@ -94,21 +108,21 @@ function onBatchDel() {
   });
 }
 
-function onSelectable(row) {
+function onSelectable(row: User) {
   return row.admin !== 1
 }
 
 function onDeptQuery() {
   deptList().then(res => {
-    deptTree.value = handleTreeData(res.data || [])
+    state.deptTree = handleTreeData(res.data || []) as DeptTree[]
   })
 }
 
-function convertToDeptName(deptId) {
-  return getParentFieldsByLeafId(deptTree.value, deptId, { fieldKey: 'deptName' }).join('/')
+function convertToDeptName(deptId: number) {
+  return getParentFieldsByLeafId(state.deptTree, deptId, { fieldKey: 'deptName' }).join('/')
 }
 
-function onCancelAuth(row) {
+function onCancelAuth(row: User) {
   ElMessageBox.confirm(`确认要取消授权用户 ${row.username} 吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -117,7 +131,7 @@ function onCancelAuth(row) {
       if (action === 'confirm') {
         instance.confirmButtonLoading = true;
         cancelAuth({
-          roleId: roleId.value,
+          roleId: state.roleId,
           userIds: [row.id]
         }).then(() => {
           ElMessage.success('取消授权成功')
@@ -140,19 +154,19 @@ defineExpose({
 
 <template>
   <el-drawer
-      :title="title"
-      v-model="show"
-      size="900px"
-      direction="rtl"
+    :title="title"
+    v-model="visible"
+    size="900px"
+    direction="rtl"
   >
     <div class="page-container">
-      <query-expand-wrapper :show="isQueryShow">
-        <el-form :model="queryParams" :inline="true">
+      <query-expand-wrapper :show="state.isQueryShow">
+        <el-form :model="state.queryParams" :inline="true">
           <el-form-item label="用户名称">
-            <el-input v-model="queryParams.nickname" placeholder="输入要查找的用户名称" clearable />
+            <el-input v-model="state.queryParams.nickname" placeholder="输入要查找的用户名称" clearable />
           </el-form-item>
           <el-form-item label="手机号">
-            <el-input v-model="queryParams.mobile" placeholder="输入要查找的手机号" clearable />
+            <el-input v-model="state.queryParams.mobile" placeholder="输入要查找的手机号" clearable />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" :icon="Search" @click="onQuery">查询</el-button>
@@ -172,20 +186,18 @@ defineExpose({
           }"
           :ref-table="refTable"
           @refresh="onRefresh"
-          v-model:searchToggle="isQueryShow"
+          v-model:searchToggle="state.isQueryShow"
         >
           <template #left>
-            <template v-permissions="['system:user:assignRole']">
-              <el-button type="primary" :icon="Plus" plain @click="onAdd">添加授权用户</el-button>
-              <el-button :disabled="multipleDisabled" type="danger" :icon="Delete" plain @click="onBatchDel">批量取消授权</el-button>
-            </template>
+            <el-button v-permissions="['system:user:assignRole']" type="primary" :icon="Plus" plain @click="onAdd">添加授权用户</el-button>
+            <el-button v-permissions="['system:user:assignRole']" :disabled="state.multipleDisabled" type="danger" :icon="Delete" plain @click="onBatchDel">批量取消授权</el-button>
           </template>
         </eu-table-toolbar>
         <el-table
-            ref="refTable"
-            :data="list"
-            @selection-change="onSelectionChange"
-            style="width: 100%"
+          ref="refTable"
+          :data="state.list"
+          @selection-change="onSelectionChange"
+          style="width: 100%"
         >
           <el-table-column type="selection" :selectable="onSelectable"></el-table-column>
           <el-table-column prop="username" label="登录名" width="100"></el-table-column>
@@ -198,7 +210,7 @@ defineExpose({
           <el-table-column prop="mobile" label="手机号码"></el-table-column>
           <el-table-column prop="status" label="状态" width="80">
             <template v-slot:default="{ row }">
-              <el-tag :type="row.status === 0 ? 'success' : 'danger'">{{ row.status === 0 ? '正常' : '禁用' }}</el-tag>
+              <enum-tag :value="row.status" :enums="EnableFlagEnums" />
             </template>
           </el-table-column>
           <el-table-column prop="lastActiveTime" label="最后活跃时间"></el-table-column>
@@ -209,9 +221,9 @@ defineExpose({
           </el-table-column>
         </el-table>
         <pagination
-          v-model:page="queryParams.page"
-          v-model:limit="queryParams.size"
-          :total="total"
+          v-model:page="state.queryParams.page"
+          v-model:limit="state.queryParams.size"
+          :total="state.total"
           @pagination="onQuery"
         />
       </div>

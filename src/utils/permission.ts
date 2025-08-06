@@ -8,7 +8,7 @@ import { PermissionModeEnums } from '@/utils/enums'
  * @param {string} mode 权限检查模式：PermissionModeEnums
  * @returns {boolean} 是否拥有指定的权限
  */
-export function hasPermission(permissions: string[], mode = PermissionModeEnums.OR) {
+export function hasPermission(permissions: string[], mode = PermissionModeEnums.OR): boolean {
   if (!Array.isArray(permissions)) {
     return false
   }

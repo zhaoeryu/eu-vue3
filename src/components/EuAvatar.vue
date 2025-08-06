@@ -1,33 +1,20 @@
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, defineProps, withDefaults} from "vue";
 
-const props = defineProps({
-  src: {
-    type: String,
-    default: ''
-  },
-  nickname: {
-    type: String,
-    default: ''
-  },
-  size: {
-    type: [Number, String],
-    validator(val) {
-      if (typeof val === 'string') {
-        return ['large', 'medium', 'small'].includes(val);
-      }
-      return typeof val === 'number';
-    },
-    default: 30
-  },
-  fontSize: {
-    type: Number,
-    default: 16
-  },
-  shape: {
-    type: String,
-    default: 'square'
-  }
+type Size = 'large' | 'medium' | 'small' | number
+type Shape = 'square' | 'circle'
+
+interface Props {
+  src: string;
+  nickname: string;
+  size?: Size;
+  fontSize?: number;
+  shape?: Shape;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  fontSize: 16,
+  shape: 'square'
 })
 
 const showName = computed(() => {
@@ -40,6 +27,12 @@ const avatarTextStyle = computed(() => {
     fontSize: `${props.fontSize}px`
   }
 })
+</script>
+
+<script lang="ts">
+export default {
+  name: 'EuAvatar'
+}
 </script>
 
 <template>

@@ -1,7 +1,7 @@
 <script setup>
 import AppLink from '@/layout/components/Sidebar/Link.vue'
 import { getMaxMatchedMenu } from '@/utils/route-helpers'
-import { computed } from 'vue'
+import { computed, defineProps } from 'vue'
 import {useRoute} from "vue-router";
 
 const props = defineProps({

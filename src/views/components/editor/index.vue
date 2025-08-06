@@ -23,5 +23,5 @@ const content = ref(null)
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/eu-editor.scss';
+@use '@/assets/styles/eu-editor.scss';
 </style>

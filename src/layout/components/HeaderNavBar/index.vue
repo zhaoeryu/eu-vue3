@@ -2,7 +2,7 @@
 import SidebarHeader from "@/layout/components/SidebarHeader/index.vue";
 import { defaultSetting } from "@/settings";
 import { useFullscreen } from '@vueuse/core'
-import {computed, defineOptions, ref} from "vue";
+import {computed, defineOptions, ref, defineProps, defineEmits } from "vue";
 import {useSettingsStore} from "@/store";
 import SvgIcon from "@/components/SvgIcon.vue";
 import CmdkDialog from "@/components/cmdk/CmdkDialog.vue";
@@ -95,7 +95,7 @@ function onThemeClick() {
 </template>
 
 <style scoped lang="scss">
-@import "@/assets/styles/screen.scss";
+@use "@/assets/styles/screen.scss";
 #eu-layout__navbar {
   position: fixed;
   left: 0;
@@ -133,7 +133,7 @@ function onThemeClick() {
   }
 }
 
-@media (max-width: $screen-md) {
+@media (max-width: screen.$screen-md) {
   .eu-phone__hide {
     display: none;
   }

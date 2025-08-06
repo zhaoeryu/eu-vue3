@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function list(params) {
+export function list(params: any) {
   return request({
     url: '/api/system/menu/list',
     method: 'get',
@@ -8,14 +8,14 @@ export function list(params) {
   })
 }
 
-export function add(data) {
+export function add(data: any) {
   return request({
     url: '/api/system/menu',
     method: 'post',
     data
   })
 }
-export function update(data) {
+export function update(data: any) {
   return request({
     url: '/api/system/menu',
     method: 'put',
@@ -23,7 +23,7 @@ export function update(data) {
   })
 }
 
-export function batchDel(ids) {
+export function batchDel(ids: any[]) {
   return request({
     url: '/api/system/menu/batch',
     method: 'delete',

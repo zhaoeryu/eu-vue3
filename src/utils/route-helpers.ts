@@ -7,20 +7,24 @@ import {
   addLeadingSlash,
   pathTrim,
   removeEndSlash,
-  getFirstChildrenFields
+  getFirstChildrenFields,
+  type TreeNode
 } from './index'
 import { MenuTypeEnums } from './enums'
 import Layout from '@/layout/index.vue'
 import MiddleDirectory from '@/layout/components/MiddleDirectory.vue'
 import NotFound from "@/views/404.vue";
-const VIEW_MODULES: {} = import.meta.glob('@/views/**/*.vue')
+import {type Menu} from "@/types/system/menu";
+import {type RouteNode, type RouteNodeMeta} from "@/types/route";
+import {type ANY_OBJECT} from "@/types/generic";
+const VIEW_MODULES: ANY_OBJECT = import.meta.glob('@/views/**/*.vue')
 
 /**
  * 验证路由节点数据的有效性
  * @param {Object} node 路由节点
  * @returns {boolean} 是否有效
  */
-export function isValidRouteNode(node) {
+export function isValidRouteNode(node: Menu) {
   return node &&
     typeof node === 'object' &&
     node.id &&
@@ -32,7 +36,7 @@ export function isValidRouteNode(node) {
  * @param {string} path 原始路径
  * @returns {string} 清理后的路径
  */
-export function sanitizePath(path) {
+export function sanitizePath(path: string) {
   if (!path) {
     return ''
   }
@@ -45,7 +49,7 @@ export function sanitizePath(path) {
  * @param {string} currentPath 当前路径
  * @returns {string} 完整路径
  */
-export function buildFullPath(parentPath, currentPath) {
+export function buildFullPath(parentPath: string | null | undefined, currentPath: string) {
   if (isExternal(currentPath)) {
     return currentPath
   }
@@ -65,14 +69,14 @@ export function buildFullPath(parentPath, currentPath) {
  * @param {Object} item 菜单项
  * @returns {Object} 路由元数据
  */
-export function createRouteMeta(item) {
+export function createRouteNodeMeta(item: Menu): RouteNodeMeta {
   return {
     title: item.menuName || '',
     icon: item.menuIcon || '',
     affix: Boolean(item.affix),
     isChildMeta: false,
     permission: item.permission || '',
-    keepAlive: Boolean(item.keepAlive),
+    keepAlive: Boolean(item.cache),
     dot: Boolean(item.dot),
     badge: item.badge || '',
     showHeader: Boolean(item.showHeader),
@@ -90,7 +94,7 @@ export function createRouteMeta(item) {
  * @param {Object} item 菜单项
  * @returns {Object|null} 路由项
  */
-export function formatMenuToRoute(item) {
+export function formatMenuToRoute(item: Menu): RouteNode | null {
   if (!isValidRouteNode(item)) {
     return null
   }
@@ -104,7 +108,7 @@ export function formatMenuToRoute(item) {
     fullPath: null,
     path: item.path || '',
     name: item.componentName,
-    meta: createRouteMeta(item),
+    meta: createRouteNodeMeta(item),
     children: []
   }
 }
@@ -115,7 +119,7 @@ export function formatMenuToRoute(item) {
  * @param {Object} parentNode 父节点数据
  * @returns {Object} 处理后的节点
  */
-export function processDirectoryNode(node, parentNode) {
+export function processDirectoryNode(node: RouteNode, parentNode: RouteNode | null) {
   if (!parentNode) {
     // 根目录节点
     node.component = Layout
@@ -126,7 +130,7 @@ export function processDirectoryNode(node, parentNode) {
   }
 
   // redirect 到第一个子菜单
-  const condition = (n) => n.menuType !== MenuTypeEnums.MENU.value
+  const condition = (n: TreeNode) => n.menuType !== MenuTypeEnums.MENU.value
   const firstChildPath = getFirstChildrenFields(node, { fieldKey: 'path', condition }).join('/')
   node.redirect = pathTrim(addLeadingSlash(firstChildPath))
 
@@ -147,7 +151,7 @@ export function processDirectoryNode(node, parentNode) {
  * @param {Object} parentNode 父节点数据
  * @returns {Object} 处理后的节点
  */
-export function processMenuNode(node, parentNode) {
+export function processMenuNode(node: RouteNode, parentNode: RouteNode | null) {
   if (isExternal(node.path)) {
     // 外链处理
     node.path = removeLeadingSlash(node.path, true)
@@ -168,7 +172,7 @@ export function processMenuNode(node, parentNode) {
  * @param {Object} node 菜单节点
  * @returns {Object} 包装后的节点
  */
-export function wrapMenuWithLayout(node) {
+export function wrapMenuWithLayout(node: RouteNode) {
   const childNode = _.cloneDeep(node)
 
   // 清理父节点属性
@@ -195,9 +199,10 @@ export function wrapMenuWithLayout(node) {
  * @param {Object} menu 菜单项
  * @returns {Object} 组件
  */
-export function loadComponent(menu) {
+export function loadComponent(menu: RouteNode) {
   // 内嵌iframe
   if (_.get(menu, 'meta.embed') === true) {
+    // @ts-ignore
     return () => import('/src/layout/components/InnerIframe.vue')
   }
 
@@ -231,16 +236,17 @@ export function loadComponent(menu) {
  * @param {Array} menuList 菜单列表
  * @returns {string|null} 匹配度最高的path
  */
-export function getMaxMatchedMenu(activeMenu, menuList) {
+export function getMaxMatchedMenu(activeMenu: string, menuList: RouteNode[]) {
   // 参数验证
   if (!activeMenu || !Array.isArray(menuList) || menuList.length === 0) {
     return null
   }
 
   // 预处理：获取所有有效的菜单路径
-  const validMenuPaths = toArray(menuList)
+  // @ts-ignore
+  const validMenuPaths: string[] = toArray(menuList)
     .filter(item => item && item.fullPath)
-    .map(item => item.fullPath)
+    .map(item => String(item.fullPath))
 
   if (validMenuPaths.length === 0) {
     return null
@@ -269,7 +275,7 @@ export function getMaxMatchedMenu(activeMenu, menuList) {
  * @param {string} matchMenu 匹配菜单路径
  * @returns {boolean} 是否匹配
  */
-export function isMenuSegmentMatch(curMenu, matchMenu) {
+export function isMenuSegmentMatch(curMenu: string, matchMenu: string) {
   // 参数验证
   if (!curMenu || !matchMenu || typeof curMenu !== 'string' || typeof matchMenu !== 'string') {
     return false

@@ -1,14 +1,18 @@
 <script setup lang="ts">
+// @ts-nocheck
 import Sortable from 'sortablejs';
-import {nextTick, ref, toRef} from "vue";
+import {nextTick, ref, toRef, useTemplateRef} from "vue";
 import {Sort} from "@element-plus/icons-vue";
+import useVisible from "@/hooks/visible";
+import {type DialogInstance, type TableInstance } from "element-plus";
 
-const show = ref(false)
+const { visible, setVisible } = useVisible(false)
 const list = ref([])
-const cacheRefTable = ref(null)
-const refDialog = ref(null)
+const cacheRefTable = ref<TableInstance | null>(null)
+const refDialog = useTemplateRef<DialogInstance>('refDialog')
 
-function open(refTable, { ignoreColumns = [] } = {}) {
+
+function open(refTable: TableInstance, { ignoreColumns = [] } = {}) {
   if (!refTable) {
     throw new Error('请传入el-table的ref')
   }
@@ -42,25 +46,27 @@ function open(refTable, { ignoreColumns = [] } = {}) {
     return a.no - b.no
   })
   list.value = columns
-  show.value = true
+  setVisible(true)
   initSortable()
 }
 
-function columnFilter(column, ignoreColumns) {
+function columnFilter(column, ignoreColumns: string[]) {
   return column && column.type === 'default' && column.property && !ignoreColumns.includes(column.property) || false
 }
 
 async function initSortable() {
   await nextTick()
-  const el = refDialog.value.dialogContentRef.$el.querySelector('.table-column-setting-content')
+  const el = refDialog.value?.dialogContentRef.$el.querySelector('.table-column-setting-content')
   new Sortable(el, {
     animation: 200,
     ghostClass: 'sortable-ghost',
     dragClass: 'sortable-drag',
     onEnd: evt => {
-      const item = list.value[evt.oldIndex]
-      list.value.splice(evt.oldIndex, 1)
-      list.value.splice(evt.newIndex, 0, item)
+      if (typeof evt.newIndex === 'number' && typeof evt.oldIndex === 'number') {
+        const item = list.value[evt.oldIndex]
+        list.value.splice(evt.oldIndex, 1)
+        list.value.splice(evt.newIndex, 0, item)
+      }
     }
   })
 }
@@ -72,7 +78,7 @@ function onSave() {
     tmpMap[column.id] = column
   })
 
-  cacheRefTable.value.store.states._columns.value = cacheRefTable.value.store.states._eu_columns.value.map(column => {
+  cacheRefTable.value.store.states._columns.value = cacheRefTable.value?.store.states._eu_columns.value.map(column => {
     const _tmpColumn = tmpMap[column.id]
     if (!_tmpColumn) {
       // 针对未启用排序的列
@@ -87,18 +93,18 @@ function onSave() {
   .filter(column => column._eu_visible)
 
   // 根据no进行正序排序
-  cacheRefTable.value.store.states._columns.value.sort((a, b) => {
+  cacheRefTable.value?.store.states._columns.value.sort((a, b) => {
     return a.no - b.no
   })
 
   // 渲染布局
-  cacheRefTable.value.store.scheduleLayout(true, true)
+  cacheRefTable.value?.store.scheduleLayout(true, true)
 
-  show.value = false
+  setVisible(false)
 }
 
 function onRestore() {
-  list.value = cacheRefTable.value.store.states._eu_columns.value.map(column => {
+  list.value = cacheRefTable.value?.store.states._eu_columns.value.map(column => {
     return {
       id: column.id,
       label: column.label,
@@ -115,10 +121,16 @@ defineExpose({
 })
 </script>
 
+<script lang="ts">
+export default {
+  name: 'TableColumnSettingDialog'
+}
+</script>
+
 <template>
   <el-dialog
     title="列表设置"
-    v-model="show"
+    v-model="visible"
     :close-on-click-modal="false"
     width="560px"
     append-to-body
@@ -144,7 +156,7 @@ defineExpose({
     <template #footer>
       <el-button @click="onRestore">重置预设</el-button>
       <div>
-        <el-button @click="show = false">取 消</el-button>
+        <el-button @click="setVisible(false)">取 消</el-button>
         <el-button type="primary" @click="onSave">确 定</el-button>
       </div>
     </template>

@@ -1,22 +1,15 @@
 <script setup lang="ts">
 import { add, update } from '@/api/system/dictDetail'
-import {ElMessage} from "element-plus";
-import {computed, nextTick, ref} from "vue";
-
-const DEFAULT_FORM = {
-  dictKey: null,
-  dictLabel: null,
-  dictValue: null,
-  sortNum: 999,
-  status: null,
-  remark: null
-}
+import {ElMessage, type FormInstance} from "element-plus";
+import {computed, nextTick, useTemplateRef} from "vue";
+import useVisible from "@/hooks/visible";
+import useLoading from "@/hooks/loading";
+import {useResettableReactive} from "@/hooks/resettable";
+import type { DictDetail } from "@/types/system/dict";
+import {EnableFlagEnums} from "@/utils/enums";
 
 const emit = defineEmits(['complete'])
 
-const show = ref(false)
-const formLoading = ref(false)
-const form = ref(DEFAULT_FORM)
 const rules = {
   dictLabel: [
     { required: true, message: '请输入字典Label', trigger: 'blur' }
@@ -31,32 +24,59 @@ const rules = {
     { required: true, message: '请选择字典状态', trigger: 'blur' }
   ]
 }
-const refForm = ref(null)
-const title = computed(() => {
-  return form.value.id ? '修改字典' : '新增字典'
+const DEFAULT_FORM = {
+  id: null,
+  dictKey: null,
+  dictLabel: null,
+  dictValue: null,
+  sortNum: 999,
+  status: null,
+  remark: null
+}
+const refForm = useTemplateRef<FormInstance>('refForm')
+const { visible, setVisible } = useVisible(false)
+const { loading: formLoading, setLoading: setFormLoading } = useLoading(false)
+const [ state, reset ] = useResettableReactive({
+  form: {
+    ...DEFAULT_FORM
+  }
 })
 
-function open(row) {
-  form.value = Object.assign({...DEFAULT_FORM}, row)
-  show.value = true
+const title = computed(() => {
+  return state.form.id ? '修改字典' : '新增字典'
+})
+
+function open(row: DictDetail) {
+  reset()
+  if (!row.id) {
+    row.status = EnableFlagEnums.ENABLE.value
+  }
+  state.form = Object.assign({...DEFAULT_FORM}, row)
+  setVisible(true)
 }
 
 function onSubmit() {
-  refForm.value.validate(valid => {
+  refForm.value?.validate(valid => {
     if (!valid) {
-      return false
+      return
     }
 
-    formLoading.value = true
-    const reqPromise = form.value.id ? update(form.value) : add(form.value)
+    setFormLoading(true)
+    const reqPromise = state.form.id ? update(state.form) : add(state.form)
     reqPromise.then(() => {
-      ElMessage.success(form.value.id ? '修改成功' : '新增成功')
-      show.value = false
+      ElMessage.success(state.form.id ? '修改成功' : '新增成功')
+      setVisible(false)
       emit('complete')
     }).finally(() => {
-      formLoading.value = false
+      setFormLoading(false)
     })
   })
+}
+
+function onReset() {
+  if (refForm.value) {
+    refForm.value.resetFields();
+  }
 }
 
 async function onDialogOpen() {
@@ -75,33 +95,30 @@ defineExpose({
 <template>
   <el-dialog
     :title="title"
-    v-model="show"
+    v-model="visible"
     :close-on-click-modal="false"
     width="500px"
     @open="onDialogOpen"
   >
-    <el-form ref="refForm" :model="form" :rules="rules" label-width="90px">
+    <el-form ref="refForm" :model="state.form" :rules="rules" label-width="90px">
       <el-form-item label="字典Label" prop="dictLabel">
-        <el-input v-model="form.dictLabel" placeholder="请输入字典Label" maxlength="32" />
+        <el-input v-model="state.form.dictLabel" placeholder="请输入字典Label" maxlength="32" />
       </el-form-item>
       <el-form-item label="字典Value" prop="dictValue">
-        <el-input v-model="form.dictValue" placeholder="请输入字典VALUE" maxlength="30" />
+        <el-input v-model="state.form.dictValue" placeholder="请输入字典VALUE" maxlength="30" />
       </el-form-item>
       <el-form-item label="字典排序" prop="sortNum">
-        <el-input-number v-model="form.sortNum" :min="0" :max="999" />
+        <el-input-number v-model="state.form.sortNum" :min="0" :max="999" />
       </el-form-item>
       <el-form-item label="字典状态" prop="status">
-        <el-radio-group v-model="form.status">
-          <el-radio :label="0">正常</el-radio>
-          <el-radio :label="1">停用</el-radio>
-        </el-radio-group>
+        <enum-radio-group v-model="state.form.status" :enums="EnableFlagEnums" />
       </el-form-item>
       <el-form-item label="备注" prop="remark">
-        <el-input v-model="form.remark" type="textarea" placeholder="请输入备注" maxlength="200" />
+        <el-input v-model="state.form.remark" type="textarea" placeholder="请输入备注" maxlength="200" />
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="show = false">取 消</el-button>
+      <el-button @click="onReset">重 置</el-button>
       <el-button :loading="formLoading" class="eu-submit-btn" type="primary" @click="onSubmit">确 定</el-button>
     </template>
   </el-dialog>

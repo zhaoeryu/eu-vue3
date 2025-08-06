@@ -1,13 +1,14 @@
-import axios, {AxiosResponse} from 'axios'
+import axios, {
+  type AxiosResponse,
+  type InternalAxiosRequestConfig
+} from 'axios';
 import {getToken} from "@/utils/auth"
 import {EU_FRONT_KEY, REQUEST_HEADER_TOKEN} from '@/utils/constants';
 import {defaultSetting} from '@/settings';
-import {ElLoading, ElMessage, ElMessageBox} from 'element-plus'
+import {ElLoading, ElMessage, ElMessageBox, type MessageParams} from 'element-plus'
 import errorCode from '@/utils/errorCode'
-import type {EuAxiosRequestConfig, ResultBody} from "@/api/types";
 import {useUserStore} from "@/store";
-import {blobValidate} from "@/utils/index";
-import {saveAs} from 'file-saver'
+import {downloadBlobFile} from "@/utils/index";
 import qs from 'qs'
 
 export const commonReqHeaders = {
@@ -20,14 +21,14 @@ const service = axios.create({
   timeout: 20 * 1000,
   // 4种不同形式
   //1.qs.stringify({ids: [1, 2, 3]}, { indices: false }) --形式： ids=1&ids=2&ids=3
-  //2.qs.stringify({ids: [1, 2, 3]}, {arrayFormat: ‘indices‘}) --形式：      ids[0]=1&ids[1]=2&ids[2]=3
-  //3.qs.stringify({ids: [1, 2, 3]}, {arrayFormat: ‘brackets‘})  --形式：ids[]=1&ids[]=2&ids[]=3
-  //4.qs.stringify({ids: [1, 2, 3]}, {arrayFormat: ‘repeat‘})  --形式： ids=1&ids=2&ids=3
-  paramsSerializer: params => qs.stringify(params, {indices: false}),
+  //2.qs.stringify({ids: [1, 2, 3]}, {arrayFormat: 'indices'}) --形式：      ids[0]=1&ids[1]=2&ids[2]=3
+  //3.qs.stringify({ids: [1, 2, 3]}, {arrayFormat: 'brackets'})  --形式：ids[]=1&ids[]=2&ids[]=3
+  //4.qs.stringify({ids: [1, 2, 3]}, {arrayFormat: 'repeat'})  --形式： ids=1&ids=2&ids=3
+  paramsSerializer: (params: any) => qs.stringify(params, {indices: false}),
   headers: {...commonReqHeaders}
 })
 
-service.interceptors.request.use(config => {
+service.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (getToken()) {
     config.headers[REQUEST_HEADER_TOKEN] = getToken()
   }
@@ -36,7 +37,7 @@ service.interceptors.request.use(config => {
   return Promise.reject(error)
 })
 
-service.interceptors.response.use((res: AxiosResponse<ResultBody, EuAxiosRequestConfig>) => {
+service.interceptors.response.use(res => {
   // 未设置状态码则默认成功状态
   const code = res.data.code || 200
   // 获取错误信息
@@ -50,7 +51,7 @@ service.interceptors.response.use((res: AxiosResponse<ResultBody, EuAxiosRequest
     return res.data
   }
   if (code === 401) {
-    doUnauthrorized(res, message)
+    doUnauthorized(res, message)
   } else if (code === 600) {
     showMessage(res, {message, type: 'warning'})
   } else if (code === 500) {
@@ -73,12 +74,13 @@ service.interceptors.response.use((res: AxiosResponse<ResultBody, EuAxiosRequest
 })
 
 // 通用下载方法
-let downloadLoadingInstance;
+let downloadLoadingInstance: any;
 
-export async function download(url, params, filename, config = {}) {
+export async function download(url: string, params: object, filename: string, config?: {}) {
   downloadLoadingInstance = ElLoading.service({
-    text: '正在下载数据，请稍候',
-    background: 'rgba(0, 0, 0, 0.7)'
+    text: '下载中...',
+    lock: true,
+    background: 'rgba(0, 0, 0, 0.7)',
   })
   return service.post(url, params, {
     headers: {
@@ -88,29 +90,19 @@ export async function download(url, params, filename, config = {}) {
     responseType: 'blob',
     ...config
   }).then(async (data) => {
-    const isBlob = blobValidate(data);
-    if (isBlob) {
-      const blob = new Blob([data])
-      saveAs(blob, filename)
+    if (data instanceof Blob) {
+      downloadBlobFile(data, filename)
     } else {
-      const resText = await data.text();
-      const rspObj = JSON.parse(resText);
-      const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default']
-      if (rspObj.code === 200) {
-        ElMessage.success(errMsg || '操作成功！')
-      } else {
-        ElMessage.error(errMsg);
-      }
+      ElMessage.error('文件异常')
     }
-    downloadLoadingInstance.close();
+    downloadLoadingInstance.close()
   }).catch((r) => {
-    console.error(r)
-    ElMessage.error('下载文件出现错误，请联系管理员！')
-    downloadLoadingInstance.close();
+    ElMessage.error(r.message || '下载失败！')
+    downloadLoadingInstance.close()
   })
 }
 
-function showMessage(res, messageOptions) {
+function showMessage(res: AxiosResponse, messageOptions: MessageParams) {
   /*
    * 调用的地方可以通过设置 silent 属性来控制是否显示错误消息
    * 例如：
@@ -127,7 +119,7 @@ function showMessage(res, messageOptions) {
   ElMessage(messageOptions)
 }
 
-function doUnauthrorized(res, message) {
+function doUnauthorized(res: AxiosResponse, message: string) {
   if (res.config.silent) {
     // 静默不处理
     return

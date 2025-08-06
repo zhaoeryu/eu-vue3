@@ -1,3 +1,5 @@
+import type {Enum, EnumItem} from "@/types/generic";
+
 /**
  * 设备类型
  */
@@ -17,7 +19,7 @@ export const PermissionModeEnums = {
 /**
  * 操作日志 - 业务类型
  */
-export const BusinessTypeEnums = {
+export const BusinessTypeEnums: Enum = {
   OTHER: { label: '其他', value: 0 },
   QUERY: { label: '查询', value: 1 },
   INSERT: { label: '新增', value: 2 },
@@ -37,13 +39,13 @@ export const BusinessTypeEnums = {
 /**
  * 菜单类型
  */
-export const MenuTypeEnums = {
-  DIR: { label: '目录', value: 1 },
+export const MenuTypeEnums: Enum = {
+  DIR: { label: '目录', value: 1, type: 'info' },
   MENU: { label: '菜单', value: 2 },
-  BUTTON: { label: '按钮', value: 3 }
+  BUTTON: { label: '按钮', value: 3, type: 'success' }
 }
 
-export const DataScopeEnums = {
+export const DataScopeEnums: Enum = {
   ALL: { label: '全部数据权限', value: 1 },
   CUSTOM: { label: '自定数据权限', value: 2 },
   DEPT: { label: '部门数据权限', value: 3 },
@@ -51,9 +53,19 @@ export const DataScopeEnums = {
   SELF: { label: '仅本人数据权限', value: 5 }
 }
 
-export const NoticeTypeEnums = {
+export const NoticeTypeEnums: Enum = {
   INFO: { label: '通知', value: 0 },
   ANNOUNCEMENT: { label: '公告', value: 1 }
+}
+
+export const EnableFlagEnums: Enum = {
+  ENABLE: { label: '启用', value: 0 },
+  DISABLE: { label: '禁用', value: 1, type: 'danger' }
+}
+
+export const BooleanFlagEnums: Enum = {
+  NO: { label: '否', value: 0 },
+  YES: { label: '是', value: 1 },
 }
 
 /**
@@ -64,7 +76,7 @@ export const NoticeTypeEnums = {
  * @param {String} defaultValue 如果没有找到对应的label，返回默认值
  * @returns {String} label
  */
-export function enumsParse(enums, value, field = 'label', defaultValue = null) {
+export function enumsParse(enums: Enum, value: number | string | null, field = 'label', defaultValue = null) {
   let fieldValue = null
   Object.keys(enums).forEach(key => {
     if (enums[key].value === value) {
@@ -73,7 +85,7 @@ export function enumsParse(enums, value, field = 'label', defaultValue = null) {
   })
   return fieldValue || defaultValue
 }
-export function enumsParseLabel(enums, value, defaultValue = null) {
+export function enumsParseLabel(enums: Enum, value: number | string | null, defaultValue = null) {
   return enumsParse(enums, value, 'label', defaultValue)
 }
 
@@ -82,6 +94,10 @@ export function enumsParseLabel(enums, value, defaultValue = null) {
  * @param {Object} enums 待转换的enums
  * @returns {Array}
  */
-export function enumsConvertToList(enums) {
+export function enumsConvertToList(enums: Enum): EnumItem[] {
   return Object.keys(enums).map(key => enums[key])
+}
+
+export function enumsFindByValue(enums: Enum, value: number | string | null): EnumItem | null {
+  return enumsConvertToList(enums).find(item => item.value === value) || null
 }

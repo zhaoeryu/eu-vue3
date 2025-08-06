@@ -1,6 +1,6 @@
 <script setup>
 import AppLink from '@/layout/components/Sidebar/Link.vue'
-import { computed, ref } from 'vue'
+import { computed, ref, defineProps } from 'vue'
 import {useRoute} from "vue-router";
 import { isMenuSegmentMatch } from '@/utils/route-helpers'
 

@@ -1,4 +1,4 @@
-export interface DefaultTheme {
+export interface EuTheme {
   //横纵布局 horizontal vertical
   layout: 'horizontal' | 'vertical';
   // 是否使用标签页
@@ -38,7 +38,7 @@ export interface DefaultSetting {
   giteeUrl: string;
 }
 
-export const defaultTheme: DefaultTheme = {
+export const defaultTheme: EuTheme = {
   //横纵布局 horizontal vertical
   layout: 'vertical',
   // 是否使用标签页
@@ -75,7 +75,7 @@ export const defaultSetting: DefaultSetting = {
   // 默认的记住我的时长（单位：天）
   rememberMeDefaultDays: 180,
   // 匿名访问白名单
-  anonymousAccessWhiteList: ['/login', '/404', '/401', '/demo'],
+  anonymousAccessWhiteList: ['/login', '/404', '/401'],
 
   // 系统帮助文档地址
   systemHelpDocUrl: 'https://zhaoeryu.github.io',

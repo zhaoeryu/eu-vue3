@@ -1,17 +1,24 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, useTemplateRef} from "vue";
 import {NoticeTypeEnums} from "@/utils/enums";
 import {STORAGE_KEY_READ_MESSAGE} from "@/utils/constants";
 import { page as noticePage } from '@/api/system/sysNotice'
 import dayjs from "dayjs";
 import SysNoticeViewDialog from "@/views/system/sysNotice/SysNoticeViewDialog.vue";
+import useLoading from "@/hooks/loading";
+import {type PopoverInstance} from "element-plus";
+import {type Notice} from "@/types/system/notice";
 
-const refMessagePopover = ref(null)
+type NoticeItem = Notice & {
+  read: boolean
+  time: string
+}
 
+const refMessagePopover = useTemplateRef<PopoverInstance>('refMessagePopover')
+const refSysNoticeViewDialog = useTemplateRef('refSysNoticeViewDialog')
+const { loading, setLoading } = useLoading(false)
 const active = ref(NoticeTypeEnums.INFO.value)
-const list = ref([])
-const loading = ref(false)
-const refSysNoticeViewDialog = ref(null)
+const list = ref<NoticeItem[]>([])
 
 const unReadMessageCount1 = computed(() => {
   const count = list.value
@@ -52,12 +59,12 @@ onMounted(() => {
   onRefresh()
 })
 
-function onChecked(index) {
+function onChecked(index: number) {
   active.value = index
   onRefresh()
 }
 function onRefresh() {
-  loading.value = true
+  setLoading(true)
   noticePage({
     sort: ['create_time,desc'],
     status: 0
@@ -72,22 +79,27 @@ function onRefresh() {
       }
     })
   }).finally(() => {
-    loading.value = false
+    setLoading(false)
   })
 }
-function onItemChecked(item) {
+function onItemChecked(item: NoticeItem) {
   item.read = true
   const readMessage = localStorage.getItem(STORAGE_KEY_READ_MESSAGE)
   const readMessageList = readMessage ? JSON.parse(readMessage) : []
   readMessageList.push(item.id)
   localStorage.setItem(STORAGE_KEY_READ_MESSAGE, JSON.stringify(readMessageList))
-  // this.$refs.sysNoticeViewDialog.open(item)
-  refSysNoticeViewDialog.value.open(item)
+  refSysNoticeViewDialog.value?.open(item)
 }
 function onAllRead() {
   const readMessageList = list.value.map(item => item.id)
   list.value.forEach(item => item.read = true)
   localStorage.setItem(STORAGE_KEY_READ_MESSAGE, JSON.stringify(readMessageList))
+}
+</script>
+
+<script lang="ts">
+export default {
+  name: 'Message'
 }
 </script>
 
@@ -110,7 +122,7 @@ function onAllRead() {
         <div class="message-box-wrapper__body">
           <ul v-if="showList.length">
             <li v-for="(item, index) in showList" :key="index" class="message-box-wrapper__body-item" :class="{ read: item.read }" @click="onItemChecked(item)">
-              <eu-avatar shape="square" :size="40" :src="item.avatar" :nickname="item.publisher" class="message-box-wrapper__body-item__avatar" />
+              <eu-avatar shape="square" :size="40" :src="item.publisher" :nickname="item.publisher" class="message-box-wrapper__body-item__avatar" />
               <div class="message-box-wrapper__body-item__content">
                 <div class="message-box-wrapper__body-item__content-title">{{ item.title }}</div>
                 <div class="message-box-wrapper__body-item__content-description">{{ item.description }}</div>
@@ -121,7 +133,7 @@ function onAllRead() {
           <el-empty v-else description="暂无数据" />
         </div>
         <div v-if="showList.length" class="message-box-wrapper__footer">
-          <div @click="refMessagePopover.hide()">关闭</div>
+          <div @click="refMessagePopover?.hide()">关闭</div>
           <div @click="onAllRead">全部已读</div>
         </div>
       </div>
@@ -142,7 +154,7 @@ function onAllRead() {
 }
 </style>
 <style scoped lang="scss">
-@import "@/assets/styles/mixin.scss";
+@use "@/assets/styles/mixin.scss";
 .message-box-wrapper {
   width: 350px;
   box-sizing: border-box;
@@ -198,7 +210,7 @@ function onAllRead() {
   min-height: 200px;
   max-height: 500px;
   overflow: auto;
-  @include scrollBar;
+  @include mixin.scrollBar;
   .message-box-wrapper__body-item {
     padding: 12px;
     box-sizing: border-box;

@@ -1,6 +1,6 @@
 <script setup>
 import AppLink from '@/layout/components/Sidebar/Link.vue'
-import { computed } from 'vue'
+import { computed, defineProps } from 'vue'
 
 const props = defineProps({
   item: {

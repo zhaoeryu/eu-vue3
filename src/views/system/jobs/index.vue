@@ -1,57 +1,61 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import {onMounted, ref, useTemplateRef} from "vue";
 import JobEditDialog from "@/views/system/jobs/JobEditDialog.vue";
 import JobLog from "@/views/system/jobs/JobLog.vue";
 import { page, batchDel, execJob, pauseOrResume } from '@/api/system/job'
 import {download} from "@/utils/request";
-import {ElMessage, ElMessageBox} from "element-plus";
+import {ElMessage, ElMessageBox, type TableInstance} from "element-plus";
 import {Refresh, Search} from "@element-plus/icons-vue";
+import useLoading from "@/hooks/loading";
+import {useResettableReactive} from "@/hooks/resettable";
+import type {Jobs} from "@/types/system/jobs";
 
-const DEFAULT_QUERY_PARAMS = {
-  jobName: null,
-  page: 1,
-  size: 10,
-}
+const refJobEditDialog = useTemplateRef<InstanceType<typeof JobEditDialog>>('refJobEditDialog')
+const refJobLog = useTemplateRef<InstanceType<typeof JobLog>>('refJobLog')
+const refTable = useTemplateRef<TableInstance>('refTable')
+const { loading, setLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
+  list: [],
+  total: 0,
+  isQueryShow: true,
+  multipleDisabled: true,
+  queryParams: {
+    jobName: null,
 
-const list = ref([])
-const total = ref(0)
-const loading = ref(false)
-const isQueryShow = ref(true)
-const queryParams = ref(DEFAULT_QUERY_PARAMS)
-const multipleDisabled = ref(true)
-
-const refTable = ref(null)
-const refJobEditDialog = ref(null)
-const refJobLog = ref(null)
+    page: 1,
+    size: 10,
+    sort: [],
+  },
+})
 
 onMounted(() => {
   onRefresh()
 })
 
 function onQuery() {
-  loading.value = true
-  page(queryParams.value).then(res => {
-    list.value = res.data.records
-    total.value = res.data.total
+  setLoading(true)
+  page(state.queryParams).then(res => {
+    state.list = res.data.records
+    state.total = res.data.total
   }).finally(() => {
-    loading.value = false
+    setLoading(false)
   })
 }
 function onRefresh() {
-  queryParams.value = {...DEFAULT_QUERY_PARAMS}
+  reset('queryParams')
   onQuery()
 }
 
 function onAdd() {
-  refJobEditDialog.value.open()
+  refJobEditDialog.value?.open({} as Jobs)
 }
 
 function onExport() {
-  download('/api/system/job/export', queryParams.value, `job_${new Date().getTime()}.xlsx`)
+  download('/api/system/job/export', state.queryParams, `job_${new Date().getTime()}.xlsx`)
 }
 
 function onBatchDel() {
-  const ids = refTable.value.getSelectionRows().map(item => item.id)
+  const ids = refTable.value?.getSelectionRows().map(item => item.id) || []
   ElMessageBox.confirm(`确认要删除选中的${ids.length}条记录吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -73,15 +77,15 @@ function onBatchDel() {
   });
 }
 
-function onSelectionChange(selection) {
-  multipleDisabled.value = !selection.length
+function onSelectionChange(selection: Jobs[]) {
+  state.multipleDisabled = !selection.length
 }
 
-function onRowUpdate(row) {
-  refJobEditDialog.value.open(row)
+function onRowUpdate(row: Jobs) {
+  refJobEditDialog.value?.open(row)
 }
 
-function onRowDelete(row) {
+function onRowDelete(row: Jobs) {
   ElMessageBox.confirm(`确认要删除"${ row.jobName }"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -103,7 +107,7 @@ function onRowDelete(row) {
   });
 }
 
-function onRowRun(row) {
+function onRowRun(row: Jobs) {
   ElMessageBox.confirm(`确认要立即执行吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -124,7 +128,7 @@ function onRowRun(row) {
   });
 }
 
-function onStatusChange(row) {
+function onStatusChange(row: Jobs) {
   const status = row.status
   ElMessageBox.confirm(`确认要${status === 0 ? '暂停' : '恢复'}"${ row.jobName }"吗？`, '提示', {
     confirmButtonText: '确定',
@@ -147,18 +151,18 @@ function onStatusChange(row) {
   });
 }
 
-function onRowLog(row) {
-  refJobLog.value.open(row)
+function onRowLog(row: Jobs) {
+  refJobLog.value?.open(row)
 }
 </script>
 
 <template>
   <div class="page-container">
     <div class="page-body">
-      <query-expand-wrapper :show="isQueryShow">
-        <el-form :model="queryParams" :inline="true">
+      <query-expand-wrapper :show="state.isQueryShow">
+        <el-form :model="state.queryParams" :inline="true">
           <el-form-item label="任务名称">
-            <el-input v-model="queryParams.jobName" placeholder="输入要查找的任务名称" />
+            <el-input v-model="state.queryParams.jobName" placeholder="输入要查找的任务名称" />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" :icon="Search" @click="onQuery">查询</el-button>
@@ -168,7 +172,7 @@ function onRowLog(row) {
       </query-expand-wrapper>
       <div v-loading="loading">
         <eu-table-toolbar
-          :multiple-disabled="multipleDisabled"
+          :multiple-disabled="state.multipleDisabled"
           :opt-show="{
             export: false,
             import: false,
@@ -183,11 +187,11 @@ function onRowLog(row) {
           @batchDel="onBatchDel"
           @export="onExport"
           @refresh="onRefresh"
-          v-model:searchToggle="isQueryShow"
+          v-model:searchToggle="state.isQueryShow"
         />
         <el-table
           ref="refTable"
-          :data="list"
+          :data="state.list"
           @selection-change="onSelectionChange"
           style="width: 100%"
         >
@@ -195,27 +199,12 @@ function onRowLog(row) {
           <el-table-column prop="jobName" label="任务名称"></el-table-column>
           <el-table-column prop="jobGroup" label="任务分组"></el-table-column>
           <el-table-column prop="cron" label="cron"></el-table-column>
-          <!--        <el-table-column prop="misfirePolicy" label="执行策略">-->
-          <!--          <template #default="{ row }">-->
-          <!--            <el-tag v-if="row.misfirePolicy === 0">默认</el-tag>-->
-          <!--            <el-tag v-else-if="row.misfirePolicy === 1" type="primary">立即触发执行</el-tag>-->
-          <!--            <el-tag v-else-if="row.misfirePolicy === 2" type="primary">触发一次执行</el-tag>-->
-          <!--            <el-tag v-else-if="row.misfirePolicy === 3" type="primary">不触发立即执行</el-tag>-->
-          <!--          </template>-->
-          <!--        </el-table-column>-->
-          <!--        <el-table-column prop="concurrent" label="允许并发">-->
-          <!--          <template #default="{ row }">-->
-          <!--            <el-tag v-if="row.concurrent === 0">否</el-tag>-->
-          <!--            <el-tag v-else-if="row.concurrent === 1" type="danger">是</el-tag>-->
-          <!--          </template>-->
-          <!--        </el-table-column>-->
           <el-table-column label="执行类">
             <template #default="{ row }">
               <span v-if="row.invokeClassName">{{ row.invokeClassName }}</span>
               <span v-else>[Spring] {{ row.springBeanName }}</span>
             </template>
           </el-table-column>
-          <!--        <el-table-column prop="springBeanName" label="SpringBean"></el-table-column>-->
           <el-table-column prop="methodName" label="执行方法">
             <template #default="{ row }">
               <span>{{ row.methodName }}</span>
@@ -224,13 +213,6 @@ function onRowLog(row) {
               </template>
             </template>
           </el-table-column>
-          <!--        <el-table-column prop="pauseAfterFailure" label="失败后暂停">-->
-          <!--          <template #default="{ row }">-->
-          <!--            <el-tag v-if="row.pauseAfterFailure === 0">否</el-tag>-->
-          <!--            <el-tag v-else-if="row.pauseAfterFailure === 1" type="danger">是</el-tag>-->
-          <!--          </template>-->
-          <!--        </el-table-column>-->
-          <!--        <el-table-column prop="alarmEmail" label="告警邮箱"></el-table-column>-->
           <el-table-column prop="status" label="状态">
             <template #default="{ row }">
               <el-switch v-model="row.status" :active-value="0" :inactive-value="1" @change="onStatusChange(row)" />
@@ -246,9 +228,9 @@ function onRowLog(row) {
           </el-table-column>
         </el-table>
         <pagination
-          v-model:page="queryParams.page"
-          v-model:limit="queryParams.size"
-          :total="total"
+          v-model:page="state.queryParams.page"
+          v-model:limit="state.queryParams.size"
+          :total="state.total"
           @pagination="onQuery"
         />
       </div>

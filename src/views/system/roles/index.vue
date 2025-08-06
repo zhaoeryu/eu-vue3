@@ -1,72 +1,78 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import {onMounted, ref, useTemplateRef} from "vue";
 import {download} from "@/utils/request";
-import {ElMessage, ElMessageBox} from "element-plus";
+import {ElMessage, ElMessageBox, type TableInstance} from "element-plus";
 import {Refresh, Search} from "@element-plus/icons-vue";
 import ImportDialog from "@/components/ImportDialog.vue";
 import { page, batchDel } from '@/api/system/role'
 import RoleUserDrawer from '@/views/system/roles/RoleUserDrawer.vue'
 import RoleEditDialog from '@/views/system/roles/RoleEditDialog.vue'
 import DataScopeDialog from '@/views/system/roles/DataScopeDialog.vue'
+import useLoading from "@/hooks/loading";
+import {useResettableReactive} from "@/hooks/resettable";
+import type {Role} from "@/types/system/role";
+import {EnableFlagEnums} from "@/utils/enums";
+import EnumTag from "@/components/EnumTag.vue";
 
-const DEFAULT_QUERY_PARAMS = {
-  roleName: null,
-  page: 1,
-  size: 10,
-}
+const refRoleEditDialog = useTemplateRef<InstanceType<typeof RoleEditDialog>>('refRoleEditDialog')
+const refRoleUserDrawer = useTemplateRef<InstanceType<typeof RoleUserDrawer>>('refRoleUserDrawer')
+const refDataScopeDialog = useTemplateRef<InstanceType<typeof DataScopeDialog>>('refDataScopeDialog')
+const refTable = useTemplateRef<TableInstance>('refTable')
+const refImportDialog = useTemplateRef<InstanceType<typeof ImportDialog>>('refImportDialog')
+const { loading, setLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
+  list: [],
+  total: 0,
+  isQueryShow: true,
+  multipleDisabled: true,
+  queryParams: {
+    roleName: null,
 
-const loading = ref(false)
-const list = ref([])
-const total = ref(0)
-const queryParams = ref(DEFAULT_QUERY_PARAMS)
-const isQueryShow = ref(true)
-const multipleDisabled = ref(true)
-
-const refTable = ref(null)
-const refRoleUserDrawer = ref(null)
-const refDataScopeDialog = ref(null)
-const refRoleEditDialog = ref(null)
-const refImportDialog = ref(null)
+    page: 1,
+    size: 10,
+    sort: [],
+  },
+})
 
 onMounted(() => {
   onRefresh()
 })
 
 function onQuery() {
-  loading.value = true
-  page(queryParams.value).then(res => {
-    list.value = res.data.records
-    total.value = res.data.total
+  setLoading(true)
+  page(state.queryParams).then(res => {
+    state.list = res.data.records
+    state.total = res.data.total
   }).finally(() => {
-    loading.value = false
+    setLoading(false)
   })
 }
 
 function onRefresh() {
-  queryParams.value = {...DEFAULT_QUERY_PARAMS}
+  reset('queryParams')
   onQuery()
 }
 
 function onAdd() {
-  refRoleEditDialog.value.open({
-    status: 0
+  refRoleEditDialog.value?.open({
+    status: EnableFlagEnums.ENABLE.value
   })
 }
 
-function onSelectable(row) {
+function onSelectable(row: Role) {
   return row.roleKey !== 'admin'
 }
 
 function onExport() {
-  download('/api/system/role/export', queryParams.value, `role_${new Date().getTime()}.xlsx`)
+  download('/api/system/role/export', state.queryParams, `role_${new Date().getTime()}.xlsx`)
 }
 
 function onImport() {
-  refImportDialog.value.open()
+  refImportDialog.value?.open()
 }
 
 function onBatchDel() {
-  const ids = refTable.value.getSelectionRows().map(item => item.id)
+  const ids = refTable.value?.getSelectionRows().map(item => item.id) || []
   ElMessageBox.confirm(`确认要删除选中的${ids.length}条记录吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -88,15 +94,15 @@ function onBatchDel() {
   });
 }
 
-function onSelectionChange(selection) {
-  multipleDisabled.value = !selection.length
+function onSelectionChange(selection: Role[]) {
+  state.multipleDisabled = !selection.length
 }
 
-function onRowUpdate(row) {
-  refRoleEditDialog.value.open(row)
+function onRowUpdate(row: Role) {
+  refRoleEditDialog.value?.open(row)
 }
 
-function onRowDelete(row) {
+function onRowDelete(row: Role) {
   ElMessageBox.confirm(`确认要删除"${ row.roleName }"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -118,22 +124,22 @@ function onRowDelete(row) {
   });
 }
 
-function onRowRoleMember(row) {
-  refRoleUserDrawer.value.open(row)
+function onRowRoleMember(row: Role) {
+  refRoleUserDrawer.value?.open(row)
 }
 
-function onRowDataScope(row) {
-  refDataScopeDialog.value.open(row)
+function onRowDataScope(row: Role) {
+  refDataScopeDialog.value?.open(row)
 }
 </script>
 
 <template>
   <div class="page-container">
     <div class="page-body">
-      <query-expand-wrapper :show="isQueryShow">
-        <el-form :model="queryParams" :inline="true">
+      <query-expand-wrapper :show="state.isQueryShow">
+        <el-form :model="state.queryParams" :inline="true">
           <el-form-item label="角色名称" prop="roleName">
-            <el-input v-model="queryParams.roleName" placeholder="输入要查找的角色名称" maxlength="20" />
+            <el-input v-model="state.queryParams.roleName" placeholder="输入要查找的角色名称" maxlength="20" />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" :icon="Search" @click="onQuery">查询</el-button>
@@ -143,7 +149,7 @@ function onRowDataScope(row) {
       </query-expand-wrapper>
       <div v-loading="loading">
         <eu-table-toolbar
-          :multiple-disabled="multipleDisabled"
+          :multiple-disabled="state.multipleDisabled"
           :opt-show="{
             sort: false
           }"
@@ -159,13 +165,13 @@ function onRowDataScope(row) {
           @export="onExport"
           @import="onImport"
           @refresh="onRefresh"
-          v-model:searchToggle="isQueryShow"
+          v-model:searchToggle="state.isQueryShow"
         />
         <el-table
-            ref="refTable"
-            :data="list"
-            @selection-change="onSelectionChange"
-            style="width: 100%"
+          ref="refTable"
+          :data="state.list"
+          @selection-change="onSelectionChange"
+          style="width: 100%"
         >
           <el-table-column type="selection" :selectable="onSelectable"></el-table-column>
           <el-table-column prop="roleName" label="角色名称"></el-table-column>
@@ -173,8 +179,7 @@ function onRowDataScope(row) {
           <el-table-column prop="roleKey" label="权限字符串"></el-table-column>
           <el-table-column prop="status" label="状态">
             <template #default="{ row }">
-              <el-tag v-if="row.status === 0">正常</el-tag>
-              <el-tag v-else-if="row.status === 1" type="danger">禁用</el-tag>
+              <enum-tag :value="row.status" :enums="EnableFlagEnums" />
             </template>
           </el-table-column>
           <el-table-column v-permissions="['system:role:edit', 'system:role:del']" label="操作" width="220">
@@ -189,9 +194,9 @@ function onRowDataScope(row) {
           </el-table-column>
         </el-table>
         <pagination
-          v-model:page="queryParams.page"
-          v-model:limit="queryParams.size"
-          :total="total"
+          v-model:page="state.queryParams.page"
+          v-model:limit="state.queryParams.size"
+          :total="state.total"
           @pagination="onQuery"
         />
       </div>

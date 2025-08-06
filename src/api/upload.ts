@@ -1,6 +1,7 @@
 import request from '@/utils/request'
+import {type UploadResult} from "@/types/api";
 
-export function uploadFile(data) {
+export function uploadFile(data: any): Promise<UploadResult> {
   return request({
     url: '/api/upload/uploadFile',
     method: 'post',

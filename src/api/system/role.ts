@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function page(params) {
+export function page(params: any) {
   return request({
     url: '/api/system/role/page',
     method: 'get',
@@ -8,7 +8,7 @@ export function page(params) {
   })
 }
 
-export function add(data) {
+export function add(data: any) {
   return request({
     url: '/api/system/role',
     method: 'post',
@@ -16,7 +16,7 @@ export function add(data) {
   })
 }
 
-export function update(data) {
+export function update(data: any) {
   return request({
     url: '/api/system/role',
     method: 'put',
@@ -24,7 +24,7 @@ export function update(data) {
   })
 }
 
-export function batchDel(ids) {
+export function batchDel(ids: any[]) {
   return request({
     url: '/api/system/role/batch',
     method: 'delete',
@@ -32,7 +32,7 @@ export function batchDel(ids) {
   })
 }
 
-export function getMenuIdsByRoleId(roleId) {
+export function getMenuIdsByRoleId(roleId: string | number) {
   return request({
     url: '/api/system/role/menus',
     method: 'get',
@@ -42,7 +42,7 @@ export function getMenuIdsByRoleId(roleId) {
   })
 }
 
-export function getDeptIdsByRoleId(roleId) {
+export function getDeptIdsByRoleId(roleId: number) {
   return request({
     url: '/api/system/role/depts',
     method: 'get',

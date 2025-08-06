@@ -1,29 +1,50 @@
 <script setup lang="ts">
 import Bubbles from '@/views/login/Bubbles.vue';
 import {defaultSetting} from '@/settings';
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, reactive, ref, useTemplateRef, watch} from "vue";
 import {captcha} from '@/api/system/login';
 import {
   STORAGE_KEY_PASSWORD,
   STORAGE_KEY_REMEMBER_ME,
   STORAGE_KEY_USERNAME
 } from '@/utils/constants'
-import {useRouter} from "vue-router";
+import {useRouter, useRoute} from "vue-router";
 import type {FormInstance, FormRules} from "element-plus";
 import {encrypt} from "@/utils/rsaEncrypt";
 import {useUserStore} from "@/store";
+import {useResettableReactive} from "@/hooks/resettable";
+import useLoading from "@/hooks/loading";
 
+type LoginForm = {
+  username: string | null
+  password: string | null
+  uuid: string | null
+  verifyCode: string | null
+  rememberMe: boolean
+}
+type LoginState = {
+  form: LoginForm
+  captchaImg: string | null,
+  redirect: string | null
+}
+
+const refForm = useTemplateRef<FormInstance>('refForm')
 const router = useRouter();
+const route = useRoute();
 const userStore = useUserStore()
-
-const captchaImg = ref(null)
-const form = ref({
-  username: null,
-  password: null,
-  uuid: null,
-  verifyCode: null,
-  rememberMe: false
+const {loading, setLoading} = useLoading(false)
+const [state, reset] = useResettableReactive<LoginState>({
+  form: {
+    username: null,
+    password: null,
+    uuid: null,
+    verifyCode: null,
+    rememberMe: false
+  },
+  captchaImg: null,
+  redirect: null,
 })
+
 const rules = reactive<FormRules>({
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' }
@@ -36,54 +57,62 @@ const rules = reactive<FormRules>({
   ]
 })
 
-const loginLoading = ref(false)
-const redirect = ref(null)
-const refForm = ref<FormInstance>()
+watch(
+  () => route,  // 监听目标：路由对象
+  (newRoute) => {
+    // 记录来源页面，用于登录成功后跳转
+    state.redirect = newRoute.query?.redirect as string | null;
+  },
+  { immediate: true }
+)
+
 
 onMounted(() => {
   getCaptcha();
 
-  form.value.username = localStorage.getItem(STORAGE_KEY_USERNAME) || null;
-  form.value.password = localStorage.getItem(STORAGE_KEY_PASSWORD) || null;
-  form.value.rememberMe = localStorage.getItem(STORAGE_KEY_REMEMBER_ME) && Boolean(localStorage.getItem(STORAGE_KEY_REMEMBER_ME)) || true
+  state.form.username = localStorage.getItem(STORAGE_KEY_USERNAME) || null;
+  state.form.password = localStorage.getItem(STORAGE_KEY_PASSWORD) || null;
+  state.form.rememberMe = localStorage.getItem(STORAGE_KEY_REMEMBER_ME) && Boolean(localStorage.getItem(STORAGE_KEY_REMEMBER_ME)) || true
 })
 
 function getCaptcha() {
   captcha().then(res => {
-    form.value.uuid = res.uuid
-    captchaImg.value = res.img
+    state.form.uuid = res.uuid
+    state.captchaImg = res.img
   })
 }
 
-function onSubmit(formEl: FormInstance) {
+function onSubmit(formEl: FormInstance | null) {
+  if (!formEl) {
+    return
+  }
   formEl.validate((valid) => {
     if (!valid) {
-      return false
+      return
     }
-    loginLoading.value = true
-    const reqPayload = { ...form.value }
-    const rememberMe = reqPayload.rememberMe
-    delete reqPayload.rememberMe
+    setLoading(true)
+    // 解构赋值排除 rememberMe
+    const { rememberMe, ...reqPayload } = state.form
     // 密码超过了30位，说明是加密过的，不需要再加密
-    reqPayload.password = reqPayload.password.length > 30 ? reqPayload.password : encrypt(reqPayload.password)
+    reqPayload.password = reqPayload.password!.length > 30 ? reqPayload.password : encrypt(reqPayload.password as string)
     userStore.login(reqPayload).then(() => {
       // 如果勾选了记住我，则将用户名和密码存入cookie，否则清除cookie
-      if (form.value.rememberMe) {
-        localStorage.setItem(STORAGE_KEY_USERNAME, reqPayload.username)
-        localStorage.setItem(STORAGE_KEY_PASSWORD, reqPayload.password)
-        localStorage.setItem(STORAGE_KEY_REMEMBER_ME, rememberMe)
+      if (state.form.rememberMe) {
+        localStorage.setItem(STORAGE_KEY_USERNAME, reqPayload.username!)
+        localStorage.setItem(STORAGE_KEY_PASSWORD, reqPayload.password!)
+        localStorage.setItem(STORAGE_KEY_REMEMBER_ME, String(state.form.rememberMe))
       } else {
         localStorage.removeItem(STORAGE_KEY_USERNAME)
         localStorage.removeItem(STORAGE_KEY_PASSWORD)
         localStorage.removeItem(STORAGE_KEY_REMEMBER_ME)
       }
       // 登录成功后回到到来源页面，如果没有来源页面就跳转到首页
-      router.push({ path: redirect.value || '/' })
+      router.push({ path: state.redirect || '/' })
     }).catch(() => {
       // 登录失败刷新验证码
       getCaptcha()
     }).finally(() => {
-      loginLoading.value = false
+      setLoading(false)
     })
   })
 }
@@ -100,23 +129,23 @@ function onSubmit(formEl: FormInstance) {
         <img src="@/assets/images/login_banner.png" width="250" alt="" style="margin-top: 20px;">
       </div>
       <!-- 登录表单 -->
-      <el-form :model="form" :rules="rules" ref="refForm">
+      <el-form :model="state.form" :rules="rules" ref="refForm">
         <h3>登录{{ defaultSetting.title }}</h3>
         <el-form-item prop="username">
-          <el-input v-model="form.username" placeholder="请输入用户名" maxlength="20"></el-input>
+          <el-input v-model="state.form.username" placeholder="请输入用户名" maxlength="20"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input v-model="form.password" placeholder="请输入密码" maxlength="30" show-password></el-input>
+          <el-input v-model="state.form.password" placeholder="请输入密码" maxlength="30" show-password></el-input>
         </el-form-item>
         <!-- 验证码 -->
         <el-form-item prop="verifyCode" class="verify-code-form-item">
           <el-row :gutter="16">
             <el-col :span="14">
-              <el-input v-model="form.verifyCode" placeholder="请输入验证码" maxlength="4" style="margin-right: 16px;" ></el-input>
+              <el-input v-model="state.form.verifyCode" placeholder="请输入验证码" maxlength="4" style="margin-right: 16px;" ></el-input>
             </el-col>
             <el-col :span="10">
               <div class="verify-code" @click="getCaptcha">
-                <img v-if="captchaImg" :src="captchaImg" alt="点击获取验证码" >
+                <img v-if="state.captchaImg" :src="state.captchaImg" alt="点击获取验证码" >
                 <span v-else>点击获取</span>
               </div>
             </el-col>
@@ -124,11 +153,11 @@ function onSubmit(formEl: FormInstance) {
         </el-form-item>
         <!-- 记住我 -->
         <el-form-item prop="rememberMe">
-          <el-checkbox v-model="form.rememberMe">记住我</el-checkbox>
+          <el-checkbox v-model="state.form.rememberMe">记住我</el-checkbox>
         </el-form-item>
         <el-form-item style="margin-bottom: 0;">
           <el-button
-            :loading="loginLoading"
+            :loading="loading"
             style="width: 100%;"
             type="primary"
             @click="onSubmit(refForm)"
@@ -140,7 +169,7 @@ function onSubmit(formEl: FormInstance) {
 </template>
 
 <style scoped lang="scss">
-@import "@/assets/styles/screen";
+@use "@/assets/styles/screen";
 // 登录表单
 .el-form {
   background-color: var(--theme-base-second-bg);
@@ -211,7 +240,7 @@ html.dark .page-login {
 }
 
 // 桌面端
-@media (min-width: $screen-md) {
+@media (min-width: screen.$screen-md) {
   .login-body {
     background-color: var(--theme-base-second-bg);
     border-radius: 4px;
@@ -252,7 +281,7 @@ html.dark .page-login {
 }
 
 // 移动端
-@media (max-width: $screen-md) {
+@media (max-width: screen.$screen-md) {
   .left-container {
     display: none;
   }

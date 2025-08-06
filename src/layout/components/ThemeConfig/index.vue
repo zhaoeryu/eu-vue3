@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {defineOptions, reactive, ref, watch, watchEffect} from "vue";
+import {defineOptions, reactive, ref, watch, watchEffect, defineProps} from "vue";
 import {defaultTheme} from "@/settings";
 import {useSettingsStore} from "@/store";
 
@@ -54,12 +54,12 @@ function onRestoreDefault() {
         <el-form :model="form" label-position="left">
           <el-form-item label="菜单布局" class="eu-form-item__layout">
             <el-radio-group v-model="form.layout">
-              <el-radio-button label="column">
+              <el-radio-button value="column">
                 <el-tooltip content="分栏布局" placement="top">
                   <svg-icon icon-class="layout-column" />
                 </el-tooltip>
               </el-radio-button>
-              <el-radio-button label="vertical">
+              <el-radio-button value="vertical">
                 <el-tooltip content="垂直布局" placement="top">
                   <svg-icon icon-class="layout-vertical" />
                 </el-tooltip>
@@ -86,17 +86,17 @@ function onRestoreDefault() {
           </el-form-item>
           <el-form-item label="暗黑模式">
             <el-radio-group v-model="form.darkMode">
-              <el-radio-button label="light">
+              <el-radio-button value="light">
                 <template #default>
                   <svg-icon icon-class="sun" style="font-weight: bold;font-size: 18px;height: 18px;" />
                 </template>
               </el-radio-button>
-              <el-radio-button label="dark">
+              <el-radio-button value="dark">
                 <template #default>
                   <svg-icon icon-class="moon" style="font-weight: bold;font-size: 18px;height: 18px;" />
                 </template>
               </el-radio-button>
-              <el-radio-button label="syncOS">
+              <el-radio-button value="syncOS">
                 <template #default>
                   <svg-icon icon-class="auto_mode" style="font-weight: bold;font-size: 18px;"/>
                 </template>

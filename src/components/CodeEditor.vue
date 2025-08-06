@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import CodeMirror from 'codemirror'
-import 'codemirror/lib/codemirror.css'
-
-// 替换主题这里需修改名称
-import 'codemirror/theme/darcula.css'
-import 'codemirror/mode/clike/clike'
-import 'codemirror/mode/vue/vue'
-import 'codemirror/mode/xml/xml'
-import 'codemirror/mode/sql/sql'
-import 'codemirror/mode/javascript/javascript'
-import {onMounted, ref, watch} from "vue";
+import { EditorView, basicSetup } from 'codemirror'
+import { EditorState } from '@codemirror/state'
+import { javascript } from '@codemirror/lang-javascript'
+import { sql } from '@codemirror/lang-sql'
+import { xml } from '@codemirror/lang-xml'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { onMounted, ref, watch, onUnmounted } from "vue"
 
 const props = defineProps({
   value: {
@@ -26,56 +22,125 @@ const props = defineProps({
   }
 })
 
-const editor = ref(null)
+const emit = defineEmits(['update:value'])
 
-const refTextarea = ref(null)
+const editorRef = ref<HTMLElement>()
+let editor: EditorView | null = null
 
-watch(() => props.value, (value) => {
-  const editorValue = editor.value.getValue()
-  if (value !== editorValue) {
-    editor.value.setValue(value)
+// 根据模式获取语言支持
+function getLanguageSupport(mode: string) {
+  switch (mode) {
+    case 'javascript':
+    case 'js':
+      return javascript()
+    case 'ts':
+      return javascript({ typescript: true })
+    case 'sql':
+      return sql()
+    case 'xml':
+    case 'html':
+      return xml()
+    default:
+      return javascript()
+  }
+}
+
+// 创建编辑器
+function createEditor() {
+  if (!editorRef.value) return
+
+  const state = EditorState.create({
+    doc: props.value,
+    extensions: [
+      basicSetup,
+      getLanguageSupport(props.mode),
+      oneDark,
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged) {
+          emit('update:value', update.state.doc.toString())
+        }
+      })
+    ]
+  })
+
+  editor = new EditorView({
+    state,
+    parent: editorRef.value
+  })
+
+  // 设置高度
+  if (editorRef.value) {
+    editorRef.value.style.height = props.height
+  }
+}
+
+// 监听值变化
+watch(() => props.value, (newValue) => {
+  if (editor && newValue !== editor.state.doc.toString()) {
+    editor.dispatch({
+      changes: {
+        from: 0,
+        to: editor.state.doc.length,
+        insert: newValue
+      }
+    })
   }
 })
 
-watch(() => props.mode, (value) => {
-  if (!value) {
-    return
+// 监听模式变化
+watch(() => props.mode, () => {
+  if (editor) {
+    const newState = EditorState.create({
+      doc: editor.state.doc.toString(),
+      extensions: [
+        basicSetup,
+        getLanguageSupport(props.mode),
+        oneDark
+      ]
+    })
+    editor.setState(newState)
   }
-  if (editor.value) {
-    editor.value.setOption('mode', value)
-  }
-}, { immediate: true })
+})
 
-watch(() => props.height, (value) => {
-  editor.value.setSize('auto', value)
+// 监听高度变化
+watch(() => props.height, (newHeight) => {
+  if (editorRef.value) {
+    editorRef.value.style.height = newHeight
+  }
 })
 
 onMounted(() => {
-  editor.value = CodeMirror.fromTextArea(refTextarea.value, {
-    mode: props.mode,
-    lineNumbers: true,
-    lint: true,
-    lineWrapping: true,
-    tabSize: 2,
-    cursorHeight: 1,
-    theme: 'darcula',
-    readOnly: true
-  })
-
-  editor.value.setSize('auto', props.height)
-  editor.value.setValue(props.value)
+  createEditor()
 })
 
+onUnmounted(() => {
+  if (editor) {
+    editor.destroy()
+  }
+})
 </script>
 
 <template>
   <div class="editor-wrapper">
-    <textarea ref="refTextarea" />
+    <div ref="editorRef" class="codemirror-editor"></div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .editor-wrapper {
   font-size: 13px;
+
+  .codemirror-editor {
+    height: 100%;
+    min-height: 200px;
+  }
+}
+
+:deep(.cm-editor) {
+  height: 100%;
+}
+
+:deep(.cm-scroller) {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 </style>

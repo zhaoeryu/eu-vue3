@@ -12,6 +12,7 @@ import CmdkDialogFooter from "@/components/cmdk/CmdkDialogFooter.vue";
 import SvgIcon from "@/components/SvgIcon.vue";
 import {isExternal} from "@/utils";
 import {isDark} from "@/utils/darkMode";
+import type {RouteNode} from "@/types/route";
 
 const visible = ref(false)
 const keyword = ref('')
@@ -23,8 +24,14 @@ const settingsStore = useSettingsStore()
 const CmdK = keys['Meta+K']
 const Escape = keys['Escape']
 
-const db = ref([])
+const db = ref<CmdkItem[]>([])
 const router = useRouter()
+
+type CmdkItem = {
+  key: string
+  label: string
+  children: any[]
+}
 
 watch(CmdK, v => {
   if (v) {
@@ -115,7 +122,8 @@ onMounted(() => {
   ]
 })
 
-function generateRoute(_routes, _result, parentItem) {
+// @ts-ignore
+function generateRoute(_routes: RouteNode[], _result, parentItem) {
   _routes.forEach(item => {
     const isLink = isExternal(item.path)
     let parentPath = parentItem.key ? parentItem.key + '/' : ''
@@ -143,7 +151,7 @@ function generateRoute(_routes, _result, parentItem) {
   return _result
 }
 
-function onItemSelect(item, group) {
+function onItemSelect(item: any, group: CmdkItem) {
   switch (group.key) {
     case 'route':
       if (isExternal(item.key)) {

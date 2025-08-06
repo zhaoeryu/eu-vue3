@@ -1,10 +1,37 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, useTemplateRef, withDefaults} from "vue";
 import {Delete, Download, Plus, Refresh, Search, Setting, Sort, Upload} from "@element-plus/icons-vue";
 import EuSortDialog from "@/components/Crud/EuSortDialog.vue";
 import TableColumnSettingDialog from "@/components/TableColumnSettingDialog.vue";
+import {type TableInstance} from "element-plus";
 
-const DEFAULT_OPT_SHOW = {
+interface Permission {
+  add: string[],
+  del: string[],
+  export: string[],
+  import: string[]
+}
+
+interface OptShow {
+  add: boolean,
+  del: boolean,
+  export: boolean,
+  import: boolean,
+
+  refresh: boolean,
+  searchToggle: boolean,
+  columnSetting: boolean,
+  sort: boolean
+}
+
+interface Props {
+  multipleDisabled?: boolean,
+  permission?: Permission,
+  optShow: OptShow,
+  refTable: TableInstance | null
+}
+
+const DEFAULT_OPT_SHOW: OptShow = {
   add: true,
   del: true,
   export: true,
@@ -15,39 +42,16 @@ const DEFAULT_OPT_SHOW = {
   columnSetting: true,
   sort: true
 }
-const DEFAULT_PERMISSION = {
+const DEFAULT_PERMISSION: Permission = {
   add: [],
   del: [],
   export: [],
   import: []
 }
 
-const props = defineProps({
-  multipleDisabled: {
-    type: Boolean,
-    default: true
-  },
-  permission: {
-    type: Object,
-    default: () => {
-      return { }
-    }
-  },
-  optShow: {
-    type: Object,
-    default: () => {
-      return { }
-    }
-  },
-  refTable: Object,
-  sort: {
-    type: Array || String,
-    default: () => []
-  },
-  searchToggle: {
-    type: Boolean,
-    default: true
-  }
+const props = withDefaults(defineProps<Props>(), {
+  multipleDisabled: true,
+  permission: () => ({} as Permission),
 })
 
 const emit = defineEmits([
@@ -56,26 +60,26 @@ const emit = defineEmits([
   'import',
   'batchDel',
 
-  'update:sort',
   'sort',
-  'update:searchToggle',
   'refresh'
 ])
 
-const innerSort = ref([])
-const refSortDialog = ref(null)
-const refTableColumnSettingDialog = ref(null)
+const innerSort = defineModel<string[]>('sort')
+const searchToggle = defineModel('searchToggle')
+const refSortDialog = useTemplateRef('refSortDialog')
+const refTableColumnSettingDialog = useTemplateRef('refTableColumnSettingDialog')
 
 const fullOptShow = computed(() => Object.assign({}, DEFAULT_OPT_SHOW, props.optShow))
 const fullPermission = computed(() => Object.assign({}, DEFAULT_PERMISSION, props.permission))
 
-onMounted(() => {
-  innerSort.value = props.sort || []
-})
-
 function onSortComplete() {
-  emit('update:sort', innerSort.value);
   emit('sort', innerSort.value);
+}
+</script>
+
+<script lang="ts">
+export default {
+  name: 'EuTableToolbar'
 }
 </script>
 
@@ -83,19 +87,19 @@ function onSortComplete() {
   <el-row :gutter="16" class="eu-table-toolbar">
     <el-col :span="18" :xs="24" class="eu-table-toolbar__left">
       <slot name="left"></slot>
-      <el-button v-if="fullOptShow.add" v-permissions="fullPermission.add" type="primary" :icon="Plus" plain @click="$emit('add')">添加</el-button>
-      <el-button v-if="fullOptShow.del" v-permissions="fullPermission.del" :disabled="multipleDisabled" type="danger" :icon="Delete" plain @click="$emit('batchDel')">删除</el-button>
-      <el-button v-if="fullOptShow.export" v-permissions="fullPermission.export" type="warning" :icon="Download" plain @click="$emit('export')">导出</el-button>
-      <el-button v-if="fullOptShow.import" v-permissions="fullPermission.import" :icon="Upload" @click="$emit('import')">导入</el-button>
+      <el-button v-if="fullOptShow.add" v-permissions="fullPermission.add" type="primary" :icon="Plus" plain @click="emit('add')">添加</el-button>
+      <el-button v-if="fullOptShow.del" v-permissions="fullPermission.del" :disabled="multipleDisabled" type="danger" :icon="Delete" plain @click="emit('batchDel')">删除</el-button>
+      <el-button v-if="fullOptShow.export" v-permissions="fullPermission.export" type="warning" :icon="Download" plain @click="emit('export')">导出</el-button>
+      <el-button v-if="fullOptShow.import" v-permissions="fullPermission.import" :icon="Upload" @click="emit('import')">导入</el-button>
       <slot name="right"></slot>
     </el-col>
     <el-col :span="6" :xs="24" class="eu-table-toolbar__right">
       <el-button-group>
         <slot name="toolLeft"></slot>
-        <el-button v-if="fullOptShow.refresh" :icon="Refresh" @click="$emit('refresh')"></el-button>
-        <el-button v-if="fullOptShow.searchToggle" :icon="Search" @click="$emit('update:searchToggle', !searchToggle)"></el-button>
-        <el-button v-if="fullOptShow.sort" :icon="Sort" @click="refSortDialog.open(refTable)"></el-button>
-        <el-button v-if="fullOptShow.columnSetting" :icon="Setting" @click="refTableColumnSettingDialog.open(refTable)"></el-button>
+        <el-button v-if="fullOptShow.refresh" :icon="Refresh" @click="emit('refresh')"></el-button>
+        <el-button v-if="fullOptShow.searchToggle" :icon="Search" @click="searchToggle = !searchToggle"></el-button>
+        <el-button v-if="fullOptShow.sort && refTable" :icon="Sort" @click="refSortDialog?.open(refTable)"></el-button>
+        <el-button v-if="fullOptShow.columnSetting && refTable" :icon="Setting" @click="refTableColumnSettingDialog?.open(refTable)"></el-button>
         <slot name="toolRight"></slot>
       </el-button-group>
     </el-col>
@@ -106,7 +110,7 @@ function onSortComplete() {
 </template>
 
 <style scoped lang="scss">
-@import "@/assets/styles/screen";
+@use "@/assets/styles/screen";
 .eu-table-toolbar {
   margin-bottom: 12px;
   // 解决左侧工具栏为空时，右侧工具栏会偏移的问题
@@ -117,7 +121,7 @@ function onSortComplete() {
     text-align: right;
   }
 }
-@media only screen and (max-width: $screen-md) {
+@media only screen and (max-width: screen.$screen-md) {
   .eu-table-toolbar {
     margin-bottom: 12px;
     .eu-table-toolbar__right {

@@ -1,7 +1,8 @@
 import request from '@/utils/request'
-import type {LoginBody} from "@/api/types";
+import {type ResultBody} from "@/types/api";
+import type {LoginInfo} from "@/types/system/user";
 
-export function login(data: LoginBody) {
+export function login(data: any): Promise<ResultBody<string>> {
   return request({
     url: '/api/auth/login',
     method: 'post',
@@ -9,14 +10,21 @@ export function login(data: LoginBody) {
   })
 }
 
-export function captcha() {
+export function captcha(): Promise<ResultBody<{
+  uuid: string
+  img: string
+}>> {
   return request({
     url: '/api/auth/captcha',
     method: 'get'
   })
 }
 
-export function getInfo() {
+export function getInfo(): Promise<ResultBody<{
+  roles: string[],
+  permissions: string[],
+  user: LoginInfo
+}>> {
   return request({
     url: '/api/auth/info',
     method: 'get',

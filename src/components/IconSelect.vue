@@ -1,18 +1,15 @@
 <script setup lang="ts">
-import {computed, ref} from "vue";
+import {computed, ref, useTemplateRef} from "vue";
 import icons from '@/utils/icons'
+import {type PopoverInstance} from "element-plus";
 
-defineProps({
-  activeIcon: String
-})
-const emit = defineEmits(['update:activeIcon'])
-
-const keyword = ref(null)
-const refPopover = ref(null)
+const model = defineModel()
+const keyword = ref<string|null>(null)
+const refPopover = useTemplateRef<PopoverInstance>('refPopover')
 
 const filterIcons = computed(() => {
   if (keyword.value) {
-    return icons.filter(item => item.includes(keyword.value))
+    return icons.filter(item => item.includes(keyword.value as string))
   }
   return icons
 })
@@ -21,9 +18,15 @@ function onShow() {
   keyword.value = null
 }
 
-function onIconSelected(icon) {
-  emit('update:activeIcon', icon)
-  refPopover.value.doClose()
+function onIconSelected(icon: string) {
+  model.value = icon
+  refPopover.value?.hide()
+}
+</script>
+
+<script lang="ts">
+export default {
+  name: 'IconSelect'
 }
 </script>
 
@@ -41,7 +44,7 @@ function onIconSelected(icon) {
       <el-divider></el-divider>
       <div style="max-height: 300px;overflow-y: auto;">
         <el-row>
-          <el-col v-for="(icon, index) in filterIcons" :key="index" :span="4" :class="{ 'active': icon === activeIcon }" @click="onIconSelected(icon)">
+          <el-col v-for="(icon, index) in filterIcons" :key="index" :span="4" :class="{ 'active': icon === model }" @click="onIconSelected(icon)">
             <div style="text-align: center;">
               <svg-icon :icon-class="icon" />
               <div style="font-size: 12px;color: #909399;">{{ icon }}</div>

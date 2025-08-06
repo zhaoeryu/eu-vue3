@@ -34,7 +34,7 @@ const greetings = [
 const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
 
 const user = computed(() => userStore.user)
-const greeting1 = computed(() => `${timeGreeting()}，${userStore.user.nickname}`)
+const greeting1 = computed(() => `${timeGreeting()}，${userStore.user.nickname || '用户'}`)
 const greeting2 = computed(() => randomGreeting)
 
 </script>
@@ -46,7 +46,7 @@ const greeting2 = computed(() => randomGreeting)
         <div class="statistics-overview">
           <div class="statistics-overview-header">
             <div class="statistics-overview-header__body">
-              <eu-avatar shape="circle" :size="72" :font-size="28" :src="user.avatar" :nickname="user.nickname" />
+              <eu-avatar v-if="user" shape="circle" :size="72" :font-size="28" src="" :nickname="user.nickname" />
               <div style="margin-left: 24px;flex: 1;">
                 <div class="statistics-overview-header__body__greeting1">{{ greeting1 }}</div>
                 <div class="statistics-overview-header__body__greeting2">{{ greeting2 }}</div>
@@ -326,5 +326,3 @@ const greeting2 = computed(() => randomGreeting)
   }
 }
 </style>
-<script setup lang="ts">
-</script>

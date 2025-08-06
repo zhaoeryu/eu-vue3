@@ -1,5 +1,4 @@
 import {defineStore} from 'pinia';
-import {RoutesState} from "./types";
 import {getRouters} from "@/api/system/menu";
 import {layoutRouteList} from "@/router/routers";
 import { MenuTypeEnums } from '@/utils/enums'
@@ -11,6 +10,12 @@ import {
   processDirectoryNode,
   processMenuNode,
 } from '@/utils/route-helpers'
+import {type RouteNode} from "@/types/route";
+import {type Menu} from "@/types/system/menu";
+
+interface RoutesState {
+  routes: Array<any>,
+}
 
 const useRouteStore = defineStore('route', {
   state: (): RoutesState => ({
@@ -18,22 +23,22 @@ const useRouteStore = defineStore('route', {
   }),
   getters: {},
   actions: {
-    generateRoutes() {
+    generateRoutes(): Promise<RouteNode[]> {
       return new Promise((resolve, reject) => {
         getRouters().then((res) => {
           const menus = res.data || []
 
           // 将后台返回的菜单数据转换为vue-router的格式
           const routers = convertMenuToVueRouterFormat(menus)
-          const constantRouteList = handleConstantRouteList(layoutRouteList)
+          const constantRouteList = handleConstantRouteList(layoutRouteList as RouteNode[])
           routers.unshift(...constantRouteList)
 
-          // 兜底方案（放到最后）：当用户访问的路由不存在时，跳转到404页面
+          // 兜底方案（放到最后）：当用户访问的路由不存在时，跳转到 404 页面
           routers.push({
             path: '/:pathMatch(.*)*',
             redirect: '/404',
             hidden: true
-          })
+          } as RouteNode)
 
           const routes = routers
           this.routes = routers
@@ -52,7 +57,7 @@ const useRouteStore = defineStore('route', {
  * @param {Array} menus 后台返回的菜单数据
  * @returns {Array} vue-router格式的路由数组
  */
-function convertMenuToVueRouterFormat(menus) {
+function convertMenuToVueRouterFormat(menus: Menu[]) {
   if (!Array.isArray(menus) || menus.length === 0) {
     return []
   }
@@ -64,12 +69,14 @@ function convertMenuToVueRouterFormat(menus) {
     .filter(item => item !== null)
     .value()
 
+  // @ts-ignore
   const tree = fromArray(processedMenus, {
     itemKey: 'id',
     parentKey: 'parentId',
     childrenKey: 'children'
   })
 
+  // @ts-ignore
   return _.sortBy(tree.map(node => processNode(node, null)), 'meta.sort')
 }
 
@@ -78,7 +85,7 @@ function convertMenuToVueRouterFormat(menus) {
  * @param {Array} menus 常量路由菜单
  * @returns {Array} 处理后的路由数组
  */
-function handleConstantRouteList(menus) {
+function handleConstantRouteList(menus: RouteNode[]) {
   return menus.map(node => processNode(node, null, true))
 }
 
@@ -89,7 +96,7 @@ function handleConstantRouteList(menus) {
  * @param {boolean} isConstant 是否是常量路由
  * @returns {Object} 处理后的节点
  */
-function processNode(node, parentNode, isConstant = false) {
+function processNode(node: RouteNode, parentNode: RouteNode | null, isConstant = false): RouteNode {
   // 计算 fullPath
   const fullPath = getFullPath(parentNode, node);
 
@@ -103,7 +110,7 @@ function processNode(node, parentNode, isConstant = false) {
   // 递归处理 children
   return {
     ...processed,
-    children: hasChildren ? children.map(child => processNode(child, processed, isConstant)) : []
+    children: hasChildren ? children.map((child: RouteNode) => processNode(child, processed, isConstant)) : []
   }
 }
 
@@ -113,7 +120,7 @@ function processNode(node, parentNode, isConstant = false) {
  * @param {Object} node 当前节点
  * @returns {string} 完整路径
  */
-function getFullPath(parentNode, node) {
+function getFullPath(parentNode: RouteNode | null, node: RouteNode) {
   const parentPath = parentNode ? parentNode.fullPath : ''
   return buildFullPath(parentPath, node.path)
 }
@@ -124,7 +131,7 @@ function getFullPath(parentNode, node) {
  * @param {Object} parentNode 父节点数据
  * @returns {Object} 处理后的节点
  */
-function handleNodeByType(node, parentNode) {
+function handleNodeByType(node: RouteNode, parentNode: RouteNode | null) {
   const { menuType } = node
 
   switch (menuType) {

@@ -1,6 +1,6 @@
 <script setup>
 import SecondSidebarItem from '@/layout/components/Sidebar/column/SecondSidebarItem.vue'
-import { ref, onMounted, onBeforeMount, onBeforeUnmount, nextTick } from 'vue'
+import { ref, onMounted, onBeforeMount, onBeforeUnmount, nextTick, defineProps } from 'vue'
 import { smoothScrollToBottom, smoothScrollToTop } from '@/utils/sliding-scroll'
 import { ArrowUp, ArrowDown } from '@element-plus/icons-vue'
 

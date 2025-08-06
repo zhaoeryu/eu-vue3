@@ -1,19 +1,13 @@
 <script setup lang="ts">
-import {computed, ref, watch} from "vue";
+import {computed, ref, watch, defineProps} from "vue";
+import type {GeneratePreviewTree} from "@/types/system/generate";
 
-const props = defineProps({
-  item: {
-    type: Object,
-    default: () => ({})
-  },
-  active: {
-    type: String
-  }
-})
+type State = {
+  item: GeneratePreviewTree
+}
 
-const emit = defineEmits(['update:active'])
-
-const innerActive = ref(null)
+const model = defineModel()
+const props = defineProps<State>()
 
 const iconType = computed(() => {
   if (!props.item.type) {
@@ -25,6 +19,7 @@ const iconType = computed(() => {
     case 'xml':
       return 'folder_xml'
     case 'js':
+    case 'ts':
       return 'folder_js'
     case 'vue':
       return 'folder_vue'
@@ -34,19 +29,11 @@ const iconType = computed(() => {
   return 'folder_file'
 })
 
-watch(() => props.active, (value) => {
-  innerActive.value = value
-}, { immediate: true })
-
-watch(innerActive, (value) => {
-  emit('update:active', value)
-})
-
 function onChecked() {
-  if (!props.item.code || props.item.name === innerActive.value) {
+  if (!props.item.code || props.item.name === model.value) {
     return
   }
-  innerActive.value = props.item.name
+  model.value = props.item.name
 }
 
 </script>
@@ -54,7 +41,7 @@ function onChecked() {
 <template>
   <details open>
     <summary
-      :class="{ active: item.code && active === item.name }"
+      :class="{ active: item.code && model === item.name }"
       @click="onChecked"
     >
       <span class="tree-item" :class="iconType">{{ item.name }}</span>
@@ -63,7 +50,7 @@ function onChecked() {
       v-for="(v, index) in item.children"
       :key="index"
       :item="v"
-      v-model:active="innerActive"
+      v-model="model"
     />
   </details>
 </template>

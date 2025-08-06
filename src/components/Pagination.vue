@@ -1,60 +1,28 @@
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, defineProps} from "vue";
 import {useSettingsStore} from "@/store";
+
+interface Props {
+  total: number;
+  pageSizes?: number[];
+  layout?: string;
+  background?: boolean;
+}
+
+const page = defineModel('page')
+const limit = defineModel('limit')
+
+const props = withDefaults(defineProps<Props>(), {
+  pageSizes: () => [10, 20, 30, 50, 100],
+  layout: 'total, sizes, prev, pager, next, jumper',
+  background: true
+})
 
 const PAGE_LAYOUT_BLACKLIST = ['jumper', 'pager']
 
-const props = defineProps({
-  total: {
-    required: true,
-    type: Number
-  },
-  page: {
-    type: Number,
-    default: 1
-  },
-  limit: {
-    type: Number,
-    default: 10
-  },
-  pageSizes: {
-    type: Array,
-    default() {
-      return [10, 20, 30, 50, 100]
-    }
-  },
-  layout: {
-    type: String,
-    default: 'total, sizes, prev, pager, next, jumper'
-  },
-  background: {
-    type: Boolean,
-    default: true
-  }
-})
-
 const emit = defineEmits([
-  'update:page',
-  'update:limit',
   'pagination'
 ])
-
-const currentPage = computed({
-  get() {
-    return props.page
-  },
-  set(newValue) {
-    emit('update:page', newValue)
-  }
-})
-const pageSize = computed({
-  get() {
-    return props.limit
-  },
-  set(newValue) {
-    emit('update:limit', newValue)
-  }
-})
 
 const innerLayout = computed(() => {
   if (useSettingsStore().isMobileDevice && props.layout) {
@@ -63,29 +31,35 @@ const innerLayout = computed(() => {
   return props.layout
 })
 
-function handleSizeChange(val) {
+function handleSizeChange(val: number) {
   emit('pagination', {
-    page: currentPage,
+    page: page.value,
     limit: val
   })
 }
-function handleCurrentChange(val) {
+function handleCurrentChange(val: number) {
   emit('pagination', {
     page: val,
-    limit: pageSize
+    limit: limit.value
   })
+}
+</script>
+
+<script lang="ts">
+export default {
+  name: 'Pagination'
 }
 </script>
 
 <template>
   <el-pagination
     v-bind="$attrs"
-    v-model:current-page="currentPage"
-    v-model:page-size="pageSize"
-    :total="total"
-    :background="background"
+    v-model:current-page="page"
+    v-model:page-size="limit"
+    :total="props.total"
+    :background="props.background"
     :layout="innerLayout"
-    :page-sizes="pageSizes"
+    :page-sizes="props.pageSizes"
     @size-change="handleSizeChange"
     @current-change="handleCurrentChange"
   />
