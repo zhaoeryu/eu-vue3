@@ -22,7 +22,7 @@ function onSubmit() {
 }
 
 function onRestoreDefault() {
-  settingsStore.saveTheme({...defaultTheme})
+  settingsStore.restore()
   ElMessage.success('已恢复默认主题')
   setVisible(false)
 }

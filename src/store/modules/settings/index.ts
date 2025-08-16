@@ -12,15 +12,20 @@ export const useSettingsStore = defineStore('settings', () => {
 
   const isMobileDevice = computed(() => device.value === DeviceTypeEnums.MOBILE)
 
-  function saveTheme(theme: EuTheme) {
-    this.theme = Object.assign({}, defaultTheme, theme)
+  function saveTheme(newTheme: EuTheme) {
+    theme.value = Object.assign({}, defaultTheme, theme.value, newTheme)
   }
-  function toggleDevice(device: DeviceType) {
-    this.device = device
+  function toggleDevice(newDevice: DeviceType) {
+    device.value = newDevice
   }
   function toggleCollapsed(collapsed: boolean) {
-    this.sidebarCollapsed = collapsed
+    sidebarCollapsed.value = collapsed
   }
+
+  function restore() {
+    theme.value = Object.assign({}, defaultTheme)
+  }
+
   return {
     theme,
     device,
@@ -29,6 +34,7 @@ export const useSettingsStore = defineStore('settings', () => {
     saveTheme,
     toggleDevice,
     toggleCollapsed,
+    restore
   }
 }, {
   persist: {

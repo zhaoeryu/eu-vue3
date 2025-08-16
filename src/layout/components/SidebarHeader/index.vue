@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import {useUserStore} from "@/store";
-import {computed, defineOptions} from "vue";
-import {ElMessageBox} from "element-plus";
+import {computed, defineOptions, useTemplateRef} from "vue";
+import {ElMessageBox, PopoverInstance} from "element-plus";
+import {useRouter} from "vue-router";
 
 defineOptions({
   name: 'SidebarHeader'
 })
 
 const userStore = useUserStore();
+const router = useRouter()
+const popoverRef = useTemplateRef<PopoverInstance>('popoverRef')
 
 const deptNames = computed(() => {
   return (userStore.user.deptNames || []).join(' / ') || '暂无部门'
@@ -34,11 +37,17 @@ const onLogout = () => {
     }
   })
 }
+
+function onToPersonal() {
+  router.push('/personal-center')
+  popoverRef.value.hide()
+}
+
 </script>
 
 <template>
   <el-popover
-    ref="popover"
+    ref="popoverRef"
     placement="bottom-start"
     width="230"
     :open-delay="0"
@@ -69,7 +78,7 @@ const onLogout = () => {
       <el-divider direction="horizontal"></el-divider>
       <el-row style="display: flex;">
         <el-col :span="11">
-          <el-button text type="primary" style="width: 100%;" @click="$router.push('/personal-center')">个人中心</el-button>
+          <el-button text type="primary" style="width: 100%;" @click="onToPersonal">个人中心</el-button>
         </el-col>
         <el-col :span="2">
           <el-divider direction="vertical" content-position="center"></el-divider>

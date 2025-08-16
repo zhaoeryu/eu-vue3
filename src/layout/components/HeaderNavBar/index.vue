@@ -26,9 +26,9 @@ function toNewPage(url: string) {
 }
 
 function changeDarkMode(mode: string) {
-  settingsStore.saveTheme(Object.assign(settingsStore.theme, {
+  settingsStore.saveTheme({
     darkMode: mode
-  }))
+  })
 }
 
 function onRefresh () {

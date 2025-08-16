@@ -163,14 +163,14 @@ function onItemSelect(item: any, group: CmdkItem) {
     case 'preferences':
       switch (item.key) {
         case 'theme':
-          settingsStore.saveTheme(Object.assign(settingsStore.theme, {
+          settingsStore.saveTheme({
             darkMode: isDark() ? 'light' : 'dark'
-          }))
+          })
           break;
         case 'tabsView':
-          settingsStore.saveTheme(Object.assign(settingsStore.theme, {
+          settingsStore.saveTheme({
             showTabsBar: !settingsStore.theme.showTabsBar
-          }))
+          })
           break;
       }
       break;
