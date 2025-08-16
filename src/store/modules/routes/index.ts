@@ -14,7 +14,7 @@ import {type RouteNode} from "@/types/route";
 import {type Menu} from "@/types/system/menu";
 
 interface RoutesState {
-  routes: Array<any>,
+  routes: RouteNode[],
 }
 
 const useRouteStore = defineStore('route', {

@@ -1,53 +1,47 @@
 <script setup lang="ts">
-import {defineOptions, reactive, ref, watch, watchEffect, defineProps} from "vue";
+import {defineOptions, reactive} from "vue";
 import {defaultTheme} from "@/settings";
 import {useSettingsStore} from "@/store";
+import mittBus from '@/utils/mittBus';
+import useVisible from "@/hooks/visible";
+import {ElMessage} from "element-plus";
 
 defineOptions({
   name: 'ThemeConfig'
 })
 
-const props = defineProps({
-  show: Boolean
-})
-const emit = defineEmits(['update:show'])
-
 const settingsStore = useSettingsStore();
+const {visible, setVisible} = useVisible(false);
 
-const innerShow = ref(false)
 const form = reactive({...defaultTheme})
-watchEffect(() => {
-  innerShow.value = props.show
-})
-watch(innerShow, () => {
-  Object.assign(form, defaultTheme, { ...settingsStore.theme })
-}, {
-  immediate: true
-})
 
 function onSubmit() {
   settingsStore.saveTheme({...form})
-  innerShow.value = false
-  emit('update:show', false)
+  ElMessage.success('已更新')
+  setVisible(false)
 }
 
 function onRestoreDefault() {
   settingsStore.saveTheme({...defaultTheme})
-  innerShow.value = false
-  emit('update:show', false)
+  ElMessage.success('已恢复默认主题')
+  setVisible(false)
 }
+
+mittBus.on('theme:open', () => {
+  setVisible(true)
+  Object.assign(form, defaultTheme, { ...settingsStore.theme })
+});
 
 </script>
 
 <template>
   <el-drawer
     title="主题配置"
-    v-model="innerShow"
-    size="300px"
+    v-model="visible"
+    size="400px"
     direction="rtl"
     class="eu-theme-config-drawer"
     append-to-body
-    @close="$emit('update:show', false)"
   >
     <div style="display: flex;flex-direction: column;height: 100%;overflow: hidden;">
       <div style="flex: 1;overflow-y: auto;">
@@ -163,7 +157,7 @@ function onRestoreDefault() {
     padding: 0;
   }
   .el-drawer__footer {
-    border-top: 1px solid #dedede;
+    border-top: 1px solid var(--color-border);
     width: 100%;
     padding: 0 12px;
     box-sizing: border-box;

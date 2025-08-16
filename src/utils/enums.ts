@@ -1,11 +1,12 @@
 import type {Enum, EnumItem} from "@/types/generic";
+import type {DeviceType} from "@/store/modules/settings";
 
 /**
  * 设备类型
  */
 export const DeviceTypeEnums = {
-  DESKTOP: 'desktop',
-  MOBILE: 'mobile'
+  DESKTOP: 'desktop' as DeviceType,
+  MOBILE: 'mobile' as DeviceType
 }
 
 /**

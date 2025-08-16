@@ -262,6 +262,6 @@ function logout() {
 </template>
 
 <style lang="scss">
-@import '@/assets/styles/cmdk-global';
-@import '@/assets/styles/cmdk-eu';
+@use '@/assets/styles/cmdk-global';
+@use '@/assets/styles/cmdk-eu';
 </style>

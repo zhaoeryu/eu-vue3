@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import AppLink from '@/layout/components/Sidebar/Link.vue'
 import { getMaxMatchedMenu } from '@/utils/route-helpers'
 import { computed, defineProps } from 'vue'
@@ -22,7 +22,7 @@ const emit = defineEmits([
 const route = useRoute()
 
 const activeFirstMenu = computed(() => {
-  const matchedRoute = route.matched.find(item => item.parent === undefined)
+  const matchedRoute = route.matched[0]
   return matchedRoute.path
 })
 const isActive = computed(() => {

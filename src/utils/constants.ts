@@ -1,4 +1,3 @@
-export const STORAGE_KEY_THEME = 'eu-theme'
 export const STORAGE_KEY_TOKEN = 'eu-token'
 export const STORAGE_KEY_USERNAME = 'eu-username'
 export const STORAGE_KEY_PASSWORD = 'eu-password'

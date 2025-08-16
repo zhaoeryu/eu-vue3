@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import AppLink from '@/layout/components/Sidebar/Link.vue'
 import { computed, defineProps } from 'vue'
 
@@ -23,7 +23,7 @@ const isHiddenChildren = computed(() => {
   const isAlwaysShow = props.item.meta?.alwaysShow
   // 如果子菜单只有一个，同时alwaysShow = false，并且是一级菜单
   return !childrenList.value.length
-    || (isNotMultiChildren && !isAlwaysShow && isRoot)
+    || (isNotMultiChildren && !isAlwaysShow && isRoot.value)
 })
 
 const isRoot = computed(() => {

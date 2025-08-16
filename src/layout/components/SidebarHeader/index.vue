@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useUserStore} from "@/store";
 import {computed, defineOptions} from "vue";
-import {ElMessage, ElMessageBox} from "element-plus";
+import {ElMessageBox} from "element-plus";
 
 defineOptions({
   name: 'SidebarHeader'

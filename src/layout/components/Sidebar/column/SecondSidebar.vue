@@ -1,6 +1,14 @@
-<script setup>
+<script lang="ts" setup>
 import SecondSidebarItem from '@/layout/components/Sidebar/column/SecondSidebarItem.vue'
-import { ref, onMounted, onBeforeMount, onBeforeUnmount, nextTick, defineProps } from 'vue'
+import {
+  ref,
+  onMounted,
+  onBeforeMount,
+  onBeforeUnmount,
+  nextTick,
+  defineProps,
+  useTemplateRef
+} from 'vue'
 import { smoothScrollToBottom, smoothScrollToTop } from '@/utils/sliding-scroll'
 import { ArrowUp, ArrowDown } from '@element-plus/icons-vue'
 
@@ -10,9 +18,10 @@ const props = defineProps({
     required: true
   },
 })
+
 const secondNavUpIndicatorShow = ref(false)
 const secondNavDownIndicatorShow = ref(false)
-const navScrollRef = ref(null);
+const navScrollRef = useTemplateRef('navScrollRef');
 onMounted(async () => {
   await nextTick()
   onSelfNavScroll()

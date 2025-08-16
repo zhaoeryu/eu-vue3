@@ -6,37 +6,28 @@
     element-loading-background="rgba(255, 255, 255, 0.8)"
   >
     <iframe
-      :id="iframeId"
       style="width: 100%; height: 100%"
       :src="src"
+      @load="onIframeLoad"
     ></iframe>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Md5 } from 'ts-md5';
-import {computed, onMounted, ref} from "vue";
+import {ref, watch} from "vue";
 import {useRoute} from "vue-router";
+import useLoading from "@/hooks/loading";
 
 const route = useRoute()
+const { loading, setLoading } = useLoading(false)
+const src = ref('')
 
-const loading = ref(false)
-const src = computed(() => route.meta.embedUrl)
-const iframeId = computed(() => 'iframe_' + Md5.hashStr(src.value))
+watch(() => route.path, () => {
+  setLoading(true)
+  src.value = route.meta?.embedUrl as string
+}, { immediate: true })
 
-onMounted(() => {
-  const iframe = document.querySelector('#' + iframeId.value);
-  // iframe页面loading控制
-  if (iframe.attachEvent) {
-    loading.value = true;
-    iframe.attachEvent('onload', function () {
-      loading.value = false;
-    });
-  } else {
-    loading.value = true;
-    iframe.onload = function () {
-      loading.value = false;
-    };
-  }
-})
+function onIframeLoad() {
+  setLoading(false)
+}
 </script>

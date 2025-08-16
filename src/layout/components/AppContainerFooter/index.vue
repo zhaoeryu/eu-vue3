@@ -16,7 +16,7 @@ defineOptions({
 <style scoped lang="scss">
 #app-container__footer {
   text-align: center;
-  color: #c8c9cc;
+  color: var(--color-text-3);
   height: 50px;
   line-height: 50px;
   font-size: 14px;

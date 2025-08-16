@@ -2,21 +2,16 @@
 import SidebarHeader from "@/layout/components/SidebarHeader/index.vue";
 import { defaultSetting } from "@/settings";
 import { useFullscreen } from '@vueuse/core'
-import {computed, defineOptions, ref, defineProps, defineEmits } from "vue";
+import {computed, defineOptions } from "vue";
 import {useSettingsStore} from "@/store";
 import SvgIcon from "@/components/SvgIcon.vue";
 import CmdkDialog from "@/components/cmdk/CmdkDialog.vue";
 import Message from "@/components/Message.vue";
+import mittBus from '@/utils/mittBus';
 
 defineOptions({
   name: 'HeaderNavBar'
 })
-
-defineProps({
-  themeConfigShow: Boolean
-})
-const emit = defineEmits(['update:themeConfigShow'])
-
 
 const { isFullscreen, toggle: onScreenfull } = useFullscreen();
 const settingsStore = useSettingsStore()
@@ -26,11 +21,11 @@ const darkMode = computed(() => settingsStore.theme.darkMode)
 function toHomePage() {
   location.href = '/'
 }
-function toNewPage(url) {
+function toNewPage(url: string) {
   window.open(url)
 }
 
-function changeDarkMode(mode) {
+function changeDarkMode(mode: string) {
   settingsStore.saveTheme(Object.assign(settingsStore.theme, {
     darkMode: mode
   }))
@@ -41,7 +36,7 @@ function onRefresh () {
 }
 
 function onThemeClick() {
-  emit('update:themeConfigShow', true)
+  mittBus.emit('theme:open')
 }
 
 </script>

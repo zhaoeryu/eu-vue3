@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import {defaultSetting} from "@/settings";
-import {defineOptions} from "vue";
+import {computed, defineOptions} from "vue";
+import {useTabsStore} from "@/store";
+import {type Tab} from "@/types/store/tabs";
 
 defineOptions({
   name: 'AppContainerBody'
 })
 
-const cachedRoutes = []
+const cachedRoutes = computed(() => {
+  return useTabsStore().tabs
+    .filter((item: Tab) => item.title && item.keepAlive)
+    .map((item: Tab) => item.title) || []
+})
 
 </script>
 

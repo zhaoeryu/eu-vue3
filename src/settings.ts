@@ -1,6 +1,6 @@
 export interface EuTheme {
   //横纵布局 horizontal vertical
-  layout: 'horizontal' | 'vertical';
+  layout: 'column' | 'vertical';
   // 是否使用标签页
   showTabsBar: boolean;
   // 是否固定标签页
@@ -39,8 +39,8 @@ export interface DefaultSetting {
 }
 
 export const defaultTheme: EuTheme = {
-  //横纵布局 horizontal vertical
-  layout: 'vertical',
+  //横纵布局 column vertical
+  layout: 'column',
   // 是否使用标签页
   showTabsBar: true,
   // 是否固定标签页

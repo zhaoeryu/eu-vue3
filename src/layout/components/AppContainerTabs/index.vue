@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import {computed, defineOptions, ref, watch} from "vue";
-import {useRouteStore, useTabsViewStore} from "@/store";
+import {useRouteStore, useTabsStore} from "@/store";
 import {useRoute, useRouter} from "vue-router";
+import type {Tab} from "@/types/store/tabs";
+import {type TabsPaneContext} from "element-plus";
+import type {RouteNode} from "@/types/route";
 
 defineOptions({
   name: 'AppContainerTabs'
@@ -9,19 +12,26 @@ defineOptions({
 
 const route = useRoute()
 const router = useRouter()
-const tabsViewStore = useTabsViewStore()
+const tabsStore = useTabsStore()
 const routeStore = useRouteStore()
 
-const tabActive = ref(null)
+const tabActive = ref(null as string | null)
 const moreIconMouseenter = ref(false)
 
 const routes = computed(() => routeStore.routes)
-const curView = computed(() => tabsViewStore.visitedViews.find(item => item.path === route.path))
+const curTab = computed(() => tabsStore.tabs.find(item => item.path === route.path))
 
 watch(route, (newRoute, oldRoute) => {
   initAffixTabs()
-  tabsViewStore.addVisitedView(newRoute)
-  tabActive.value = tabsViewStore.visitedViews.find(item => item.path === newRoute.path)?.path || ''
+  const tab: Tab = {
+    path: newRoute.path,
+    title: newRoute.meta.title as string,
+    icon: newRoute.meta.icon as string,
+    affix: newRoute.meta.affix as boolean,
+    keepAlive: newRoute.meta.keepAlive as boolean,
+  }
+  tabsStore.addTab(tab)
+  tabActive.value = tabsStore.tabs.find(item => item.path === newRoute.path)?.path || null
 }, {
   immediate: true
 })
@@ -30,15 +40,21 @@ function initAffixTabs() {
   const affixTabs = filterAffixTabs(routes.value)
   for (const tab of affixTabs) {
     if (tab.path) {
-      tabsViewStore.addVisitedView(tab)
+      tabsStore.addTab(tab)
     }
   }
 }
-function filterAffixTabs(_routes) {
-  let tabs = []
+function filterAffixTabs(_routes: RouteNode[]) {
+  let tabs: Tab[] = []
     _routes.forEach(_route => {
     if (_route.meta && _route.meta.affix && _route.meta.isChildMeta !== true) {
-      tabs.push(_route)
+      tabs.push({
+        path: _route.path,
+        title: _route.meta.title,
+        icon: _route.meta.icon,
+        affix: _route.meta.affix,
+        keepAlive: _route.meta.keepAlive,
+      })
     }
     if (_route.children) {
       const tempTabs = filterAffixTabs(_route.children)
@@ -49,32 +65,34 @@ function filterAffixTabs(_routes) {
   })
   return tabs
 }
-function isAffix(tab) {
-  return tab.meta && tab.meta.affix
-}
-function isActive(_route) {
-  console.log(_route.path, route.path);
-  return _route.path === route.path
+
+function isActive(tab: Tab) {
+  return tab.path === route.path
 }
 
-function onTabClick(tab) {
-    router.push(tab.paneName)
+function onTabClick(tab: TabsPaneContext) {
+  router.push(tab.paneName as string)
 }
-function onTabRemove(tab) {
-  const view = tabsViewStore.visitedViews.find(item => item.path === tab)
-  tabsViewStore.delVisitedView(view).then(views => {
-    if (isActive(view)) {
-      const latestView = views.slice(-1)[0]
-      if (latestView) {
-        router.push(latestView.path)
-      } else {
-        router.push('/')
-      }
+function onTabRemove(path: string) {
+  const tab = tabsStore.tabs.find(item => item.path === path)
+  if (tab) {
+    tabsStore.delTab(tab)
+    if (isActive(tab)) {
+      openLastTab()
     }
-  })
+  }
 }
 
-function onDropdown(command) {
+function openLastTab() {
+  const lastTab = tabsStore.tabs.slice(-1)[0]
+  if (lastTab) {
+    router.push(lastTab.path)
+  } else {
+    router.push('/')
+  }
+}
+
+function onDropdown(command: string) {
   switch (command) {
     case 'refresh':
       onPageRefresh()
@@ -97,26 +115,26 @@ function onPageRefresh() {
   window.location.reload()
 }
 function closeOtherTabs() {
-  tabsViewStore.delOthersVisitedViews(curView.value)
+  if (curTab.value) {
+    tabsStore.delOthersTabs(curTab.value)
+  }
 }
 function closeLeftTabs() {
-  tabsViewStore.delLeftVisitedViews(curView.value)
+  if (curTab.value) {
+    tabsStore.delLeftTabs(curTab.value)
+  }
 }
 function closeRightTabs() {
-  tabsViewStore.delRightVisitedViews(curView.value)
+  if (curTab.value) {
+    tabsStore.delRightTabs(curTab.value)
+  }
 }
 function closeAllTabs() {
-  tabsViewStore.delAllVisitedViews().then(views => {
-    const latestView = views.slice(-1)[0]
-    if (latestView) {
-      router.push(latestView.path)
-    } else {
-      router.push('/')
-    }
-  })
+  tabsStore.delAllTabs()
+  openLastTab()
 }
 
-function onDropdownVisibleChange(isVisible) {
+function onDropdownVisibleChange(isVisible: boolean) {
   moreIconMouseenter.value = isVisible
 }
 </script>
@@ -131,11 +149,11 @@ function onDropdownVisibleChange(isVisible) {
       @tab-remove="onTabRemove"
     >
       <el-tab-pane
-        v-for="item in tabsViewStore.visitedViews"
+        v-for="item in tabsStore.tabs"
         :key="item.path"
-        :label="item.meta.title"
+        :label="item.title"
         :name="item.path"
-        :closable="!isAffix(item)"
+        :closable="!item.affix"
       ></el-tab-pane>
     </el-tabs>
 

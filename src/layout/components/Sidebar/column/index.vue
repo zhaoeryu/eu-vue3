@@ -3,7 +3,8 @@ import FirstSidebarItem from "@/layout/components/Sidebar/column/FirstSidebarIte
 import SecondSidebar from "@/layout/components/Sidebar/column/SecondSidebar.vue";
 import {useRouteStore, useSettingsStore} from "@/store";
 import {useRoute} from "vue-router";
-import {computed, defineOptions, nextTick, onMounted, ref, watchEffect} from "vue";
+import {computed, defineOptions, nextTick, ref, useTemplateRef} from "vue";
+import type {RouteNode} from "@/types/route";
 
 defineOptions({
   name: 'SidebarColumn'
@@ -11,11 +12,13 @@ defineOptions({
 
 const route = useRoute();
 const settingsStore = useSettingsStore();
-const refSecondSidebar = ref(null)
+const refSecondSidebar = useTemplateRef<InstanceType<typeof SecondSidebar>>('refSecondSidebar')
+// 为了解决鼠标移入pop层的二级菜单，一级菜单不高亮的问题
+const firstMenuHover = ref<boolean[]>([])
 
 const activeFirstMenuPath = computed(() => {
-  const _route = route.matched.find(item => item.parent === undefined)
-  return _route.path === '' ? '/' : _route.path
+  const _route = route.matched[0]
+  return _route?.path === '' ? '/' : _route?.path
 })
 
 const menuList = computed(() => {
@@ -28,7 +31,7 @@ const secondNavList = computed(() => {
     .filter(item => !item.hidden)
 })
 
-function disabledFirstNav(item) {
+function disabledFirstNav(item: RouteNode) {
   if (!Array.isArray(item.children) || (item.children.filter(c => !c.hidden)).length < 2) {
     // 如果没有二级菜单，或者二级菜单只有一个，则禁用
     return true
@@ -41,33 +44,14 @@ function disabledFirstNav(item) {
   return item.path === activeFirstMenuPath.value
 }
 
-function onNavPopperShow(index) {
-
-}
-
-async function onItemClick(index, item) {
+async function onItemClick(index: number, item: RouteNode) {
   await nextTick()
   refSecondSidebar.value.onSelfNavScroll()
 }
-async function onFirstItemClick(index, item) {
+async function onFirstItemClick(index: number, item: RouteNode) {
   await nextTick()
   refSecondSidebar.value.onSelfNavScroll()
 }
-
-// 为了解决鼠标移入pop层的二级菜单，一级菜单不高亮的问题
-const firstMenuHover = ref([])
-const firstNavPopover = ref([])
-
-onMounted(() => {
-  firstNavPopover.value.forEach((item, index) => {
-    item.popperRef.contentRef.addEventListener('mouseenter', function () {
-      firstMenuHover.value[index] = true
-    })
-    item.popperRef.contentRef.addEventListener('mouseleave', function () {
-      firstMenuHover.value[index] = false
-    })
-  })
-})
 
 </script>
 
@@ -79,16 +63,16 @@ onMounted(() => {
         <el-popover
           v-for="(item, index) in menuList"
           :key="index"
-          :show-after="100"
+          :show-after="0"
           :hide-after="100"
           :disabled="disabledFirstNav(item)"
           :append-to-body="false"
-          ref="firstNavPopover"
           placement="right-start"
           width="140"
           popper-class="eu-nav-pop-wrapper"
           trigger="hover"
-          @show="onNavPopperShow(index)"
+          @show="firstMenuHover[index] = true"
+          @before-leave="firstMenuHover[index] = false"
         >
           <!-- 一级菜单Item -->
           <template #reference>

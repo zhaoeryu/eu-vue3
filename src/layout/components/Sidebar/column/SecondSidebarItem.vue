@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import AppLink from '@/layout/components/Sidebar/Link.vue'
 import { computed, ref, defineProps } from 'vue'
 import {useRoute} from "vue-router";

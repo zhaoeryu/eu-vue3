@@ -7,29 +7,24 @@ import HeaderNavBar from '@/layout/components/HeaderNavBar/index.vue'
 import AppContainerHeader from '@/layout/components/AppContainerHeader/index.vue'
 import AppContainerTabs from '@/layout/components/AppContainerTabs/index.vue'
 import {useSettingsStore, useRouteStore} from "@/store";
-import {computed, defineOptions, ref, watchEffect} from "vue";
+import {computed, watchEffect} from "vue";
 import { useWindowSize } from '@vueuse/core'
 import {useRoute} from "vue-router";
 import {DeviceTypeEnums} from "@/utils/enums";
+import type {RouteNode} from "@/types/route";
 
 const route = useRoute()
 const settingsStore = useSettingsStore()
 const routeStore = useRouteStore()
 
-const backTopSelector = '#app-container__main'
-const sidebarCollapsed = computed(() => settingsStore.sidebarCollapsed)
-const isMobileDevice = computed(() => settingsStore.isMobileDevice)
 const isSecondNavHidden = computed(() => {
-  const activeFirstMenu = route.matched.find(item => item.parent === undefined)
-  const activeFirstMenuPath = activeFirstMenu.path === '' ? '/' : activeFirstMenu.path
-  const secondNavList = (routeStore.routes.find(item => item.path === activeFirstMenuPath)?.children || []).filter(item => !item.hidden)
+  const activeFirstMenu = route.matched[0]
+  const activeFirstMenuPath = activeFirstMenu?.path === '' ? '/' : activeFirstMenu?.path
+  const secondNavList = (routeStore.routes.find(item => item.path === activeFirstMenuPath)?.children || [] as RouteNode[]).filter(item => !item.hidden)
   const isNotMultiChildren = secondNavList.length < 2
-  const matchedRoute = route.matched.find(item => item.parent === undefined)
-  const isAlwaysShow = matchedRoute?.meta?.alwaysShow
+  const isAlwaysShow = activeFirstMenu?.meta?.alwaysShow
   return isNotMultiChildren && !isAlwaysShow
 })
-const themeConfigShow = ref(false)
-const theme = computed(() => settingsStore.theme)
 const curRouteMeta = computed(() => route.meta || {})
 
 const { width } = useWindowSize();
@@ -53,23 +48,21 @@ export default {
 
 <template>
   <div id="eu-layout" :class="{
-    mobile: isMobileDevice,
-    'sidebar-collapsed': sidebarCollapsed,
+    mobile: settingsStore.isMobileDevice,
+    'sidebar-collapsed': settingsStore.sidebarCollapsed,
     'eu-nav-second-sidebar-hidden': isSecondNavHidden,
-    'eu-tabs-fixed': theme.showTabsBar && theme.fixedTabsBar,
-    ['eu-layout_'+theme.layout]: true
+    'eu-tabs-fixed': settingsStore.theme.showTabsBar && settingsStore.theme.fixedTabsBar,
+    ['eu-layout_'+settingsStore.theme.layout]: true
   }">
     <!-- Header Nav -->
-    <header-nav-bar
-      v-model:theme-config-show="themeConfigShow"
-    />
+    <header-nav-bar/>
     <!-- container -->
     <div id="app-container">
       <!-- aside -->
       <sidebar />
       <!-- main -->
       <main id="app-container__main">
-        <app-container-tabs v-if="theme.showTabsBar" />
+        <app-container-tabs v-if="settingsStore.theme.showTabsBar" />
         <!-- 头部 -->
         <app-container-header v-if="curRouteMeta.showHeader" />
         <!-- 内容区域 -->
@@ -80,9 +73,9 @@ export default {
     </div>
 
     <!-- 主题配置 -->
-    <theme-config v-model:show="themeConfigShow" />
+    <theme-config />
     <!-- 回到顶部 -->
-    <el-backtop ref="elBackTop" :target="backTopSelector"></el-backtop>
+    <el-backtop ref="elBackTop" target="#app-container__main"></el-backtop>
   </div>
 </template>
 
@@ -106,7 +99,7 @@ export default {
 }
 .sidebar-collapsed {
   // 折叠情况下菜单栏的宽度
-  --sidebar-width: var(--sidebar-collapse-width);
+  --sidebar-width: var(--sidebar-collapse-width) !important;
 }
 #eu-layout {
   // 分栏布局

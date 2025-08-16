@@ -1,25 +1,45 @@
-<script setup>
+<script lang="ts" setup>
 import SidebarItem from '@/layout/components/Sidebar/vertical/SidebarItem.vue'
 import { useRouteStore, useSettingsStore } from '@/store'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, useTemplateRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import type { MenuInstance } from 'element-plus'
+import { getMaxMatchedMenu } from '@/utils/route-helpers'
 
 const routeStore = useRouteStore()
 const route = useRoute()
-
-const refMenu = ref(null)
-
-const sidebarCollapsed = computed(() => {
-  return useSettingsStore().sidebarCollapsed
-})
+const settingsStore = useSettingsStore()
+const refMenu = useTemplateRef<MenuInstance>('refMenu')
 
 const menuList = computed(() => {
-  return routeStore.routes.filter(route => !route.hidden)
+  return routeStore.routes.filter(item => !item.hidden)
 })
 
-const menuUniqueOpened = computed(() => {
-  return true
-})
+watch(() => route.path, () => {
+  tryHighlightMenu()
+}, { immediate: true })
+
+async function tryHighlightMenu() {
+  await nextTick()
+  // 这里应该获取当前菜单是否激活，但是没有找到合适的方法，每次都执行一下吧
+  const isNotActive = true
+  if (isNotActive) {
+    // 首页特殊处理
+    const foundHomeMenu = menuList.value.find(item => item.path === '/' && item.redirect === route.path)
+    if (foundHomeMenu) {
+      refMenu.value.updateActiveIndex('/')
+      return
+    }
+    if (route.meta.hidden === true) {
+      // 支持模糊匹配
+      const matched = getMaxMatchedMenu(route.path, menuList.value)
+      if (matched) {
+        refMenu.value.updateActiveIndex(matched)
+        return
+      }
+    }
+  }
+}
 
 </script>
 
@@ -28,8 +48,8 @@ const menuUniqueOpened = computed(() => {
     <el-menu
       ref="refMenu"
       :default-active="route.path"
-      :collapse="sidebarCollapsed"
-      :unique-opened="menuUniqueOpened"
+      :collapse="settingsStore.sidebarCollapsed"
+      :unique-opened="true"
       :collapse-transition="false"
       mode="vertical"
       class="eu-menu"
@@ -74,7 +94,7 @@ const menuUniqueOpened = computed(() => {
       }
     }
 
-    .el-sub-menu__title,.el-menu-item {
+    .el-sub-menu__title,.el-menu-item>.el-menu-tooltip__trigger {
       display: flex;
       justify-content: center;
       align-items: center;
