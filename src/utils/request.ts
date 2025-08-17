@@ -97,10 +97,19 @@ export async function download(url: string, params: object, filename: string, co
       ...config,
     })
     .then(async (data) => {
-      if (data instanceof Blob) {
+      if (data instanceof Blob && data.type === 'application/octet-stream') {
         downloadBlobFile(data, filename);
       } else {
-        ElMessage.error('文件异常');
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        const resText = await data.text();
+        const rspObj = JSON.parse(resText);
+        const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default'];
+        if (rspObj.code === 200) {
+          ElMessage.success(rspObj.msg || '下载成功');
+        } else {
+          ElMessage.error(errMsg || '下载失败');
+        }
       }
       downloadLoadingInstance.close();
     })
