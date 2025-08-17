@@ -1,138 +1,141 @@
 <script lang="ts" setup>
-import {computed, nextTick, onMounted, ref, watch, watchEffect} from 'vue'
-import { Command, useCommandState } from 'vue-command-palette'
+import { onMounted, ref, watch } from 'vue';
+import { Command } from 'vue-command-palette';
+import { useMagicKeys } from '@vueuse/core';
+import { ElMessageBox } from 'element-plus';
+import { useRouter } from 'vue-router';
+
+import { useRouteStore, useSettingsStore, useUserStore } from '@/store';
 import CmdkButton from '@/components/cmdk/CmdkButton.vue';
-import {useMagicKeys} from "@vueuse/core";
-import {useRouteStore, useSettingsStore, useUserStore} from "@/store";
-import {ElMessage, ElMessageBox} from "element-plus";
-import {useRouter} from "vue-router";
-import {defaultSetting} from "@/settings";
-import CmdkIconEnter from "@/components/cmdk/CmdkIconEnter.vue";
-import CmdkDialogFooter from "@/components/cmdk/CmdkDialogFooter.vue";
-import SvgIcon from "@/components/SvgIcon.vue";
-import {isExternal} from "@/utils";
-import {isDark} from "@/utils/darkMode";
-import type {RouteNode} from "@/types/route";
+import { defaultSetting } from '@/settings';
+import CmdkIconEnter from '@/components/cmdk/CmdkIconEnter.vue';
+import CmdkDialogFooter from '@/components/cmdk/CmdkDialogFooter.vue';
+import SvgIcon from '@/components/SvgIcon.vue';
+import { isExternal } from '@/utils';
+import { isDark } from '@/utils/darkMode';
+import type { RouteNode } from '@/types/route';
 
-const visible = ref(false)
-const keyword = ref('')
+const visible = ref(false);
+const keyword = ref('');
 
-const keys = useMagicKeys()
-const routeStore = useRouteStore()
-const settingsStore = useSettingsStore()
+const keys = useMagicKeys();
+const routeStore = useRouteStore();
+const settingsStore = useSettingsStore();
 
-const CmdK = keys['Meta+K']
-const Escape = keys['Escape']
+const CmdK = keys['Meta+K'];
+const Escape = keys['Escape'];
 
-const db = ref<CmdkItem[]>([])
-const router = useRouter()
+const db = ref<CmdkGroup[]>([]);
+const router = useRouter();
 
-type CmdkItem = {
-  key: string
-  label: string
-  children: any[]
-}
+type CmdkGroup = {
+  key: string;
+  label: string;
+  children: CmdkRouteItem[];
+};
 
-watch(CmdK, v => {
+type CmdkRouteItem = {
+  key: string;
+  label: string;
+  labelList: string[];
+  value?: string;
+};
+
+watch(CmdK, (v) => {
   if (v) {
-    visible.value = true
+    visible.value = true;
   }
-})
+});
 
-watch(Escape, v => {
+watch(Escape, (v) => {
   if (v) {
-    visible.value = false
+    visible.value = false;
   }
-})
+});
 
 const preferences = [
   {
     key: 'theme',
     label: '切换主题',
-    labelList: ['切换主题']
+    labelList: ['切换主题'],
   },
   {
     key: 'tabsView',
     label: '显示/隐藏标签选项卡',
-    labelList: ['显示/隐藏标签选项卡']
-  }
-]
+    labelList: ['显示/隐藏标签选项卡'],
+  },
+];
 
 const system = [
   {
     key: 'logout',
     label: '退出登录',
-    labelList: ['退出登录']
-  }
-]
+    labelList: ['退出登录'],
+  },
+];
 
 const about = [
   {
     key: 'github',
     label: 'Github源码',
     labelList: ['Github源码'],
-    value: defaultSetting.githubUrl
+    value: defaultSetting.githubUrl,
   },
   {
     key: 'gitee',
     label: 'Gitee源码',
     labelList: ['Gitee源码'],
-    value: defaultSetting.giteeUrl
+    value: defaultSetting.giteeUrl,
   },
   {
     key: 'doc',
     label: '帮助文档',
     labelList: ['帮助文档'],
-    value: defaultSetting.systemHelpDocUrl
-  }
-]
+    value: defaultSetting.systemHelpDocUrl,
+  },
+];
 
 // 初始化可搜索的库
 onMounted(() => {
-  const _routes = generateRoute(routeStore.routes.filter(item => !item.hidden), [], {})
+  const _routes = generateRoute(
+    routeStore.routes.filter((item) => !item.hidden),
+    [],
+    {} as CmdkRouteItem,
+  );
   db.value = [
     {
       key: 'route',
       label: '路由',
-      children: [
-        ..._routes
-      ]
+      children: [..._routes],
     },
     {
       key: 'preferences',
       label: '偏好设置',
-      children: [
-        ...preferences
-      ]
+      children: [...preferences],
     },
     {
       key: 'system',
       label: '系统',
-      children: [
-        ...system
-      ]
+      children: [...system],
     },
     {
       key: 'about',
       label: '关于',
-      children: [
-        ...about
-      ]
-    }
-  ]
-})
+      children: [...about],
+    },
+  ];
+});
 
-// @ts-ignore
-function generateRoute(_routes: RouteNode[], _result, parentItem) {
-  _routes.forEach(item => {
-    const isLink = isExternal(item.path)
-    let parentPath = parentItem.key ? parentItem.key + '/' : ''
+function generateRoute(_routes: RouteNode[], _result: CmdkRouteItem[], parentItem: CmdkRouteItem) {
+  _routes.forEach((item) => {
+    const isLink = isExternal(item.path);
+    let parentPath = parentItem.key ? parentItem.key + '/' : '';
     const _item = {
-      key: isLink ? item.path : (parentPath + item.path),
+      key: isLink ? item.path : parentPath + item.path,
       label: item.meta.title,
-      labelList: [...(parentItem.labelList || []), item.meta.title]
-    }
-    _result.push(_item)
+      labelList: [...(parentItem.labelList || []), item.meta.title],
+    };
+    _result.push(_item);
     if (item.children && item.children.length) {
       if (
         item.children.length === 1 &&
@@ -140,52 +143,58 @@ function generateRoute(_routes: RouteNode[], _result, parentItem) {
         (item.path === '/' ||
           // 如果是两级菜单，且first.redirect === first.path === second.path
           // 这种情况是一级菜单的类型为菜单，创建router的时候包装了一层Layout，故这里只需要显示一级菜单即可
-          (item.redirect === item.path &&
-        item.redirect ===  item.children[0].path))) {
+          (item.redirect === item.path && item.redirect === item.children[0].path))
+      ) {
         // do nothing
       } else {
-        _result.push(...generateRoute(item.children.filter(child => !child.hidden), [], _item))
+        _result.push(
+          ...generateRoute(
+            item.children.filter((child) => !child.hidden),
+            [],
+            _item,
+          ),
+        );
       }
     }
-  })
-  return _result
+  });
+  return _result;
 }
 
-function onItemSelect(item: any, group: CmdkItem) {
+function onItemSelect(item: any, group: CmdkGroup) {
   switch (group.key) {
     case 'route':
       if (isExternal(item.key)) {
-        window.open(item.key,  '_blank')
+        window.open(item.key, '_blank');
       } else {
-        router.push(item.key)
+        router.push(item.key);
       }
       break;
     case 'preferences':
       switch (item.key) {
         case 'theme':
           settingsStore.saveTheme({
-            darkMode: isDark() ? 'light' : 'dark'
-          })
+            darkMode: isDark() ? 'light' : 'dark',
+          });
           break;
         case 'tabsView':
           settingsStore.saveTheme({
-            showTabsBar: !settingsStore.theme.showTabsBar
-          })
+            showTabsBar: !settingsStore.theme.showTabsBar,
+          });
           break;
       }
       break;
     case 'system':
       switch (item.key) {
         case 'logout':
-          logout()
+          logout();
           break;
       }
       break;
     case 'about':
-      window.open(item.value,  '_blank')
+      window.open(item.value, '_blank');
       break;
   }
-  visible.value = false
+  visible.value = false;
 }
 
 function logout() {
@@ -196,30 +205,30 @@ function logout() {
       type: 'warning',
       beforeClose: (action, instance, done) => {
         if (action === 'confirm') {
-          instance.confirmButtonLoading = true
-          useUserStore().logout().then(() => {
-            done()
-            location.reload()
-          }).finally(() => {
-            instance.confirmButtonLoading = false
-          })
+          instance.confirmButtonLoading = true;
+          useUserStore()
+            .logout()
+            .then(() => {
+              done();
+              location.reload();
+            })
+            .finally(() => {
+              instance.confirmButtonLoading = false;
+            });
         } else {
-          done()
+          done();
         }
-      }
+      },
     }).finally(() => {
       // nothing
-    })
-  }, 100)
+    });
+  }, 100);
 }
 </script>
 
 <template>
-  <cmdk-button @search="visible = true;" />
-  <Command.Dialog
-    :visible="visible"
-    theme="eu"
-  >
+  <cmdk-button @search="visible = true" />
+  <Command.Dialog :visible="visible" theme="eu">
     <template #header>
       <svg-icon icon-class="search" class-name="search-icon" />
       <Command.Input v-model:value="keyword" placeholder="搜索" />
@@ -228,25 +237,13 @@ function logout() {
       <Command.List>
         <Command.Empty>没有"{{ keyword }}"的搜索结果.</Command.Empty>
 
-        <Command.Group
-          v-for="(group, groupIndex) in db"
-          :key="groupIndex"
-          :heading="group.label"
-        >
-          <Command.Item
-            v-for="(child, childIndex) in group.children"
-            :key="childIndex"
-            :data-value="child.labelList.join(',')"
-            @select="onItemSelect(child, group)"
-          >
+        <Command.Group v-for="(group, groupIndex) in db" :key="groupIndex" :heading="group.label">
+          <Command.Item v-for="(child, childIndex) in group.children" :key="childIndex" :data-value="child.labelList.join(',')" @select="onItemSelect(child, group)">
             <div class="command-palette-item__body">
               <div>
-                <template
-                  v-for="(label, labelIndex) in child.labelList"
-                  :key="labelIndex"
-                >
+                <template v-for="(label, labelIndex) in child.labelList" :key="labelIndex">
                   <span>{{ label }}</span>
-                  <svg-icon v-if="labelIndex + 1 < child.labelList.length" icon-class="arrow-right" style="margin: 0 1em;" />
+                  <svg-icon v-if="labelIndex + 1 < child.labelList.length" icon-class="arrow-right" style="margin: 0 1em" />
                 </template>
               </div>
               <cmdk-icon-enter class="command-palette-item__body__enter" />

@@ -1,4 +1,4 @@
-import { type BaseEntity } from '@/types/api'
+import { type BaseEntity } from '@/types/api';
 
 export interface Dept extends BaseEntity {
   id: number;
@@ -11,4 +11,4 @@ export interface Dept extends BaseEntity {
 
 export type DeptTree = Dept & {
   children: DeptTree[];
-}
+};

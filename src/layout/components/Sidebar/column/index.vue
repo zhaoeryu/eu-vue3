@@ -1,58 +1,56 @@
 <script setup lang="ts">
-import FirstSidebarItem from "@/layout/components/Sidebar/column/FirstSidebarItem.vue";
-import SecondSidebar from "@/layout/components/Sidebar/column/SecondSidebar.vue";
-import {useRouteStore, useSettingsStore} from "@/store";
-import {useRoute} from "vue-router";
-import {computed, defineOptions, nextTick, ref, useTemplateRef} from "vue";
-import type {RouteNode} from "@/types/route";
+import { useRoute } from 'vue-router';
+import { computed, defineOptions, nextTick, ref, useTemplateRef } from 'vue';
+
+import FirstSidebarItem from '@/layout/components/Sidebar/column/FirstSidebarItem.vue';
+import SecondSidebar from '@/layout/components/Sidebar/column/SecondSidebar.vue';
+import { useRouteStore, useSettingsStore } from '@/store';
+import type { RouteNode } from '@/types/route';
 
 defineOptions({
-  name: 'SidebarColumn'
-})
+  name: 'SidebarColumn',
+});
 
 const route = useRoute();
 const settingsStore = useSettingsStore();
-const refSecondSidebar = useTemplateRef<InstanceType<typeof SecondSidebar>>('refSecondSidebar')
+const refSecondSidebar = useTemplateRef<InstanceType<typeof SecondSidebar>>('refSecondSidebar');
 // 为了解决鼠标移入pop层的二级菜单，一级菜单不高亮的问题
-const firstMenuHover = ref<boolean[]>([])
+const firstMenuHover = ref<boolean[]>([]);
 
 const activeFirstMenuPath = computed(() => {
-  const _route = route.matched[0]
-  return _route?.path === '' ? '/' : _route?.path
-})
+  const _route = route.matched[0];
+  return _route?.path === '' ? '/' : _route?.path;
+});
 
 const menuList = computed(() => {
-  const menus = useRouteStore().routes.filter(_route => !_route.hidden)
-  return menus
-})
+  return useRouteStore().routes.filter((_route) => !_route.hidden);
+});
 
 const secondNavList = computed(() => {
-  return (useRouteStore().routes.find(item => item.path === activeFirstMenuPath.value)?.children || [])
-    .filter(item => !item.hidden)
-})
+  return (useRouteStore().routes.find((item) => item.path === activeFirstMenuPath.value)?.children || []).filter((item) => !item.hidden);
+});
 
 function disabledFirstNav(item: RouteNode) {
-  if (!Array.isArray(item.children) || (item.children.filter(c => !c.hidden)).length < 2) {
+  if (!Array.isArray(item.children) || item.children.filter((c) => !c.hidden).length < 2) {
     // 如果没有二级菜单，或者二级菜单只有一个，则禁用
-    return true
+    return true;
   }
   if (settingsStore.sidebarCollapsed) {
     // 收缩状态下，不需要禁用
-    return false
+    return false;
   }
   // 只有当前router被选中时才禁用
-  return item.path === activeFirstMenuPath.value
+  return item.path === activeFirstMenuPath.value;
 }
 
-async function onItemClick(index: number, item: RouteNode) {
-  await nextTick()
-  refSecondSidebar.value.onSelfNavScroll()
+async function onItemClick() {
+  await nextTick();
+  refSecondSidebar.value?.onSelfNavScroll();
 }
-async function onFirstItemClick(index: number, item: RouteNode) {
-  await nextTick()
-  refSecondSidebar.value.onSelfNavScroll()
+async function onFirstItemClick() {
+  await nextTick();
+  refSecondSidebar.value?.onSelfNavScroll();
 }
-
 </script>
 
 <template>
@@ -76,21 +74,11 @@ async function onFirstItemClick(index: number, item: RouteNode) {
         >
           <!-- 一级菜单Item -->
           <template #reference>
-            <first-sidebar-item
-              :item="item"
-              :menu-list="menuList"
-              :class="{ hover: firstMenuHover[index] }"
-              @item-click="onFirstItemClick(index, $event)"
-            />
+            <first-sidebar-item :item="item" :menu-list="menuList" :class="{ hover: firstMenuHover[index] }" @item-click="onFirstItemClick" />
           </template>
           <!-- 二级菜单弹出层 -->
           <div class="eu-nav-pop-inner">
-            <second-sidebar
-              ref="popSecondSidebar"
-              :second-nav-list="item.children.filter(m => !m.hidden)"
-              class="eu-nav-pop-scroll-wrapper"
-              @item-click="onItemClick(index, $event)"
-            />
+            <second-sidebar ref="popSecondSidebar" :second-nav-list="item.children.filter((m) => !m.hidden)" class="eu-nav-pop-scroll-wrapper" @item-click="onItemClick" />
           </div>
         </el-popover>
       </ul>
@@ -100,7 +88,7 @@ async function onFirstItemClick(index: number, item: RouteNode) {
   </div>
 </template>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .eu-nav__column {
   flex: 1;
   display: inherit;
@@ -132,7 +120,7 @@ async function onFirstItemClick(index: number, item: RouteNode) {
   flex-direction: column;
   position: relative;
   height: calc(100vh - var(--layout-header-nav-height) - 1px);
-  transition: width .15s linear;
+  transition: width 0.15s linear;
 
   &:before {
     content: '';

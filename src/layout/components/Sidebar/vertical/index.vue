@@ -1,64 +1,56 @@
 <script lang="ts" setup>
-import SidebarItem from '@/layout/components/Sidebar/vertical/SidebarItem.vue'
-import { useRouteStore, useSettingsStore } from '@/store'
-import { computed, nextTick, useTemplateRef, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import type { MenuInstance } from 'element-plus'
-import { getMaxMatchedMenu } from '@/utils/route-helpers'
+import { computed, nextTick, useTemplateRef, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import type { MenuInstance } from 'element-plus';
 
-const routeStore = useRouteStore()
-const route = useRoute()
-const settingsStore = useSettingsStore()
-const refMenu = useTemplateRef<MenuInstance>('refMenu')
+import { useRouteStore, useSettingsStore } from '@/store';
+import SidebarItem from '@/layout/components/Sidebar/vertical/SidebarItem.vue';
+import { getMaxMatchedMenu } from '@/utils/route-helpers';
+
+const routeStore = useRouteStore();
+const route = useRoute();
+const settingsStore = useSettingsStore();
+const refMenu = useTemplateRef<MenuInstance>('refMenu');
 
 const menuList = computed(() => {
-  return routeStore.routes.filter(item => !item.hidden)
-})
+  return routeStore.routes.filter((item) => !item.hidden);
+});
 
-watch(() => route.path, () => {
-  tryHighlightMenu()
-}, { immediate: true })
+watch(
+  () => route.path,
+  () => {
+    tryHighlightMenu();
+  },
+  { immediate: true },
+);
 
 async function tryHighlightMenu() {
-  await nextTick()
+  await nextTick();
   // 这里应该获取当前菜单是否激活，但是没有找到合适的方法，每次都执行一下吧
-  const isNotActive = true
+  const isNotActive = true;
   if (isNotActive) {
     // 首页特殊处理
-    const foundHomeMenu = menuList.value.find(item => item.path === '/' && item.redirect === route.path)
+    const foundHomeMenu = menuList.value.find((item) => item.path === '/' && item.redirect === route.path);
     if (foundHomeMenu) {
-      refMenu.value.updateActiveIndex('/')
-      return
+      refMenu.value.updateActiveIndex('/');
+      return;
     }
     if (route.meta.hidden === true) {
       // 支持模糊匹配
-      const matched = getMaxMatchedMenu(route.path, menuList.value)
+      const matched = getMaxMatchedMenu(route.path, menuList.value);
       if (matched) {
-        refMenu.value.updateActiveIndex(matched)
-        return
+        refMenu.value.updateActiveIndex(matched);
+        return;
       }
     }
   }
 }
-
 </script>
 
 <template>
   <el-scrollbar wrap-class="eu-scrollbar-wrapper">
-    <el-menu
-      ref="refMenu"
-      :default-active="route.path"
-      :collapse="settingsStore.sidebarCollapsed"
-      :unique-opened="true"
-      :collapse-transition="false"
-      mode="vertical"
-      class="eu-menu"
-    >
-      <sidebar-item
-        v-for="item in menuList"
-        :key="item.path"
-        :item="item"
-      />
+    <el-menu ref="refMenu" :default-active="route.path" :collapse="settingsStore.sidebarCollapsed" :unique-opened="true" :collapse-transition="false" mode="vertical" class="eu-menu">
+      <sidebar-item v-for="item in menuList" :key="item.path" :item="item" />
     </el-menu>
   </el-scrollbar>
 </template>
@@ -85,8 +77,9 @@ async function tryHighlightMenu() {
 
   // 折叠状态下
   &.el-menu--collapse {
-    .el-sub-menu__title,.el-menu-item {
-      >:not(.svg-icon) {
+    .el-sub-menu__title,
+    .el-menu-item {
+      > :not(.svg-icon) {
         display: none;
       }
       .svg-icon {
@@ -94,14 +87,15 @@ async function tryHighlightMenu() {
       }
     }
 
-    .el-sub-menu__title,.el-menu-item>.el-menu-tooltip__trigger {
+    .el-sub-menu__title,
+    .el-menu-item > .el-menu-tooltip__trigger {
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
     .el-sub-menu {
-      &.is-active>.el-sub-menu__title {
+      &.is-active > .el-sub-menu__title {
         background-color: var(--theme-nav-first-active-bg);
         color: var(--theme-nav-first-active-color);
       }
@@ -109,7 +103,8 @@ async function tryHighlightMenu() {
   }
 
   // 菜单项
-  .el-sub-menu .el-sub-menu__title,.el-menu-item {
+  .el-sub-menu .el-sub-menu__title,
+  .el-menu-item {
     margin: 0 8px 4px;
     border-radius: 6px;
     height: 40px;
@@ -125,7 +120,9 @@ async function tryHighlightMenu() {
     //}
   }
 
-  .el-menu-item:focus, .el-menu-item:hover, .el-submenu__title:hover {
+  .el-menu-item:focus,
+  .el-menu-item:hover,
+  .el-submenu__title:hover {
     background-color: var(--theme-nav-first-hover-bg);
     color: var(--theme-nav-first-hover-color);
     font-weight: 500;
@@ -139,10 +136,11 @@ async function tryHighlightMenu() {
 
   // 有子菜单
   .el-sub-menu {
-    &.is-active>.el-sub-menu__title {
+    &.is-active > .el-sub-menu__title {
       color: var(--color-primary);
     }
-    .el-menu-item,.el-sub-menu .el-sub-menu__title {
+    .el-menu-item,
+    .el-sub-menu .el-sub-menu__title {
       min-width: unset;
       padding-left: calc(8px + var(--eu-menu-base-level-padding) * var(--eu-menu-level)) !important;
     }

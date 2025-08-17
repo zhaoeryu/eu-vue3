@@ -1,42 +1,42 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function page(params: any) {
   return request({
     url: '/api/system/user/page',
     method: 'get',
-    params
-  })
+    params,
+  });
 }
 
 export function add(data: any) {
   return request({
     url: '/api/system/user',
     method: 'post',
-    data
-  })
+    data,
+  });
 }
 
 export function update(data: any) {
   return request({
     url: '/api/system/user',
     method: 'put',
-    data
-  })
+    data,
+  });
 }
 export function updateStatus(data: any) {
   return request({
     url: '/api/system/user/updateStatus',
     method: 'put',
-    data
-  })
+    data,
+  });
 }
 
 export function updateProfile(data: any) {
   return request({
     url: '/api/system/user/profile',
     method: 'put',
-    data
-  })
+    data,
+  });
 }
 
 export function updatePassword(oldPassword: string, newPassword: string) {
@@ -45,9 +45,9 @@ export function updatePassword(oldPassword: string, newPassword: string) {
     method: 'put',
     data: {
       oldPassword,
-      newPassword
-    }
-  })
+      newPassword,
+    },
+  });
 }
 
 export function resetPwd(id: string | number, password: string) {
@@ -56,9 +56,9 @@ export function resetPwd(id: string | number, password: string) {
     method: 'put',
     data: {
       id,
-      password
-    }
-  })
+      password,
+    },
+  });
 }
 
 export function uploadAvatar(data: any) {
@@ -66,18 +66,18 @@ export function uploadAvatar(data: any) {
     url: '/api/system/user/upload-avatar',
     method: 'post',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
-    data
-  })
+    data,
+  });
 }
 
 export function batchDel(ids: any[]) {
   return request({
     url: '/api/system/user/batch',
     method: 'delete',
-    data: ids
-  })
+    data: ids,
+  });
 }
 
 export function getUserInfo(id: string | number) {
@@ -85,62 +85,62 @@ export function getUserInfo(id: string | number) {
     url: '/api/system/user/info',
     method: 'get',
     params: {
-      id
-    }
-  })
+      id,
+    },
+  });
 }
 
 export function assignRole(data: any) {
   return request({
     url: '/api/system/user/assignRole',
     method: 'post',
-    data
-  })
+    data,
+  });
 }
 export function roleUserList(params: any) {
   return request({
     url: '/api/system/user/roleUserList',
     method: 'get',
-    params
-  })
+    params,
+  });
 }
 export function cancelAuth(data: any) {
   return request({
     url: '/api/system/user/cancelAuth',
     method: 'delete',
-    data
-  })
+    data,
+  });
 }
 export function batchAssignRole(data: any) {
   return request({
     url: '/api/system/user/batchAssignRole',
     method: 'post',
-    data
-  })
+    data,
+  });
 }
 
 export function onlineList(params: any) {
   return request({
     url: '/api/auth/online',
     method: 'get',
-    params
-  })
+    params,
+  });
 }
 export function onlineKickout(userId: string | number) {
   return request({
     url: '/api/auth/online/kickout',
     method: 'post',
     params: {
-      userId
-    }
-  })
+      userId,
+    },
+  });
 }
 export function onlineLogout(userId: string | number) {
   return request({
     url: '/api/auth/online/logout',
     method: 'post',
     params: {
-      userId
-    }
-  })
+      userId,
+    },
+  });
 }

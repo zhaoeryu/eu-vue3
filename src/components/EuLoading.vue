@@ -12,8 +12,8 @@
 
 <script lang="ts">
 export default {
-  name: 'EuLoading'
-}
+  name: 'EuLoading',
+};
 </script>
 
 <style lang="scss" scoped>

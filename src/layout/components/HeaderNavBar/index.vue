@@ -1,51 +1,51 @@
 <script setup lang="ts">
-import SidebarHeader from "@/layout/components/SidebarHeader/index.vue";
-import { defaultSetting } from "@/settings";
-import { useFullscreen } from '@vueuse/core'
-import {computed, defineOptions } from "vue";
-import {useSettingsStore} from "@/store";
-import SvgIcon from "@/components/SvgIcon.vue";
-import CmdkDialog from "@/components/cmdk/CmdkDialog.vue";
-import Message from "@/components/Message.vue";
+import { useFullscreen } from '@vueuse/core';
+import { computed, defineOptions } from 'vue';
+
+import SidebarHeader from '@/layout/components/SidebarHeader/index.vue';
+import { type DarkMode, defaultSetting } from '@/settings';
+import { useSettingsStore } from '@/store';
+import SvgIcon from '@/components/SvgIcon.vue';
+import CmdkDialog from '@/components/cmdk/CmdkDialog.vue';
+import Message from '@/components/Message.vue';
 import mittBus from '@/utils/mittBus';
 
 defineOptions({
-  name: 'HeaderNavBar'
-})
+  name: 'HeaderNavBar',
+});
 
 const { isFullscreen, toggle: onScreenfull } = useFullscreen();
-const settingsStore = useSettingsStore()
+const settingsStore = useSettingsStore();
 
-const darkMode = computed(() => settingsStore.theme.darkMode)
+const darkMode = computed(() => settingsStore.theme.darkMode);
 
 function toHomePage() {
-  location.href = '/'
+  location.href = '/';
 }
 function toNewPage(url: string) {
-  window.open(url)
+  window.open(url);
 }
 
-function changeDarkMode(mode: string) {
+function changeDarkMode(mode: DarkMode) {
   settingsStore.saveTheme({
-    darkMode: mode
-  })
+    darkMode: mode,
+  });
 }
 
-function onRefresh () {
-  location.reload()
+function onRefresh() {
+  location.reload();
 }
 
 function onThemeClick() {
-  mittBus.emit('theme:open')
+  mittBus.emit('theme:open');
 }
-
 </script>
 
 <template>
   <header id="eu-layout__navbar">
     <div class="left-side" @click="toHomePage">
-      <img src="@/assets/logo.png" style="height: 30px;margin-right: 16px;">
-      <span style="font-size: 24px;">{{ defaultSetting.title }}</span>
+      <img src="@/assets/logo.png" style="height: 30px; margin-right: 16px" :alt="defaultSetting.title" />
+      <span style="font-size: 24px">{{ defaultSetting.title }}</span>
     </div>
     <ul class="right-side">
       <li class="eu-phone__hide">
@@ -64,8 +64,8 @@ function onThemeClick() {
         <svg-icon icon-class="refresh" />
       </li>
       <li class="eu-phone__hide">
-        <svg-icon v-if="darkMode === 'dark'" @click="changeDarkMode('light')" icon-class="moon" />
-        <svg-icon v-else @click="changeDarkMode('dark')" icon-class="sun" />
+        <svg-icon v-if="darkMode === 'dark'" icon-class="moon" @click="changeDarkMode('light')" />
+        <svg-icon v-else icon-class="sun" @click="changeDarkMode('dark')" />
       </li>
       <li @click="onThemeClick">
         <svg-icon icon-class="theme" />
@@ -80,7 +80,7 @@ function onThemeClick() {
         </message>
       </li>
       <li class="eu-phone__hide" @click="onScreenfull">
-        <svg-icon :icon-class="isFullscreen ? 'fullscreen-exit':'fullscreen'" />
+        <svg-icon :icon-class="isFullscreen ? 'fullscreen-exit' : 'fullscreen'" />
       </li>
       <li>
         <sidebar-header />
@@ -90,7 +90,7 @@ function onThemeClick() {
 </template>
 
 <style scoped lang="scss">
-@use "@/assets/styles/screen.scss";
+@use '@/assets/styles/screen.scss';
 #eu-layout__navbar {
   position: fixed;
   left: 0;

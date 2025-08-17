@@ -1,7 +1,7 @@
 <template>
   <div class="not-found-page">
-    <div style="display: flex;justify-content: space-between;align-items: center;margin-bottom: 200px;">
-      <img src="@/assets/images/unauthorized.png" alt="" width="200">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 200px">
+      <img src="@/assets/images/unauthorized.png" alt="" width="200" />
       <div class="not-found">
         <div class="not-found__404">抱歉，您没有权限访问该页面</div>
         <div class="not-found__desc">
@@ -14,11 +14,9 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts"></script>
 
-</script>
-
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 html.dark {
   img {
     filter: invert(0.5);

@@ -15,15 +15,15 @@ interface CacheStore {
 
 export const useCacheStore = defineStore('cache', (): CacheStore => {
   // 状态定义（替代Vuex的state）
-  const optionsCache: Record<string, any> = {};          // 数据缓存
-  const requestLocks: Record<string, boolean> = {};         // 请求锁对象
-  const objectsCache: Record<string, any> = {};         // 对象缓存
-  const objectRequestLocks: Record<string, boolean> = {};   // 对象请求锁对象
+  const optionsCache: Record<string, any> = {}; // 数据缓存
+  const requestLocks: Record<string, boolean> = {}; // 请求锁对象
+  const objectsCache: Record<string, any> = {}; // 对象缓存
+  const objectRequestLocks: Record<string, boolean> = {}; // 对象请求锁对象
 
   // 清除所有锁
   const clear = () => {
-    Object.keys(requestLocks).forEach(key => delete requestLocks[key]);
-    Object.keys(objectRequestLocks).forEach(key => delete objectRequestLocks[key]);
+    Object.keys(requestLocks).forEach((key) => delete requestLocks[key]);
+    Object.keys(objectRequestLocks).forEach((key) => delete objectRequestLocks[key]);
   };
 
   // 获取选项数据（带缓存和锁机制）
@@ -105,6 +105,6 @@ export const useCacheStore = defineStore('cache', (): CacheStore => {
     objectRequestLocks,
     fetchOptions,
     fetchObject,
-    clear
+    clear,
   };
 });

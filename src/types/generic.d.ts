@@ -9,8 +9,8 @@ export type EnumItem<T = number> = {
   label: string;
   value: T;
   type?: string;
-} & Partial<ANY_OBJECT>
+} & Partial<ANY_OBJECT>;
 
 export type Enum<T = number> = {
   [key: string]: EnumItem<T>;
-}
+};

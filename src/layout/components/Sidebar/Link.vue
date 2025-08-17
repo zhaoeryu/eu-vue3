@@ -4,34 +4,34 @@
   </component>
 </template>
 
-<script setup>
-import { isExternal } from '@/utils'
-import {computed, defineProps} from "vue";
+<script lang="ts" setup>
+import { computed, defineProps } from 'vue';
 
-const props = defineProps({
-  to: {
-    type: [String, Object],
-    required: true
-  }
-})
+import { isExternal } from '@/utils';
+
+export interface Props {
+  to: string | object;
+}
+
+const props = defineProps<Props>();
 
 const type = computed(() => {
   if (isExternal(props.to)) {
-    return 'a'
+    return 'a';
   }
-  return 'router-link'
-})
+  return 'router-link';
+});
 
 function linkProps(to) {
   if (isExternal(to)) {
     return {
       href: to,
       target: '_blank',
-      rel: 'noopener'
-    }
+      rel: 'noopener',
+    };
   }
   return {
-    to: to
-  }
+    to: to,
+  };
 }
 </script>

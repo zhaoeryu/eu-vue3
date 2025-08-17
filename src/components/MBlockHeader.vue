@@ -1,28 +1,30 @@
 <script setup lang="ts">
 import { defineProps, withDefaults } from 'vue';
 
-interface Props {
+export interface Props {
   title: string;
-  content?: string;
-  question?: string;
+  content?: string | null;
+  question?: string | null;
   background?: boolean;
 }
 withDefaults(defineProps<Props>(), {
-  background: true
-})
+  background: true,
+  content: null,
+  question: null,
+});
 </script>
 
 <script lang="ts">
 export default {
-  name: 'MBlockHeader'
-}
+  name: 'MBlockHeader',
+};
 </script>
 
 <template>
   <div
     class="m-block-header"
     :class="{
-      'background': background
+      background: background,
     }"
   >
     <div class="m-block-header__title">
@@ -31,7 +33,7 @@ export default {
     </div>
     <div v-if="$slots.question || question" class="m-block-header__pop">
       <el-tooltip effect="dark" :content="question" placement="top-start">
-        <template v-if="$slots.question" v-slot:content>
+        <template v-if="$slots.question" #content>
           <slot name="question" />
         </template>
         <i class="el-icon-question" />
@@ -75,7 +77,7 @@ html.dark {
     display: flex;
     align-items: center;
     &:before {
-      content: "";
+      content: '';
       width: 3px;
       height: 14px;
       background-color: #155bd4;

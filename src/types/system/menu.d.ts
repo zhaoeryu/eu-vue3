@@ -1,4 +1,4 @@
-import { type BaseEntity } from '@/types/api'
+import { type BaseEntity } from '@/types/api';
 
 export interface Menu extends BaseEntity {
   id: number;
@@ -27,4 +27,4 @@ export interface Menu extends BaseEntity {
 export type MenuTree = Menu & {
   children: MenuTree[];
   _parentIds?: number[];
-}
+};

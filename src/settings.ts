@@ -1,3 +1,4 @@
+export type DarkMode = 'light' | 'dark' | 'syncOS';
 export interface EuTheme {
   //横纵布局 horizontal vertical
   layout: 'column' | 'vertical';
@@ -6,12 +7,20 @@ export interface EuTheme {
   // 是否固定标签页
   fixedTabsBar: boolean;
   // 皮肤 light,dark,syncOS
-  darkMode: 'light' | 'dark' | 'syncOS';
+  darkMode: DarkMode;
   // 是否使用进度条
   showProgressBar: boolean;
   // 是否开启水印
   enabledWatermark: boolean;
 }
+// 部分主题类型：允许包含 EuTheme 中的任意一个或多个属性
+// 但排除空对象（至少需要一个属性）
+export type PartialEuTheme = Partial<EuTheme> &
+  {
+    [K in keyof EuTheme]: EuTheme[K];
+  }[keyof EuTheme] extends never
+  ? never
+  : Partial<EuTheme>;
 
 export interface DefaultSetting {
   // 网站名称
@@ -51,7 +60,7 @@ export const defaultTheme: EuTheme = {
   showProgressBar: true,
   // 是否开启水印
   enabledWatermark: true,
-}
+};
 
 export const defaultSetting: DefaultSetting = {
   // 网站名称
@@ -61,13 +70,13 @@ export const defaultSetting: DefaultSetting = {
   // 是否使用Mock数据
   useMock: true,
   // 页面底部的copyright
-  copyright: function () {
-    const start = 2023
-    const date = new Date()
-    const year = date.getFullYear()
-    const author = 'Eu'
-    return `Copyright © ${start === year ? '' : start + '-'}${year} ${author}. All Rights Reserved.`
-  }(),
+  copyright: (function () {
+    const start = 2023;
+    const date = new Date();
+    const year = date.getFullYear();
+    const author = 'Eu';
+    return `Copyright © ${start === year ? '' : start + '-'}${year} ${author}. All Rights Reserved.`;
+  })(),
   // 路由缓存的最大数量
   keepAliveMaxNum: 5,
   // 请求根地址
@@ -83,4 +92,4 @@ export const defaultSetting: DefaultSetting = {
   githubUrl: 'https://github.com/zhaoeryu',
   // gitee源码地址
   giteeUrl: 'https://gitee.com/zhaoeryu',
-}
+};

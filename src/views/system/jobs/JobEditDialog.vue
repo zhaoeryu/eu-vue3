@@ -1,46 +1,33 @@
 <script setup lang="ts">
-import { add, update } from '@/api/system/job'
-import {ElMessage, type FormInstance} from "element-plus";
-import {computed, nextTick, ref, useTemplateRef} from "vue";
-import useVisible from "@/hooks/visible";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {Jobs} from "@/types/system/jobs";
+import { ElMessage, type FormInstance } from 'element-plus';
+import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
-const emit = defineEmits(['complete'])
+import { add, update } from '@/api/system/job';
+import useVisible from '@/hooks/visible';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { Jobs } from '@/types/system/jobs';
+
+const emit = defineEmits(['complete']);
 
 const rules = {
-  jobName: [
-    { required: true, message: '请输入任务名称', trigger: 'blur' }
-  ],
-  jobGroup: [
-    { required: true, message: '请输入任务组', trigger: 'blur' }
-  ],
-  cron: [
-    { required: true, message: '请输入cron表达式', trigger: 'blur' }
-  ],
-  invokeClassName: [
-    { required: true, message: '请输入任务执行类的全类名', trigger: 'blur' }
-  ],
+  jobName: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
+  jobGroup: [{ required: true, message: '请输入任务组', trigger: 'blur' }],
+  cron: [{ required: true, message: '请输入cron表达式', trigger: 'blur' }],
+  invokeClassName: [{ required: true, message: '请输入任务执行类的全类名', trigger: 'blur' }],
   springBeanName: [
-    { required: true, message: '请输入任务执行类的SpringBean名', trigger: 'blur' }
+    {
+      required: true,
+      message: '请输入任务执行类的SpringBean名',
+      trigger: 'blur',
+    },
   ],
-  methodName: [
-    { required: true, message: '请输入任务执行的方法名', trigger: 'blur' }
-  ],
-  status: [
-    { required: true, message: '请选择任务状态', trigger: 'blur' }
-  ],
-  misfirePolicy: [
-    { required: true, message: '请选择执行策略', trigger: 'blur' }
-  ],
-  concurrent: [
-    { required: true, message: '请选择是否允许并发', trigger: 'blur' }
-  ],
-  pauseAfterFailure: [
-    { required: true, message: '请选择失败后是否暂停', trigger: 'blur' }
-  ],
-}
+  methodName: [{ required: true, message: '请输入任务执行的方法名', trigger: 'blur' }],
+  status: [{ required: true, message: '请选择任务状态', trigger: 'blur' }],
+  misfirePolicy: [{ required: true, message: '请选择执行策略', trigger: 'blur' }],
+  concurrent: [{ required: true, message: '请选择是否允许并发', trigger: 'blur' }],
+  pauseAfterFailure: [{ required: true, message: '请选择失败后是否暂停', trigger: 'blur' }],
+};
 const DEFAULT_FORM = {
   id: null,
   jobName: null,
@@ -54,48 +41,50 @@ const DEFAULT_FORM = {
   misfirePolicy: 0,
   concurrent: 0,
   pauseAfterFailure: 0,
-  alarmEmail: null
-}
+  alarmEmail: null,
+};
 
-const refForm = useTemplateRef<FormInstance>('refForm')
-const { visible, setVisible } = useVisible(false)
-const { loading: formLoading, setLoading: setFormLoading } = useLoading(false)
-const [ state, reset ] = useResettableReactive({
+const refForm = useTemplateRef<FormInstance>('refForm');
+const { visible, setVisible } = useVisible(false);
+const { loading: formLoading, setLoading: setFormLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
   form: {
-    ...DEFAULT_FORM
-  }
-})
+    ...DEFAULT_FORM,
+  },
+});
 
 // 执行方式：0：springBean，1：class
-const invokeMode = ref('springBean')
+const invokeMode = ref('springBean');
 
 // const refForm = ref(null)
 const title = computed(() => {
-  return state.form.id ? '修改任务' : '新增任务'
-})
+  return state.form.id ? '修改任务' : '新增任务';
+});
 
 function open(row: Jobs) {
-  reset()
-  state.form = Object.assign({...DEFAULT_FORM}, row)
-  setVisible(true)
+  reset();
+  state.form = Object.assign({ ...DEFAULT_FORM }, row);
+  setVisible(true);
 }
 
 function onSubmit() {
-  refForm.value?.validate(valid => {
+  refForm.value?.validate((valid) => {
     if (!valid) {
-      return
+      return;
     }
 
-    setFormLoading(true)
-    const reqPromise = state.form.id ? update(state.form) : add(state.form)
-    reqPromise.then(() => {
-      ElMessage.success(state.form.id ? '修改成功' : '新增成功')
-      setVisible(false)
-      emit('complete')
-    }).finally(() => {
-      setFormLoading(false)
-    })
-  })
+    setFormLoading(true);
+    const reqPromise = state.form.id ? update(state.form) : add(state.form);
+    reqPromise
+      .then(() => {
+        ElMessage.success(state.form.id ? '修改成功' : '新增成功');
+        setVisible(false);
+        emit('complete');
+      })
+      .finally(() => {
+        setFormLoading(false);
+      });
+  });
 }
 
 function onReset() {
@@ -113,18 +102,12 @@ async function onDialogOpen() {
 }
 
 defineExpose({
-  open
-})
+  open,
+});
 </script>
 
 <template>
-  <el-dialog
-    :title="title"
-    v-model="visible"
-    :close-on-click-modal="false"
-    width="800px"
-    @open="onDialogOpen"
-  >
+  <el-dialog v-model="visible" :title="title" :close-on-click-modal="false" width="800px" @open="onDialogOpen">
     <el-form ref="refForm" :model="state.form" :rules="rules" label-width="130px" :hide-required-asterisk="true">
       <el-row>
         <el-col :span="12">
@@ -155,7 +138,7 @@ defineExpose({
       </el-row>
       <el-row>
         <el-col :span="12">
-          <el-form-item label="执行方式" style="height: 32px;">
+          <el-form-item label="执行方式" style="height: 32px">
             <el-radio-group v-model="invokeMode">
               <el-radio-button label="springBean">SpringBean</el-radio-button>
               <el-radio-button label="class">Class</el-radio-button>
@@ -216,6 +199,4 @@ defineExpose({
   </el-dialog>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

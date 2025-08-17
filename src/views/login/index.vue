@@ -1,120 +1,119 @@
 <script setup lang="ts">
+import { onMounted, reactive, useTemplateRef, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import type { FormInstance, FormRules } from 'element-plus';
+
 import Bubbles from '@/views/login/Bubbles.vue';
-import {defaultSetting} from '@/settings';
-import {onMounted, reactive, ref, useTemplateRef, watch} from "vue";
-import {captcha} from '@/api/system/login';
-import {
-  STORAGE_KEY_PASSWORD,
-  STORAGE_KEY_REMEMBER_ME,
-  STORAGE_KEY_USERNAME
-} from '@/utils/constants'
-import {useRouter, useRoute} from "vue-router";
-import type {FormInstance, FormRules} from "element-plus";
-import {encrypt} from "@/utils/rsaEncrypt";
-import {useUserStore} from "@/store";
-import {useResettableReactive} from "@/hooks/resettable";
-import useLoading from "@/hooks/loading";
+import { defaultSetting } from '@/settings';
+import { captcha } from '@/api/system/login';
+import { STORAGE_KEY_PASSWORD, STORAGE_KEY_REMEMBER_ME, STORAGE_KEY_USERNAME } from '@/utils/constants';
+import { encrypt } from '@/utils/rsaEncrypt';
+import { useUserStore } from '@/store';
+import { useResettableReactive } from '@/hooks/resettable';
+import useLoading from '@/hooks/loading';
 
 type LoginForm = {
-  username: string | null
-  password: string | null
-  uuid: string | null
-  verifyCode: string | null
-  rememberMe: boolean
-}
+  username: string | null;
+  password: string | null;
+  uuid: string | null;
+  verifyCode: string | null;
+  rememberMe: boolean;
+};
 type LoginState = {
-  form: LoginForm
-  captchaImg: string | null,
-  redirect: string | null
-}
+  form: LoginForm;
+  captchaImg: string | null;
+  redirect: string | null;
+};
 
-const refForm = useTemplateRef<FormInstance>('refForm')
+const refForm = useTemplateRef<FormInstance>('refForm');
 const router = useRouter();
 const route = useRoute();
-const userStore = useUserStore()
-const {loading, setLoading} = useLoading(false)
-const [state, reset] = useResettableReactive<LoginState>({
+const userStore = useUserStore();
+const { loading, setLoading } = useLoading(false);
+const [state, _reset] = useResettableReactive<LoginState>({
   form: {
     username: null,
     password: null,
     uuid: null,
     verifyCode: null,
-    rememberMe: false
+    rememberMe: false,
   },
   captchaImg: null,
   redirect: null,
-})
+});
 
 const rules = reactive<FormRules>({
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' }
-  ],
-  verifyCode: [
-    { required: true, message: '请输入验证码', trigger: 'blur' }
-  ]
-})
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  verifyCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+});
 
 watch(
-  () => route,  // 监听目标：路由对象
+  () => route, // 监听目标：路由对象
   (newRoute) => {
     // 记录来源页面，用于登录成功后跳转
     state.redirect = newRoute.query?.redirect as string | null;
   },
-  { immediate: true }
-)
-
+  { immediate: true },
+);
 
 onMounted(() => {
   getCaptcha();
 
   state.form.username = localStorage.getItem(STORAGE_KEY_USERNAME) || null;
   state.form.password = localStorage.getItem(STORAGE_KEY_PASSWORD) || null;
-  state.form.rememberMe = localStorage.getItem(STORAGE_KEY_REMEMBER_ME) && Boolean(localStorage.getItem(STORAGE_KEY_REMEMBER_ME)) || true
-})
+  state.form.rememberMe = (localStorage.getItem(STORAGE_KEY_REMEMBER_ME) && Boolean(localStorage.getItem(STORAGE_KEY_REMEMBER_ME))) || true;
+});
 
 function getCaptcha() {
-  captcha().then(res => {
-    state.form.uuid = res.uuid
-    state.captchaImg = res.img
-  })
+  captcha().then((res) => {
+    state.form.uuid = res.uuid;
+    state.captchaImg = res.img;
+  });
 }
 
 function onSubmit(formEl: FormInstance | null) {
   if (!formEl) {
-    return
+    return;
   }
   formEl.validate((valid) => {
     if (!valid) {
-      return
+      return;
     }
-    setLoading(true)
+    setLoading(true);
     // 解构赋值排除 rememberMe
-    const { rememberMe, ...reqPayload } = state.form
+    const reqPayload: Omit<LoginForm, 'rememberMe'> = {
+      username: state.form.username,
+      password: state.form.password,
+      uuid: state.form.uuid,
+      verifyCode: state.form.verifyCode,
+    };
     // 密码超过了30位，说明是加密过的，不需要再加密
-    reqPayload.password = reqPayload.password!.length > 30 ? reqPayload.password : encrypt(reqPayload.password as string)
-    userStore.login(reqPayload).then(() => {
-      // 如果勾选了记住我，则将用户名和密码存入cookie，否则清除cookie
-      if (state.form.rememberMe) {
-        localStorage.setItem(STORAGE_KEY_USERNAME, reqPayload.username!)
-        localStorage.setItem(STORAGE_KEY_PASSWORD, reqPayload.password!)
-        localStorage.setItem(STORAGE_KEY_REMEMBER_ME, String(state.form.rememberMe))
-      } else {
-        localStorage.removeItem(STORAGE_KEY_USERNAME)
-        localStorage.removeItem(STORAGE_KEY_PASSWORD)
-        localStorage.removeItem(STORAGE_KEY_REMEMBER_ME)
-      }
-      // 登录成功后回到到来源页面，如果没有来源页面就跳转到首页
-      router.push({ path: state.redirect || '/' })
-    }).catch(() => {
-      // 登录失败刷新验证码
-      getCaptcha()
-    }).finally(() => {
-      setLoading(false)
-    })
-  })
+    reqPayload.password = reqPayload.password!.length > 30 ? reqPayload.password : encrypt(reqPayload.password as string);
+    userStore
+      .login(reqPayload)
+      .then(() => {
+        // 如果勾选了记住我，则将用户名和密码存入cookie，否则清除cookie
+        if (state.form.rememberMe) {
+          localStorage.setItem(STORAGE_KEY_USERNAME, reqPayload.username!);
+          localStorage.setItem(STORAGE_KEY_PASSWORD, reqPayload.password!);
+          localStorage.setItem(STORAGE_KEY_REMEMBER_ME, String(state.form.rememberMe));
+        } else {
+          localStorage.removeItem(STORAGE_KEY_USERNAME);
+          localStorage.removeItem(STORAGE_KEY_PASSWORD);
+          localStorage.removeItem(STORAGE_KEY_REMEMBER_ME);
+        }
+        // 登录成功后回到到来源页面，如果没有来源页面就跳转到首页
+        router.push({ path: state.redirect || '/' });
+      })
+      .catch(() => {
+        // 登录失败刷新验证码
+        getCaptcha();
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  });
 }
 </script>
 
@@ -126,10 +125,10 @@ function onSubmit(formEl: FormInstance | null) {
       <div class="left-container">
         <p class="left-container__title">开箱即用的后台管理系统</p>
         <p class="left-container__desc">内置了常见的系统解决方案</p>
-        <img src="@/assets/images/login_banner.png" width="250" alt="" style="margin-top: 20px;">
+        <img src="@/assets/images/login_banner.png" width="250" alt="" style="margin-top: 20px" />
       </div>
       <!-- 登录表单 -->
-      <el-form :model="state.form" :rules="rules" ref="refForm">
+      <el-form ref="refForm" :model="state.form" :rules="rules">
         <h3>登录{{ defaultSetting.title }}</h3>
         <el-form-item prop="username">
           <el-input v-model="state.form.username" placeholder="请输入用户名" maxlength="20"></el-input>
@@ -141,11 +140,11 @@ function onSubmit(formEl: FormInstance | null) {
         <el-form-item prop="verifyCode" class="verify-code-form-item">
           <el-row :gutter="16">
             <el-col :span="14">
-              <el-input v-model="state.form.verifyCode" placeholder="请输入验证码" maxlength="4" style="margin-right: 16px;" ></el-input>
+              <el-input v-model="state.form.verifyCode" placeholder="请输入验证码" maxlength="4" style="margin-right: 16px"></el-input>
             </el-col>
             <el-col :span="10">
               <div class="verify-code" @click="getCaptcha">
-                <img v-if="state.captchaImg" :src="state.captchaImg" alt="点击获取验证码" >
+                <img v-if="state.captchaImg" :src="state.captchaImg" alt="点击获取验证码" />
                 <span v-else>点击获取</span>
               </div>
             </el-col>
@@ -155,13 +154,8 @@ function onSubmit(formEl: FormInstance | null) {
         <el-form-item prop="rememberMe">
           <el-checkbox v-model="state.form.rememberMe">记住我</el-checkbox>
         </el-form-item>
-        <el-form-item style="margin-bottom: 0;">
-          <el-button
-            :loading="loading"
-            style="width: 100%;"
-            type="primary"
-            @click="onSubmit(refForm)"
-          >登 录</el-button>
+        <el-form-item style="margin-bottom: 0">
+          <el-button :loading="loading" style="width: 100%" type="primary" @click="onSubmit(refForm)">登 录</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -169,7 +163,7 @@ function onSubmit(formEl: FormInstance | null) {
 </template>
 
 <style scoped lang="scss">
-@use "@/assets/styles/screen";
+@use '@/assets/styles/screen';
 // 登录表单
 .el-form {
   background-color: var(--theme-base-second-bg);
@@ -217,7 +211,7 @@ function onSubmit(formEl: FormInstance | null) {
   align-items: center;
   -webkit-box-pack: center;
   -webkit-box-align: center;
-  background: linear-gradient(-45deg, #4190F7, #7B3AEB);
+  background: linear-gradient(-45deg, #4190f7, #7b3aeb);
   background-size: 600% 600%;
   animation: gradientBG 10s ease infinite;
 }

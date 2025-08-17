@@ -1,29 +1,22 @@
 <script setup lang="ts">
-import { add, update } from '@/api/system/dictDetail'
-import {ElMessage, type FormInstance} from "element-plus";
-import {computed, nextTick, useTemplateRef} from "vue";
-import useVisible from "@/hooks/visible";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type { DictDetail } from "@/types/system/dict";
-import {EnableFlagEnums} from "@/utils/enums";
+import { ElMessage, type FormInstance } from 'element-plus';
+import { computed, nextTick, useTemplateRef } from 'vue';
 
-const emit = defineEmits(['complete'])
+import { add, update } from '@/api/system/dictDetail';
+import useVisible from '@/hooks/visible';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { DictDetail } from '@/types/system/dict';
+import { EnableFlagEnums } from '@/utils/enums';
+
+const emit = defineEmits(['complete']);
 
 const rules = {
-  dictLabel: [
-    { required: true, message: '请输入字典Label', trigger: 'blur' }
-  ],
-  dictValue: [
-    { required: true, message: '请输入字典VALUE', trigger: 'blur' }
-  ],
-  sortNum: [
-    { required: true, message: '请输入字典排序', trigger: 'blur' }
-  ],
-  status: [
-    { required: true, message: '请选择字典状态', trigger: 'blur' }
-  ]
-}
+  dictLabel: [{ required: true, message: '请输入字典Label', trigger: 'blur' }],
+  dictValue: [{ required: true, message: '请输入字典VALUE', trigger: 'blur' }],
+  sortNum: [{ required: true, message: '请输入字典排序', trigger: 'blur' }],
+  status: [{ required: true, message: '请选择字典状态', trigger: 'blur' }],
+};
 const DEFAULT_FORM = {
   id: null,
   dictKey: null,
@@ -31,46 +24,48 @@ const DEFAULT_FORM = {
   dictValue: null,
   sortNum: 999,
   status: null,
-  remark: null
-}
-const refForm = useTemplateRef<FormInstance>('refForm')
-const { visible, setVisible } = useVisible(false)
-const { loading: formLoading, setLoading: setFormLoading } = useLoading(false)
-const [ state, reset ] = useResettableReactive({
+  remark: null,
+};
+const refForm = useTemplateRef<FormInstance>('refForm');
+const { visible, setVisible } = useVisible(false);
+const { loading: formLoading, setLoading: setFormLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
   form: {
-    ...DEFAULT_FORM
-  }
-})
+    ...DEFAULT_FORM,
+  },
+});
 
 const title = computed(() => {
-  return state.form.id ? '修改字典' : '新增字典'
-})
+  return state.form.id ? '修改字典' : '新增字典';
+});
 
 function open(row: DictDetail) {
-  reset()
+  reset();
   if (!row.id) {
-    row.status = EnableFlagEnums.ENABLE.value
+    row.status = EnableFlagEnums.ENABLE.value;
   }
-  state.form = Object.assign({...DEFAULT_FORM}, row)
-  setVisible(true)
+  state.form = Object.assign({ ...DEFAULT_FORM }, row);
+  setVisible(true);
 }
 
 function onSubmit() {
-  refForm.value?.validate(valid => {
+  refForm.value?.validate((valid) => {
     if (!valid) {
-      return
+      return;
     }
 
-    setFormLoading(true)
-    const reqPromise = state.form.id ? update(state.form) : add(state.form)
-    reqPromise.then(() => {
-      ElMessage.success(state.form.id ? '修改成功' : '新增成功')
-      setVisible(false)
-      emit('complete')
-    }).finally(() => {
-      setFormLoading(false)
-    })
-  })
+    setFormLoading(true);
+    const reqPromise = state.form.id ? update(state.form) : add(state.form);
+    reqPromise
+      .then(() => {
+        ElMessage.success(state.form.id ? '修改成功' : '新增成功');
+        setVisible(false);
+        emit('complete');
+      })
+      .finally(() => {
+        setFormLoading(false);
+      });
+  });
 }
 
 function onReset() {
@@ -88,18 +83,12 @@ async function onDialogOpen() {
 }
 
 defineExpose({
-  open
-})
+  open,
+});
 </script>
 
 <template>
-  <el-dialog
-    :title="title"
-    v-model="visible"
-    :close-on-click-modal="false"
-    width="500px"
-    @open="onDialogOpen"
-  >
+  <el-dialog v-model="visible" :title="title" :close-on-click-modal="false" width="500px" @open="onDialogOpen">
     <el-form ref="refForm" :model="state.form" :rules="rules" label-width="90px">
       <el-form-item label="字典Label" prop="dictLabel">
         <el-input v-model="state.form.dictLabel" placeholder="请输入字典Label" maxlength="32" />
@@ -124,6 +113,4 @@ defineExpose({
   </el-dialog>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

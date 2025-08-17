@@ -7,9 +7,9 @@
         :style="{
           '--bubble-size': `${Math.floor(Math.random() * 111) + 20}px`,
           '--bubble-delay': `${parseFloat((Math.random() * 5).toFixed(1))}s`,
-          '--bubble-left': `${5 + (10 * (item - 1)) + (Math.floor(Math.random() * 6))}%`
+          '--bubble-left': `${5 + 10 * (item - 1) + Math.floor(Math.random() * 6)}%`,
         }"
-      ></li>
+      />
     </ul>
   </div>
 </template>
@@ -39,7 +39,7 @@
   display: block;
   width: var(--bubble-size);
   height: var(--bubble-size);
-  background-color: #FFF;
+  background-color: #fff;
   bottom: -160px;
   animation: bubblesUp 5s linear infinite;
   animation-delay: var(--bubble-delay);

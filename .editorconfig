@@ -1,19 +1,25 @@
 # EditorConfig is awesome: https://EditorConfig.org
 
-# top-most EditorConfig file
+# http://editorconfig.org
 root = true
 
-# Unix-style newlines with a newline ending every file
 [*]
-indent_style = space
-indent_size = 2
-# 保证在任何操作系统上都有统一的行尾结束字符
-end_of_line = lf
+# 字符编码
 charset = utf-8
-max_line_length = 100
+# 换行符使用 lf（与 Prettier 的 endOfLine: 'lf' 对应）
+end_of_line = lf
+# 结尾添加换行
 insert_final_newline = true
+# 不保留行尾空格
 trim_trailing_whitespace = true
+# 缩进使用空格（与 Prettier 的 useTabs: false 对应）
+indent_style = space
+# 缩进大小为 2 个空格（与 Prettier 的 tabWidth: 2 对应）
+indent_size = 2
+max_line_length = 200
 
+# 对特定文件类型的补充配置
 [*.md]
+# Markdown 保留行尾空格（用于强制换行）
 trim_trailing_whitespace = false
 insert_final_newline = false

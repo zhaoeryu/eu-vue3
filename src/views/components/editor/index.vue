@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import { ref } from 'vue';
 
-const content = ref(null)
+const content = ref(null);
 </script>
 
 <template>
@@ -15,7 +15,8 @@ const content = ref(null)
       <el-col :span="12" :xs="24">
         <div class="page-body">
           <m-block-header title="预览" />
-          <div v-html="content" class="eu-editor-content-view"></div>
+          <!-- eslint-disable vue/no-v-html -->
+          <div class="eu-editor-content-view" v-html="content" />
         </div>
       </el-col>
     </el-row>

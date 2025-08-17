@@ -1,35 +1,35 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function page(params: any) {
   return request({
     url: '/api/system/role/page',
     method: 'get',
-    params
-  })
+    params,
+  });
 }
 
 export function add(data: any) {
   return request({
     url: '/api/system/role',
     method: 'post',
-    data
-  })
+    data,
+  });
 }
 
 export function update(data: any) {
   return request({
     url: '/api/system/role',
     method: 'put',
-    data
-  })
+    data,
+  });
 }
 
 export function batchDel(ids: any[]) {
   return request({
     url: '/api/system/role/batch',
     method: 'delete',
-    data: ids
-  })
+    data: ids,
+  });
 }
 
 export function getMenuIdsByRoleId(roleId: string | number) {
@@ -37,9 +37,9 @@ export function getMenuIdsByRoleId(roleId: string | number) {
     url: '/api/system/role/menus',
     method: 'get',
     params: {
-      roleId
-    }
-  })
+      roleId,
+    },
+  });
 }
 
 export function getDeptIdsByRoleId(roleId: number) {
@@ -47,7 +47,7 @@ export function getDeptIdsByRoleId(roleId: number) {
     url: '/api/system/role/depts',
     method: 'get',
     params: {
-      roleId
-    }
-  })
+      roleId,
+    },
+  });
 }

@@ -1,60 +1,50 @@
 <script setup lang="ts">
-import {computed, ref, watch, defineProps} from "vue";
-import type {GeneratePreviewTree} from "@/types/system/generate";
+import { computed, defineProps } from 'vue';
+
+import type { GeneratePreviewTree } from '@/types/system/generate';
 
 type State = {
-  item: GeneratePreviewTree
-}
+  item: GeneratePreviewTree;
+};
 
-const model = defineModel()
-const props = defineProps<State>()
+const model = defineModel<string | null>();
+const props = defineProps<State>();
 
 const iconType = computed(() => {
   if (!props.item.type) {
-    return null
+    return null;
   }
   switch (props.item.type) {
     case 'java':
-      return 'folder_java'
+      return 'folder_java';
     case 'xml':
-      return 'folder_xml'
+      return 'folder_xml';
     case 'js':
     case 'ts':
-      return 'folder_js'
+      return 'folder_js';
     case 'vue':
-      return 'folder_vue'
+      return 'folder_vue';
     case 'sql':
-      return 'folder_sql'
+      return 'folder_sql';
   }
-  return 'folder_file'
-})
+  return 'folder_file';
+});
 
 function onChecked() {
   if (!props.item.code || props.item.name === model.value) {
-    return
+    return;
   }
-  model.value = props.item.name
+  model.value = props.item.name;
 }
-
 </script>
 
 <template>
   <details open>
-    <summary
-      :class="{ active: item.code && model === item.name }"
-      @click="onChecked"
-    >
+    <summary :class="{ active: item.code && model === item.name }" @click="onChecked">
       <span class="tree-item" :class="iconType">{{ item.name }}</span>
     </summary>
-    <tree-directory-item
-      v-for="(v, index) in item.children"
-      :key="index"
-      :item="v"
-      v-model="model"
-    />
+    <tree-directory-item v-for="(v, index) in item.children" :key="index" v-model="model" :item="v" />
   </details>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

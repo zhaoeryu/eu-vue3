@@ -1,28 +1,25 @@
 <script setup lang="ts">
-import {list as listApi, batchDel} from '@/api/system/menu'
-import {handleTreeData, getChildrenFields, getParentFieldsByLeafId, flattenTreeData} from '@/utils'
-import MenuEditDialog from '@/views/system/menus/MenuEditDialog.vue'
-import {computed, nextTick, onMounted, ref, useTemplateRef} from "vue";
-import {ElMessage, ElMessageBox, type TableInstance} from "element-plus";
-import {Sort} from "@element-plus/icons-vue";
-import EnumTag from "@/components/EnumTag.vue";
-import {EnableFlagEnums, MenuTypeEnums} from "@/utils/enums";
-import type {ANY_OBJECT} from "@/types/generic";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {MenuTree, Menu} from "@/types/system/menu";
+import { computed, onMounted, useTemplateRef } from 'vue';
+import { ElMessage, ElMessageBox, type TableInstance } from 'element-plus';
+import { Sort } from '@element-plus/icons-vue';
 
-type State = {
-  list: MenuTree[];
-  originList: Menu[];
-} & Partial<ANY_OBJECT>
+import { list as listApi, batchDel } from '@/api/system/menu';
+import { handleTreeData, getChildrenFields, getParentFieldsByLeafId, flattenTreeData } from '@/utils';
+import MenuEditDialog from '@/views/system/menus/MenuEditDialog.vue';
+import EnumTag from '@/components/EnumTag.vue';
+import { EnableFlagEnums, MenuTypeEnums } from '@/utils/enums';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { MenuTree, Menu } from '@/types/system/menu';
 
-const refTable = useTemplateRef<TableInstance>('refTable') // 添加表格引用
-const refMenuEditDialog = useTemplateRef<InstanceType<typeof MenuEditDialog>>('refMenuEditDialog')
-const {loading, setLoading} = useLoading(false);
-const [state, reset] = useResettableReactive<State>({
-  list: [],
-  originList: [],
+const refTable = useTemplateRef<TableInstance>('refTable'); // 添加表格引用
+const refMenuEditDialog = useTemplateRef<InstanceType<typeof MenuEditDialog>>('refMenuEditDialog');
+const { loading, setLoading } = useLoading(false);
+const [state, _reset] = useResettableReactive({
+  list: [] as MenuTree[],
+  originList: [] as Menu[],
+  isQueryShow: true,
+  multipleDisabled: true,
   queryParams: {
     menuName: null,
 
@@ -31,19 +28,19 @@ const [state, reset] = useResettableReactive<State>({
     // sort: [],
   },
   isExpandAll: false,
-})
+});
 
 const treeTable = computed(() => {
   const searchValue = state.queryParams.menuName;
   if (searchValue) {
-    return filterTreeData(state.list, searchValue)
+    return filterTreeData(state.list, searchValue);
   }
-  return state.list
-})
+  return state.list;
+});
 
 onMounted(() => {
-  onRefresh()
-})
+  onRefresh();
+});
 
 function filterTreeData(treeData: MenuTree[], searchValue: string): MenuTree[] {
   if (!treeData || treeData.length === 0) {
@@ -52,12 +49,12 @@ function filterTreeData(treeData: MenuTree[], searchValue: string): MenuTree[] {
   const array = [];
   for (let i = 0; i < treeData.length; i += 1) {
     let match = false;
-    const item = treeData[i]
-    const labelValue = item.menuName
-    if(labelValue){
+    const item = treeData[i];
+    const labelValue = item.menuName;
+    if (labelValue) {
       match = labelValue.includes(searchValue);
     }
-    if (filterTreeData(treeData[i].children, searchValue).length > 0 || match ) {
+    if (filterTreeData(treeData[i].children, searchValue).length > 0 || match) {
       array.push({
         ...treeData[i],
         children: filterTreeData(treeData[i].children, searchValue),
@@ -68,54 +65,65 @@ function filterTreeData(treeData: MenuTree[], searchValue: string): MenuTree[] {
 }
 
 function onQuery() {
-  setLoading(true)
-  listApi(state.queryParams).then(res => {
-    state.originList = res.data
-    state.list = handleTreeData(res.data) as MenuTree[]
-  }).finally(() => {
-    setLoading(false)
-  })
+  setLoading(true);
+  listApi(state.queryParams)
+    .then((res) => {
+      state.originList = res.data;
+      state.list = handleTreeData(res.data) as MenuTree[];
+    })
+    .finally(() => {
+      setLoading(false);
+    });
 }
 
 function onRefresh() {
-  onQuery()
+  onQuery();
 }
 
 function onExpandCollapse() {
-  state.isExpandAll = !state.isExpandAll
+  state.isExpandAll = !state.isExpandAll;
   // 获取所有树形节点并切换展开状态
   const allRows = flattenTreeData(state.list);
-  allRows.forEach(row => {
+  allRows.forEach((row) => {
     refTable.value?.toggleRowExpansion(row, state.isExpandAll);
   });
 }
 
 function onAdd() {
-  refMenuEditDialog.value?.open({
-    menuType: MenuTypeEnums.DIR.value,
-    status: EnableFlagEnums.ENABLE.value,
-    visible: true
-  } as MenuTree, state.list)
+  refMenuEditDialog.value?.open(
+    {
+      menuType: MenuTypeEnums.DIR.value,
+      status: EnableFlagEnums.ENABLE.value,
+      visible: true,
+    } as MenuTree,
+    state.list,
+  );
 }
 
 function onRowAdd(row: MenuTree) {
-  refMenuEditDialog.value?.open({
-    menuType: MenuTypeEnums.MENU.value,
-    status: EnableFlagEnums.ENABLE.value,
-    visible: true,
-    _parentIds: getParentFieldsByLeafId(treeTable.value, row.id, {
-      fieldKey: 'id'
-    })
-  } as MenuTree, state.list)
+  refMenuEditDialog.value?.open(
+    {
+      menuType: MenuTypeEnums.MENU.value,
+      status: EnableFlagEnums.ENABLE.value,
+      visible: true,
+      _parentIds: getParentFieldsByLeafId(treeTable.value, row.id, {
+        fieldKey: 'id',
+      }),
+    } as MenuTree,
+    state.list,
+  );
 }
 
 function onRowUpdate(row: MenuTree) {
-  refMenuEditDialog.value?.open(Object.assign(row, {
-    // 从指定的叶子节点中获取所有父节点
-    _parentIds: getParentFieldsByLeafId(treeTable.value, row.parentId!, {
-      fieldKey: 'id'
-    })
-  }), state.list)
+  refMenuEditDialog.value?.open(
+    Object.assign(row, {
+      // 从指定的叶子节点中获取所有父节点
+      _parentIds: getParentFieldsByLeafId(treeTable.value, row.parentId!, {
+        fieldKey: 'id',
+      }),
+    }),
+    state.list,
+  );
 }
 
 function onRowDelete(row: MenuTree) {
@@ -126,23 +134,24 @@ function onRowDelete(row: MenuTree) {
     type: 'warning',
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
-        instance.confirmButtonLoading = true
+        instance.confirmButtonLoading = true;
         // 删除当前菜单以及该菜单下所有子菜单
-        const menuIds = [row.id, ...getChildrenFields(row, {fieldKey: 'id'})]
-        batchDel(menuIds).then(() => {
-          ElMessage.success('删除成功')
-          done()
-          onRefresh()
-        }).finally(() => {
-          instance.confirmButtonLoading = false
-        })
+        const menuIds = [row.id, ...getChildrenFields(row, { fieldKey: 'id' })];
+        batchDel(menuIds)
+          .then(() => {
+            ElMessage.success('删除成功');
+            done();
+            onRefresh();
+          })
+          .finally(() => {
+            instance.confirmButtonLoading = false;
+          });
       } else {
-        done()
+        done();
       }
-    }
-  })
+    },
+  });
 }
-
 </script>
 
 <template>
@@ -151,27 +160,26 @@ function onRowDelete(row: MenuTree) {
       <query-expand-wrapper :show="state.isQueryShow">
         <el-form :model="state.queryParams" :inline="true">
           <el-form-item prop="menuName" label="菜单名称">
-            <el-input v-model="state.queryParams.menuName" placeholder="输入要查找的菜单名称"
-              maxlength="20" />
+            <el-input v-model="state.queryParams.menuName" placeholder="输入要查找的菜单名称" maxlength="20" />
           </el-form-item>
         </el-form>
       </query-expand-wrapper>
       <div v-loading="loading">
         <eu-table-toolbar
+          v-model:search-toggle="state.isQueryShow"
           :multiple-disabled="state.multipleDisabled"
           :opt-show="{
             del: false,
             export: false,
             import: false,
-            sort: false
+            sort: false,
           }"
           :permission="{
-            add: ['system:menu:add']
+            add: ['system:menu:add'],
           }"
           :ref-table="refTable"
           @add="onAdd"
           @refresh="onRefresh"
-          v-model:searchToggle="state.isQueryShow"
         >
           <template #right>
             <el-button :icon="Sort" plain @click="onExpandCollapse">
@@ -179,15 +187,7 @@ function onRowDelete(row: MenuTree) {
             </el-button>
           </template>
         </eu-table-toolbar>
-        <el-table
-          ref="refTable"
-          :data="treeTable"
-          style="width: 100%;"
-          row-key="id"
-          border
-          :default-expand-all="state.isExpandAll"
-          :tree-props="{children: 'children'}"
-        >
+        <el-table ref="refTable" :data="treeTable" style="width: 100%" row-key="id" border :default-expand-all="state.isExpandAll" :tree-props="{ children: 'children' }">
           <el-table-column prop="menuName" label="菜单名称" width="180"></el-table-column>
           <el-table-column prop="menuType" label="菜单类型" width="90">
             <template #default="{ row }">
@@ -232,9 +232,7 @@ function onRowDelete(row: MenuTree) {
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column
-            v-permissions="['system:menu:add', 'system:menu:edit', 'system:menu:del']" label="操作"
-            width="200">
+          <el-table-column v-permissions="['system:menu:add', 'system:menu:edit', 'system:menu:del']" label="操作" width="200">
             <template #default="{ row }">
               <el-button v-permissions="['system:menu:add']" text type="primary" @click="onRowAdd(row)">新增</el-button>
               <el-button v-permissions="['system:menu:edit']" text type="primary" @click="onRowUpdate(row)">修改</el-button>

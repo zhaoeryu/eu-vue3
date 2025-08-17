@@ -6,5 +6,5 @@ interface ImportMetaEnv {
 
 // eslint-disable-next-line no-unused-vars
 interface ImportMeta {
-  readonly env: ImportMetaEnv,
+  readonly env: ImportMetaEnv;
 }

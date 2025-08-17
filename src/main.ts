@@ -1,25 +1,21 @@
-import { createApp } from 'vue'
+import { createApp } from 'vue';
 
 // 重置样式
-import 'normalize.css/normalize.css'
+import 'normalize.css/normalize.css';
 // 注册svg图标
-import 'virtual:svg-icons-register'
+import 'virtual:svg-icons-register';
+import directive from '@/directive';
+import plugins from '@/plugins';
 
-import App from './App.vue'
-import router from './router/routers'
-import './router'
-import store from './store'
+import store from './store';
+import App from './App.vue';
+import router from './router/routers';
+import './router';
 
-const app = createApp(App)
-app.use(store)
-app.use(router)
+const app = createApp(App);
+app.use(store);
+app.use(router);
+app.use(directive);
+app.use(plugins);
 
-// 注册指令
-import directive from "@/directive";
-app.use(directive)
-
-// 注册插件
-import plugins from "@/plugins";
-app.use(plugins)
-
-app.mount('#app')
+app.mount('#app');

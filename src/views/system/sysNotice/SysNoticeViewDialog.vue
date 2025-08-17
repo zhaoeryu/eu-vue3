@@ -1,37 +1,37 @@
 <script setup lang="ts">
-import {ref} from "vue";
-import type {Notice} from "@/types/system/notice";
+import { ref } from 'vue';
+import * as DOMPurify from 'dompurify';
 
-const show = ref(false)
-const notice = ref<Notice>({} as Notice)
+import type { Notice } from '@/types/system/notice';
+
+const show = ref(false);
+const notice = ref<Notice>({} as Notice);
 
 function open(_notice: Notice) {
-  notice.value = _notice || {}
-  show.value = true
+  notice.value = _notice || {};
+  // 净化内容
+  notice.value.content = DOMPurify.default.sanitize(notice.value.content as string);
+  show.value = true;
 }
 
 defineExpose({
-  open
-})
+  open,
+});
 </script>
 
 <template>
-  <el-dialog
-    title="通知公告"
-    v-model="show"
-    width="80%"
-    append-to-body
-  >
-    <div style="line-height: 2em;">
-      <div style="font-weight: 500;font-size: 16px;">{{ notice.title }}</div>
-      <div style="color: #909399;font-size: 12px;">
+  <el-dialog v-model="show" title="通知公告" width="80%" append-to-body>
+    <div style="line-height: 2em">
+      <div style="font-weight: 500; font-size: 16px">{{ notice.title }}</div>
+      <div style="color: #909399; font-size: 12px">
         <span>发布人：{{ notice.publisher || '未知' }}，</span>
         <span>发布时间：{{ notice.createTime || ' -- ' }}</span>
       </div>
     </div>
     <el-divider />
     <div>
-      <div v-html="notice.content" class="eu-editor-content-view"></div>
+      <!-- eslint-disable vue/no-v-html -->
+      <div class="eu-editor-content-view" v-html="notice.content" />
     </div>
   </el-dialog>
 </template>

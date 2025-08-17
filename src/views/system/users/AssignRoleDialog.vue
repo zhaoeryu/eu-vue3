@@ -1,106 +1,100 @@
 <script setup lang="ts">
-import { assignRole, getUserInfo } from '@/api/system/user'
-import { page as roleListApi } from '@/api/system/role'
-import {computed, ref} from "vue";
-import {ElMessage} from "element-plus";
-import useVisible from "@/hooks/visible";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {ANY_OBJECT} from "@/types/generic";
-import type {Role} from "@/types/system/role";
+import { computed } from 'vue';
+import { ElMessage } from 'element-plus';
 
-const emit = defineEmits(['success'])
+import { assignRole, getUserInfo } from '@/api/system/user';
+import { page as roleListApi } from '@/api/system/role';
+import useVisible from '@/hooks/visible';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { ANY_OBJECT } from '@/types/generic';
+import type { Role } from '@/types/system/role';
+
+const emit = defineEmits(['success']);
 
 type State = {
-  roleIds: number[],
-  roleId: string,
-  userId: string | null,
-  roleList: Role[],
-} & Partial<ANY_OBJECT>
+  roleIds: number[];
+  roleId: string;
+  userId: string | null;
+  roleList: Role[];
+} & Partial<ANY_OBJECT>;
 
-const { visible, setVisible } = useVisible(false)
-const {loading, setLoading} = useLoading(false);
+const { visible, setVisible } = useVisible(false);
+const { loading, setLoading } = useLoading(false);
 const [state, reset] = useResettableReactive<State>({
   roleIds: [],
   roleId: '',
   userId: null,
   roleList: [],
-})
+});
 
 const assignRoleList = computed(() => {
-  return state.roleIds.map(id => {
-    const role = state.roleList.find(item => item.id === id)
-    if (role) {
-      return role
-    }
-  }).filter(item => item !== undefined)
-})
+  return state.roleIds
+    .map((id) => {
+      const role = state.roleList.find((item) => item.id === id);
+      if (role) {
+        return role;
+      }
+    })
+    .filter((item) => item !== undefined);
+});
 
 function open(_userId: string) {
-  reset()
-  state.userId = _userId
-  setVisible(true)
-  setLoading(true)
-  Promise.all([
-    roleListApi({ page: 1, size: 999 }),
-    getUserInfo(_userId)
-  ]).then(res => {
-    state.roleList = res[0].data.records || []
-    state.roleIds = res[1].data.roleIds || []
-  }).finally(() => {
-    setLoading(false)
-  })
+  reset();
+  state.userId = _userId;
+  setVisible(true);
+  setLoading(true);
+  Promise.all([roleListApi({ page: 1, size: 999 }), getUserInfo(_userId)])
+    .then((res) => {
+      state.roleList = res[0].data.records || [];
+      state.roleIds = res[1].data.roleIds || [];
+    })
+    .finally(() => {
+      setLoading(false);
+    });
 }
 
 function onRemoveRole(tag: Role) {
-  state.roleIds = state.roleIds.filter(item => item !== tag.id)
+  state.roleIds = state.roleIds.filter((item) => item !== tag.id);
 }
 
 function onAssignRoleSelectChange(_roleId: number) {
-  state.roleIds.push(_roleId)
-  state.roleId = ''
+  state.roleIds.push(_roleId);
+  state.roleId = '';
 }
 
 function onAssignRoleSave() {
-  setLoading(true)
+  setLoading(true);
   assignRole({
     id: state.userId,
-    roleIds: state.roleIds
-  }).then(() => {
-    ElMessage.success('分配角色成功')
-    setVisible(false)
-    emit('success')
-  }).finally(() => {
-    setLoading(false)
+    roleIds: state.roleIds,
   })
+    .then(() => {
+      ElMessage.success('分配角色成功');
+      setVisible(false);
+      emit('success');
+    })
+    .finally(() => {
+      setLoading(false);
+    });
 }
 function onDialogClose() {
-  reset()
+  reset();
 }
 
 defineExpose({
-  open
-})
+  open,
+});
 </script>
 
 <template>
-  <el-dialog
-    title="分配角色"
-    v-model="visible"
-    width="700px"
-    @close="onDialogClose"
-  >
+  <el-dialog v-model="visible" title="分配角色" width="700px" @close="onDialogClose">
     <div class="assign-role-wrapper">
-      <el-tag
-        :key="tag.id"
-        v-for="tag in assignRoleList"
-        closable
-        :disable-transitions="false"
-        @close="onRemoveRole(tag)">
-        {{tag.roleName}}
+      <el-tag v-for="tag in assignRoleList" :key="tag.id" closable :disable-transitions="false" @close="onRemoveRole(tag)">
+        {{ tag.roleName }}
       </el-tag>
-      <el-select v-model="state.roleId" @change="onAssignRoleSelectChange" placeholder="请选择角色" filterable class="input-new-tag">
-        <el-option v-for="item in state.roleList" :disabled="assignRoleList.some(v => v.id === item.id)" :key="item.id" :label="item.roleName" :value="item.id" />
+      <el-select v-model="state.roleId" placeholder="请选择角色" filterable class="input-new-tag" @change="onAssignRoleSelectChange">
+        <el-option v-for="item in state.roleList" :key="item.id" :disabled="assignRoleList.some((v) => v.id === item.id)" :label="item.roleName" :value="item.id" />
       </el-select>
     </div>
 

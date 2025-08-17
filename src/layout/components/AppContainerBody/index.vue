@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import {defaultSetting} from "@/settings";
-import {computed, defineOptions} from "vue";
-import {useTabsStore} from "@/store";
-import {type Tab} from "@/types/store/tabs";
+import { computed, defineOptions } from 'vue';
+
+import { defaultSetting } from '@/settings';
+import { useTabsStore } from '@/store';
+import { type Tab } from '@/types/store/tabs';
 
 defineOptions({
-  name: 'AppContainerBody'
-})
+  name: 'AppContainerBody',
+});
 
 const cachedRoutes = computed(() => {
-  return useTabsStore().tabs
-    .filter((item: Tab) => item.title && item.keepAlive)
-    .map((item: Tab) => item.title) || []
-})
-
+  return (
+    useTabsStore()
+      .tabs.filter((item: Tab) => item.title && item.keepAlive)
+      .map((item: Tab) => item.title) || []
+  );
+});
 </script>
 
 <template>
@@ -46,7 +48,7 @@ const cachedRoutes = computed(() => {
 .fade-transform--move-from,
 .fade-transform-leave-active,
 .fade-transform-enter-active {
-  transition: all .3s;
+  transition: all 0.3s;
 }
 
 .fade-transform-enter-from {

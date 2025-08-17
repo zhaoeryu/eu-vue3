@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const emit = defineEmits(['search'])
+const emit = defineEmits(['search']);
 </script>
 
 <template>

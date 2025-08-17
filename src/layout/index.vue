@@ -1,61 +1,65 @@
 <script setup lang="ts">
-import Sidebar from '@/layout/components/Sidebar/index.vue'
-import ThemeConfig from '@/layout/components/ThemeConfig/index.vue'
-import AppContainerBody from '@/layout/components/AppContainerBody/index.vue'
-import AppContainerFooter from '@/layout/components/AppContainerFooter/index.vue'
-import HeaderNavBar from '@/layout/components/HeaderNavBar/index.vue'
-import AppContainerHeader from '@/layout/components/AppContainerHeader/index.vue'
-import AppContainerTabs from '@/layout/components/AppContainerTabs/index.vue'
-import {useSettingsStore, useRouteStore} from "@/store";
-import {computed, watchEffect} from "vue";
-import { useWindowSize } from '@vueuse/core'
-import {useRoute} from "vue-router";
-import {DeviceTypeEnums} from "@/utils/enums";
-import type {RouteNode} from "@/types/route";
+import { computed, watchEffect } from 'vue';
+import { useWindowSize } from '@vueuse/core';
+import { useRoute } from 'vue-router';
 
-const route = useRoute()
-const settingsStore = useSettingsStore()
-const routeStore = useRouteStore()
+import Sidebar from '@/layout/components/Sidebar/index.vue';
+import ThemeConfig from '@/layout/components/ThemeConfig/index.vue';
+import AppContainerBody from '@/layout/components/AppContainerBody/index.vue';
+import AppContainerFooter from '@/layout/components/AppContainerFooter/index.vue';
+import HeaderNavBar from '@/layout/components/HeaderNavBar/index.vue';
+import AppContainerHeader from '@/layout/components/AppContainerHeader/index.vue';
+import AppContainerTabs from '@/layout/components/AppContainerTabs/index.vue';
+import { useSettingsStore, useRouteStore } from '@/store';
+import { DeviceTypeEnums } from '@/utils/enums';
+import type { RouteNode } from '@/types/route';
+
+const route = useRoute();
+const settingsStore = useSettingsStore();
+const routeStore = useRouteStore();
 
 const isSecondNavHidden = computed(() => {
-  const activeFirstMenu = route.matched[0]
-  const activeFirstMenuPath = activeFirstMenu?.path === '' ? '/' : activeFirstMenu?.path
-  const secondNavList = (routeStore.routes.find(item => item.path === activeFirstMenuPath)?.children || [] as RouteNode[]).filter(item => !item.hidden)
-  const isNotMultiChildren = secondNavList.length < 2
-  const isAlwaysShow = activeFirstMenu?.meta?.alwaysShow
-  return isNotMultiChildren && !isAlwaysShow
-})
-const curRouteMeta = computed(() => route.meta || {})
+  const activeFirstMenu = route.matched[0];
+  const activeFirstMenuPath = activeFirstMenu?.path === '' ? '/' : activeFirstMenu?.path;
+  const secondNavList = (routeStore.routes.find((item) => item.path === activeFirstMenuPath)?.children || ([] as RouteNode[])).filter((item) => !item.hidden);
+  const isNotMultiChildren = secondNavList.length < 2;
+  const isAlwaysShow = activeFirstMenu?.meta?.alwaysShow;
+  return isNotMultiChildren && !isAlwaysShow;
+});
+const curRouteMeta = computed(() => route.meta || {});
 
 const { width } = useWindowSize();
-const COLLAPSE_WIDTH = 1180
-const MOBILE_WIDTH = 992
+const COLLAPSE_WIDTH = 1180;
+const MOBILE_WIDTH = 992;
 
 watchEffect(() => {
-  const isMobile = width.value - 1 < MOBILE_WIDTH
-  const isCollapse = width.value - 1 < COLLAPSE_WIDTH
+  const isMobile = width.value - 1 < MOBILE_WIDTH;
+  const isCollapse = width.value - 1 < COLLAPSE_WIDTH;
 
-  settingsStore.toggleDevice(isMobile ? DeviceTypeEnums.MOBILE : DeviceTypeEnums.DESKTOP)
-  settingsStore.toggleCollapsed(isCollapse)
-})
+  settingsStore.toggleDevice(isMobile ? DeviceTypeEnums.MOBILE : DeviceTypeEnums.DESKTOP);
+  settingsStore.toggleCollapsed(isCollapse);
+});
 </script>
 
 <script lang="ts">
 export default {
-  name: 'Layout'
-}
+  name: 'Layout',
+};
 </script>
 
 <template>
-  <div id="eu-layout" :class="{
-    mobile: settingsStore.isMobileDevice,
-    'sidebar-collapsed': settingsStore.sidebarCollapsed,
-    'eu-nav-second-sidebar-hidden': isSecondNavHidden,
-    'eu-tabs-fixed': settingsStore.theme.showTabsBar && settingsStore.theme.fixedTabsBar,
-    ['eu-layout_'+settingsStore.theme.layout]: true
-  }">
+  <div
+    id="eu-layout"
+    :class="{
+      mobile: settingsStore.isMobileDevice,
+      'sidebar-collapsed': settingsStore.sidebarCollapsed,
+      'eu-nav-second-sidebar-hidden': isSecondNavHidden,
+      'eu-tabs-fixed': settingsStore.theme.showTabsBar && settingsStore.theme.fixedTabsBar,
+      ['eu-layout_' + settingsStore.theme.layout]: true,
+    }"
+  >
     <!-- Header Nav -->
-    <header-nav-bar/>
+    <header-nav-bar />
     <!-- container -->
     <div id="app-container">
       <!-- aside -->

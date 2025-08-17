@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {useSettingsStore} from "@/store";
+import { useSettingsStore } from '@/store';
 
-const settingsStore = useSettingsStore()
+const settingsStore = useSettingsStore();
 
 function onNavFold() {
-  settingsStore.toggleCollapsed(!settingsStore.sidebarCollapsed)
+  settingsStore.toggleCollapsed(!settingsStore.sidebarCollapsed);
 }
 </script>
 
@@ -28,9 +28,9 @@ function onNavFold() {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: all .15s ease;
+  transition: all 0.15s ease;
   box-sizing: content-box;
-  >.svg-icon {
+  > .svg-icon {
     color: var(--color-text-3);
     font-size: 16px;
     transform: rotate(180deg);
@@ -43,7 +43,7 @@ function onNavFold() {
 // 折叠菜单
 .sidebar-collapsed {
   .eu-nav-switch-trigger {
-    >.svg-icon {
+    > .svg-icon {
       transform: rotate(0deg);
     }
   }

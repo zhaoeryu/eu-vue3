@@ -2,9 +2,9 @@
 export default {
   name: 'Second2Third2',
   data() {
-    return {}
-  }
-}
+    return {};
+  },
+};
 </script>
 
 <template>
@@ -13,6 +13,4 @@ export default {
   </div>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

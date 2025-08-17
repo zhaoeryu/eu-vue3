@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import {Refresh, Search} from "@element-plus/icons-vue";
-import { onlineList, onlineKickout, onlineLogout } from '@/api/system/user'
-import {onMounted, ref} from "vue";
-import {ElMessage, ElMessageBox} from "element-plus";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {Online} from "@/types/system/online";
+import { Refresh, Search } from '@element-plus/icons-vue';
+import { onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+
+import { onlineList, onlineKickout, onlineLogout } from '@/api/system/user';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { Online } from '@/types/system/online';
 
 const { loading, setLoading } = useLoading(false);
 const [state, reset] = useResettableReactive({
@@ -19,71 +20,76 @@ const [state, reset] = useResettableReactive({
     size: 10,
     sort: [],
   },
-})
+});
 
 onMounted(() => {
-  onRefresh()
-})
+  onRefresh();
+});
 
 function onQuery() {
-  setLoading(true)
-  onlineList(state.queryParams).then(res => {
-    state.list = res.data.records
-    state.total = res.data.total
-  }).finally(() => {
-    setLoading(false)
-  })
+  setLoading(true);
+  onlineList(state.queryParams)
+    .then((res) => {
+      state.list = res.data.records;
+      state.total = res.data.total;
+    })
+    .finally(() => {
+      setLoading(false);
+    });
 }
 
 function onRefresh() {
-  reset('queryParams')
-  onQuery()
+  reset('queryParams');
+  onQuery();
 }
 
 function onLogout(row: Online) {
-  ElMessageBox.confirm(`确认要强制注销"${ row.username }"吗？`, '提示', {
+  ElMessageBox.confirm(`确认要强制注销"${row.username}"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
         instance.confirmButtonLoading = true;
-        onlineLogout(row.id).then(() => {
-          ElMessage.success('强制注销Ta下线成功')
-          done()
-          onRefresh()
-        }).finally(() => {
-          instance.confirmButtonLoading = false;
-        })
+        onlineLogout(row.id)
+          .then(() => {
+            ElMessage.success('强制注销Ta下线成功');
+            done();
+            onRefresh();
+          })
+          .finally(() => {
+            instance.confirmButtonLoading = false;
+          });
       } else {
-        done()
+        done();
       }
-    }
+    },
   });
 }
 
 function onKictout(row: Online) {
-  ElMessageBox.confirm(`确认要踢"${ row.username }"下线吗？`, '提示', {
+  ElMessageBox.confirm(`确认要踢"${row.username}"下线吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
         instance.confirmButtonLoading = true;
-        onlineKickout(row.id).then(() => {
-          ElMessage.success('踢Ta下线成功')
-          done()
-          onRefresh()
-        }).finally(() => {
-          instance.confirmButtonLoading = false;
-        })
+        onlineKickout(row.id)
+          .then(() => {
+            ElMessage.success('踢Ta下线成功');
+            done();
+            onRefresh();
+          })
+          .finally(() => {
+            instance.confirmButtonLoading = false;
+          });
       } else {
-        done()
+        done();
       }
-    }
+    },
   });
 }
-
 </script>
 
 <template>
@@ -102,10 +108,7 @@ function onKictout(row: Online) {
       </div>
       <el-divider />
       <div v-loading="loading">
-        <el-table
-          :data="state.list"
-          style="width: 100%"
-        >
+        <el-table :data="state.list" style="width: 100%">
           <el-table-column type="index" label="#"></el-table-column>
           <el-table-column prop="username" label="登录名"></el-table-column>
           <el-table-column prop="nickname" label="用户昵称"></el-table-column>
@@ -122,17 +125,10 @@ function onKictout(row: Online) {
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-model:page="state.queryParams.page"
-          v-model:limit="state.queryParams.size"
-          :total="state.total"
-          @pagination="onQuery"
-        />
+        <pagination v-model:page="state.queryParams.page" v-model:limit="state.queryParams.size" :total="state.total" @pagination="onQuery" />
       </div>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

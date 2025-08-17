@@ -1,23 +1,20 @@
 <script setup lang="ts">
-import {add, update} from '@/api/system/dept'
-import {computed, nextTick, ref, useTemplateRef} from "vue";
-import {ElMessage, type FormInstance} from "element-plus";
-import useVisible from "@/hooks/visible";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {Dept, DeptTree} from "@/types/system/dept";
-import {EnableFlagEnums} from "@/utils/enums";
+import { computed, nextTick, ref, useTemplateRef } from 'vue';
+import { ElMessage, type FormInstance } from 'element-plus';
 
-const emit = defineEmits(['complete'])
+import { add, update } from '@/api/system/dept';
+import useVisible from '@/hooks/visible';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { DeptTree } from '@/types/system/dept';
+import { EnableFlagEnums } from '@/utils/enums';
+
+const emit = defineEmits(['complete']);
 
 const rules = {
-  deptName: [
-    {required: true, message: '请输入部门名称', trigger: 'blur'}
-  ],
-  status: [
-    {required: true, message: '请选择部门状态', trigger: 'change'}
-  ]
-}
+  deptName: [{ required: true, message: '请输入部门名称', trigger: 'blur' }],
+  status: [{ required: true, message: '请选择部门状态', trigger: 'change' }],
+};
 const DEFAULT_FORM = {
   id: null,
   deptName: null,
@@ -26,58 +23,63 @@ const DEFAULT_FORM = {
 
   parentId: null as number | null,
   parentIds: null as string | null,
-  _parentIds: []
-}
+  _parentIds: [],
+};
 
-const refForm = useTemplateRef<FormInstance>('refForm')
-const { visible, setVisible } = useVisible(false)
-const { loading: formLoading, setLoading: setFormLoading } = useLoading(false)
-const [ state, reset ] = useResettableReactive({
+const refForm = useTemplateRef<FormInstance>('refForm');
+const { visible, setVisible } = useVisible(false);
+const { loading: formLoading, setLoading: setFormLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
   form: {
-    ...DEFAULT_FORM
-  }
-})
+    ...DEFAULT_FORM,
+  },
+});
 
-const list = ref<DeptTree[]>([])
+const list = ref<DeptTree[]>([]);
 
 const title = computed(() => {
-  return state.form.id ? '修改部门' : '新增部门'
-})
+  return state.form.id ? '修改部门' : '新增部门';
+});
 
-function open(row: DeptTree & {
-  _parentIds: string[]
-}, _list: DeptTree[]) {
-  reset()
-  state.form = Object.assign({...DEFAULT_FORM}, row)
-  list.value = _list
-  setVisible(true)
+function open(
+  row: DeptTree & {
+    _parentIds: string[];
+  },
+  _list: DeptTree[],
+) {
+  reset();
+  state.form = Object.assign({ ...DEFAULT_FORM }, row);
+  list.value = _list;
+  setVisible(true);
 }
 
 function onSubmit() {
-  refForm.value?.validate(valid => {
+  refForm.value?.validate((valid) => {
     if (!valid) {
-      return
+      return;
     }
 
     // 设置直接父级ID
     if (state.form._parentIds.length) {
-      state.form.parentId = state.form._parentIds[state.form._parentIds.length - 1]
-      state.form.parentIds = '0,' + state.form._parentIds.join(',')
+      state.form.parentId = state.form._parentIds[state.form._parentIds.length - 1];
+      state.form.parentIds = '0,' + state.form._parentIds.join(',');
     } else {
-      state.form.parentId = 0
-      state.form.parentIds = '0'
+      state.form.parentId = 0;
+      state.form.parentIds = '0';
     }
 
-    setFormLoading(true)
-    const reqPromise = state.form.id ? update(state.form) : add(state.form)
-    reqPromise.then(() => {
-      ElMessage.success(state.form.id ? '修改成功' : '新增成功')
-      setVisible(false)
-      emit('complete')
-    }).finally(() => {
-      setFormLoading(false)
-    })
-  })
+    setFormLoading(true);
+    const reqPromise = state.form.id ? update(state.form) : add(state.form);
+    reqPromise
+      .then(() => {
+        ElMessage.success(state.form.id ? '修改成功' : '新增成功');
+        setVisible(false);
+        emit('complete');
+      })
+      .finally(() => {
+        setFormLoading(false);
+      });
+  });
 }
 
 async function onDialogOpen() {
@@ -89,18 +91,12 @@ async function onDialogOpen() {
 }
 
 defineExpose({
-  open
-})
+  open,
+});
 </script>
 
 <template>
-  <el-dialog
-    :title="title"
-    v-model="visible"
-    :close-on-click-modal="false"
-    width="600px"
-    @open="onDialogOpen"
-  >
+  <el-dialog v-model="visible" :title="title" :close-on-click-modal="false" width="600px" @open="onDialogOpen">
     <el-form ref="refForm" :model="state.form" :rules="rules" label-width="80px">
       <el-row :gutter="16">
         <el-col :span="24">
@@ -108,11 +104,16 @@ defineExpose({
             <el-cascader
               v-model="state.form._parentIds"
               :options="list"
-              :props="{ checkStrictly: true, value: 'id', label: 'deptName', children: 'children' }"
+              :props="{
+                checkStrictly: true,
+                value: 'id',
+                label: 'deptName',
+                children: 'children',
+              }"
               placeholder="请选择上级部门"
               clearable
               filterable
-              style="width: 100%;"
+              style="width: 100%"
             />
           </el-form-item>
         </el-col>
@@ -142,6 +143,4 @@ defineExpose({
   </el-dialog>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

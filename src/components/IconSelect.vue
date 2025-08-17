@@ -1,60 +1,54 @@
 <script setup lang="ts">
-import {computed, ref, useTemplateRef} from "vue";
-import icons from '@/utils/icons'
-import {type PopoverInstance} from "element-plus";
+import { computed, ref, useTemplateRef } from 'vue';
+import { type PopoverInstance } from 'element-plus';
 
-const model = defineModel()
-const keyword = ref<string|null>(null)
-const refPopover = useTemplateRef<PopoverInstance>('refPopover')
+import icons from '@/utils/icons';
+
+const model = defineModel<string | null>();
+const keyword = ref<string | null>(null);
+const refPopover = useTemplateRef<PopoverInstance>('refPopover');
 
 const filterIcons = computed(() => {
   if (keyword.value) {
-    return icons.filter(item => item.includes(keyword.value as string))
+    return icons.filter((item) => item.includes(keyword.value as string));
   }
-  return icons
-})
+  return icons;
+});
 
 function onShow() {
-  keyword.value = null
+  keyword.value = null;
 }
 
 function onIconSelected(icon: string) {
-  model.value = icon
-  refPopover.value?.hide()
+  model.value = icon;
+  refPopover.value?.hide();
 }
 </script>
 
 <script lang="ts">
 export default {
-  name: 'IconSelect'
-}
+  name: 'IconSelect',
+};
 </script>
 
 <template>
-  <el-popover
-    ref="refPopover"
-    placement="bottom-start"
-    width="fit-content"
-    trigger="click"
-    append-to-body
-    @show="onShow"
-  >
+  <el-popover ref="refPopover" placement="bottom-start" width="fit-content" trigger="click" append-to-body @show="onShow">
     <div class="icon-select-body">
-      <el-input v-model="keyword" style="width: 250px;" placeholder="输入要查找的图标拼音" />
+      <el-input v-model="keyword" style="width: 250px" placeholder="输入要查找的图标拼音" />
       <el-divider></el-divider>
-      <div style="max-height: 300px;overflow-y: auto;">
+      <div style="max-height: 300px; overflow-y: auto">
         <el-row>
-          <el-col v-for="(icon, index) in filterIcons" :key="index" :span="4" :class="{ 'active': icon === model }" @click="onIconSelected(icon)">
-            <div style="text-align: center;">
+          <el-col v-for="(icon, index) in filterIcons" :key="index" :span="4" :class="{ active: icon === model }" @click="onIconSelected(icon)">
+            <div style="text-align: center">
               <svg-icon :icon-class="icon" />
-              <div style="font-size: 12px;color: #909399;">{{ icon }}</div>
+              <div style="font-size: 12px; color: #909399">{{ icon }}</div>
             </div>
           </el-col>
         </el-row>
       </div>
     </div>
     <template #reference>
-      <slot name="reference" ></slot>
+      <slot name="reference" />
     </template>
   </el-popover>
 </template>
@@ -74,8 +68,9 @@ export default {
     cursor: pointer;
     user-select: none;
     margin-bottom: 12px;
-    &:hover,.active {
-      background-color: rgba(21,91,212,.08);
+    &:hover,
+    .active {
+      background-color: rgba(21, 91, 212, 0.08);
       border-radius: 4px;
     }
   }

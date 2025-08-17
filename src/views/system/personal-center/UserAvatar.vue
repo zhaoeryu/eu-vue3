@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import 'vue-cropper/dist/index.css'
-import { VueCropper }  from "vue-cropper";
-import {computed, reactive, ref, useTemplateRef} from "vue";
-import {useUserStore} from "@/store";
-import {dataURLtoFile, requireImage} from "@/utils";
-import {ElMessage} from "element-plus";
-import {uploadFile} from "@/api/upload";
-import {uploadAvatar} from "@/api/system/user";
-import {Minus, Plus, RefreshLeft, RefreshRight, UploadFilled} from "@element-plus/icons-vue";
-import useLoading from "@/hooks/loading";
-import useVisible from "@/hooks/visible";
+import 'vue-cropper/dist/index.css';
+import { VueCropper } from 'vue-cropper';
+import { computed, reactive, ref, useTemplateRef } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Minus, Plus, RefreshLeft, RefreshRight, UploadFilled } from '@element-plus/icons-vue';
 
-const refCropper = useTemplateRef('refCropper')
-const { loading, setLoading } = useLoading(false)
-const { visible: dialogVisible, setVisible: setDialogVisible } = useVisible(false)
-const { visible, setVisible } = useVisible(false)
+import { useUserStore } from '@/store';
+import { dataURLtoFile, requireImage } from '@/utils';
+import { uploadFile } from '@/api/upload';
+import { uploadAvatar } from '@/api/system/user';
+import useLoading from '@/hooks/loading';
+import useVisible from '@/hooks/visible';
+
+const refCropper = useTemplateRef('refCropper');
+const { loading, setLoading } = useLoading(false);
+const { visible: dialogVisible, setVisible: setDialogVisible } = useVisible(false);
+const { visible, setVisible } = useVisible(false);
 
 type CropperOptions = {
   img: string | ArrayBuffer | null;
@@ -23,7 +24,7 @@ type CropperOptions = {
   autoCropHeight: number;
   fixedBox: boolean;
   outputType: string;
-}
+};
 
 const options = reactive<CropperOptions>({
   //裁剪图片的地址
@@ -37,37 +38,36 @@ const options = reactive<CropperOptions>({
   // 固定截图框大小 不允许改变
   fixedBox: true,
   // 默认生成截图为PNG格式
-  outputType: 'png'
-})
+  outputType: 'png',
+});
 
 type PrevView = {
   url: string;
   img: string;
   value: string;
-}
+};
 
-const previews = ref<PrevView>({} as PrevView)
+const previews = ref<PrevView>({} as PrevView);
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 const avatar = computed(() => {
-  return userStore.user && userStore.user.avatar || requireImage('@/assets/images/default_avatar.png')
-})
-
+  return (userStore.user && userStore.user.avatar) || requireImage('@/assets/images/default_avatar.png');
+});
 
 function onUploadAvatar() {
-  options.img = avatar.value
-  setDialogVisible(true)
+  options.img = avatar.value;
+  setDialogVisible(true);
 }
 
 function modalOpened() {
-  setVisible(true)
+  setVisible(true);
 }
 
 function realTime(data: PrevView) {
-  previews.value = data
+  previews.value = data;
 }
 function closeDialog() {
-  setVisible(false)
+  setVisible(false);
 }
 
 function requestUpload() {}
@@ -84,34 +84,38 @@ function beforeUpload(file: Blob) {
   }
 }
 function rotateLeft() {
-  refCropper.value.rotateLeft()
+  refCropper.value.rotateLeft();
 }
 
 function rotateRight() {
-  refCropper.value.rotateRight()
+  refCropper.value.rotateRight();
 }
 function changeScale(num: number) {
-  refCropper.value.changeScale(num || 1)
+  refCropper.value.changeScale(num || 1);
 }
 function onSave() {
-  setLoading(true)
+  setLoading(true);
   refCropper.value.getCropData((data: string) => {
     const formData = new FormData();
     formData.append('file', dataURLtoFile(data, 'avatar.png'));
-    uploadFile(formData).then(res => {
-      uploadAvatar({
-        avatar: res.link
-      }).then(() => {
-        ElMessage.success('头像修改成功')
-        userStore.getInfo()
-        setDialogVisible(false)
-      }).finally(() => {
-        setLoading(false)
+    uploadFile(formData)
+      .then((res) => {
+        uploadAvatar({
+          avatar: res.link,
+        })
+          .then(() => {
+            ElMessage.success('头像修改成功');
+            userStore.getInfo();
+            setDialogVisible(false);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
       })
-    }).catch(() => {
-      setLoading(false)
-    })
-  })
+      .catch(() => {
+        setLoading(false);
+      });
+  });
 }
 </script>
 
@@ -120,14 +124,7 @@ function onSave() {
     <div class="user-avatar-img" @click="onUploadAvatar">
       <el-avatar shape="square" :size="100" :src="avatar" />
     </div>
-    <el-dialog
-      v-model="dialogVisible"
-      title="修改头像"
-      width="800px"
-      class="user-avatar-upload-dialog"
-      @opened="modalOpened"
-      @close="closeDialog"
-    >
+    <el-dialog v-model="dialogVisible" title="修改头像" width="800px" class="user-avatar-upload-dialog" @opened="modalOpened" @close="closeDialog">
       <el-row>
         <el-col :span="12" :style="{ height: '350px' }">
           <vue-cropper
@@ -152,17 +149,10 @@ function onSave() {
       </el-row>
       <template #footer>
         <div style="display: flex">
-          <el-upload
-            action="#"
-            :http-request="requestUpload"
-            :show-file-list="false"
-            :before-upload="beforeUpload"
-            style="margin-right: 30px"
-            accept="image/*"
-          >
+          <el-upload action="#" :http-request="requestUpload" :show-file-list="false" :before-upload="beforeUpload" style="margin-right: 30px" accept="image/*">
             <el-button style="width: 150px">
               选 择
-              <el-icon><UploadFilled/></el-icon>
+              <el-icon><UploadFilled /></el-icon>
             </el-button>
           </el-upload>
           <el-button :icon="Plus" @click="changeScale(1)"></el-button>
@@ -170,7 +160,7 @@ function onSave() {
           <el-button :icon="RefreshLeft" @click="rotateLeft()"></el-button>
           <el-button :icon="RefreshRight" @click="rotateRight()"></el-button>
         </div>
-        <div style="flex: 1;">
+        <div style="flex: 1">
           <el-button @click="setDialogVisible(false)">取 消</el-button>
           <el-button :loading="loading" type="primary" @click="onSave">保 存</el-button>
         </div>

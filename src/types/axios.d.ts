@@ -3,6 +3,6 @@ import 'axios';
 
 declare module 'axios' {
   interface AxiosRequestConfig {
-    silent?: boolean;  // 添加 silent 字段声明
+    silent?: boolean; // 添加 silent 字段声明
   }
 }

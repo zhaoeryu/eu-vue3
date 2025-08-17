@@ -1,42 +1,36 @@
 <script setup lang="ts">
-import {inject, onMounted} from "vue";
-import type {State} from "@/views/tools/generate/GenerateSettingDrawer/index.vue";
-import {useResettableReactive} from "@/hooks/resettable";
-import { queryTypeList as queryTypeListApi, formTypeList as formTypeListApi } from '@/api/system/generate'
-import { page as dictPage } from '@/api/system/dict'
-import type {GenerateColumn} from "@/types/system/generate";
-import {ElMessage} from "element-plus";
-import mFormItemComponents from '@/utils/m-form-item-components'
-import type {Dict} from "@/types/system/dict";
-import businessEnums from "@/utils/business-enums";
+import { inject, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+
+import type { State } from '@/views/tools/generate/GenerateSettingDrawer/index.vue';
+import { useResettableReactive } from '@/hooks/resettable';
+import { queryTypeList as queryTypeListApi, formTypeList as formTypeListApi } from '@/api/system/generate';
+import { page as dictPage } from '@/api/system/dict';
+import type { GenerateColumn } from '@/types/system/generate';
+import mFormItemComponents from '@/utils/m-form-item-components';
+import type { Dict } from '@/types/system/dict';
+import businessEnums from '@/utils/business-enums';
 
 const generateInfo = inject<State>('generateInfo')!;
-const [state, reset] = useResettableReactive({
+const [state, _reset] = useResettableReactive({
   queryTypeList: [],
   dictList: [] as Dict[],
   formTypeList: [] as {
-    label: string
-    value: string
-  }[]
-})
+    label: string;
+    value: string;
+  }[],
+});
 
 onMounted(() => {
-  onLoadParams()
-})
+  onLoadParams();
+});
 
-function onRowSort(row: GenerateColumn & {
-  _sort: string;
-  _sort_visible: boolean;
-}) {
+function onRowSort(row: GenerateColumn) {
   // 转换为数字，防止输入字符串
   const targetSort = Number(row._sort);
 
   // 校验目标序号合法性
-  if (
-    isNaN(targetSort) ||
-    targetSort < 1 ||
-    targetSort > generateInfo.list.length
-  ) {
+  if (isNaN(targetSort) || targetSort < 1 || targetSort > generateInfo.list.length) {
     ElMessage.warning('请输入有效的排序序号');
     return;
   }
@@ -45,7 +39,7 @@ function onRowSort(row: GenerateColumn & {
   row._sort_visible = false;
 
   // 找到当前行在list中的索引
-  const oldIndex = generateInfo.list.findIndex(item => item === row);
+  const oldIndex = generateInfo.list.findIndex((item) => item === row);
   if (oldIndex === -1) {
     return;
   }
@@ -72,40 +66,35 @@ function onRowSort(row: GenerateColumn & {
   // 重新赋值columnSort
   generateInfo.list.forEach((item, idx) => {
     item.columnSort = idx + 1;
-    // @ts-ignore
-    delete item._sort
+    delete item._sort;
   });
 }
 function onLoadParams() {
   // 查询方式
-  queryTypeListApi().then(res => {
-    state.queryTypeList = res.data || []
-  })
+  queryTypeListApi().then((res) => {
+    state.queryTypeList = res.data || [];
+  });
   // 字典
   dictPage({
     page: 1,
-    size: 999
-  }).then(res => {
-    state.dictList = res.data.records || []
-  })
+    size: 999,
+  }).then((res) => {
+    state.dictList = res.data.records || [];
+  });
   // 自定义表单类型
-  const formTypeList = Object.keys(mFormItemComponents).map(item => ({
+  const formTypeList = Object.keys(mFormItemComponents).map((item) => ({
     label: item,
-    value: item
-  }))
+    value: item,
+  }));
   // 表单类型
-  formTypeListApi().then(res => {
-    state.formTypeList = [...(res.data || []), ...formTypeList]
-  })
+  formTypeListApi().then((res) => {
+    state.formTypeList = [...(res.data || []), ...formTypeList];
+  });
 }
-
 </script>
 
 <template>
-  <el-table
-    :data="generateInfo.list"
-    style="width: 100%"
-  >
+  <el-table :data="generateInfo.list" style="width: 100%">
     <el-table-column prop="columnSort" label="序号" width="60" fixed="left" />
 
     <!-- 数据库字段列组 -->
@@ -155,16 +144,16 @@ function onLoadParams() {
           </el-select>
         </template>
       </el-table-column>
-<!--      <el-table-column prop="areaQuery" label="区域查询" width="60">-->
-<!--        <template #default="{ row }">-->
-<!--          <el-checkbox v-model="row.areaQuery" />-->
-<!--        </template>-->
-<!--      </el-table-column>-->
-<!--      <el-table-column prop="tableHeaderQuery" label="表头查询" width="60">-->
-<!--        <template #default="{ row }">-->
-<!--          <el-checkbox v-model="row.tableHeaderQuery" />-->
-<!--        </template>-->
-<!--      </el-table-column>-->
+      <!--      <el-table-column prop="areaQuery" label="区域查询" width="60">-->
+      <!--        <template #default="{ row }">-->
+      <!--          <el-checkbox v-model="row.areaQuery" />-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
+      <!--      <el-table-column prop="tableHeaderQuery" label="表头查询" width="60">-->
+      <!--        <template #default="{ row }">-->
+      <!--          <el-checkbox v-model="row.tableHeaderQuery" />-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
     </el-table-column>
 
     <!-- 表单配置列组 -->
@@ -194,12 +183,7 @@ function onLoadParams() {
       <el-table-column prop="dictKey" label="字典" width="140">
         <template #default="{ row }">
           <el-select v-model="row.dictKey" placeholder="请点击选择..." clearable filterable>
-            <el-option
-              v-for="item in state.dictList"
-              :key="item.dictKey"
-              :label="item.dictKey"
-              :value="item.dictKey"
-            >
+            <el-option v-for="item in state.dictList" :key="item.dictKey" :label="item.dictKey" :value="item.dictKey">
               <span style="float: left">{{ item.dictKey }}</span>
               <span v-if="item.remark" style="float: right; color: #8492a6; font-size: 13px">&nbsp;&nbsp;{{ item.remark || '-' }}</span>
             </el-option>
@@ -209,12 +193,7 @@ function onLoadParams() {
       <el-table-column prop="enumKey" label="枚举" width="140">
         <template #default="{ row }">
           <el-select v-model="row.enumKey" placeholder="请点击选择..." clearable filterable>
-            <el-option
-              v-for="item in Object.keys(businessEnums)"
-              :key="item"
-              :label="item"
-              :value="item"
-            >
+            <el-option v-for="item in Object.keys(businessEnums)" :key="item" :label="item" :value="item">
               <span>{{ item }}</span>
             </el-option>
           </el-select>
@@ -225,13 +204,7 @@ function onLoadParams() {
     <!-- 操作列 -->
     <el-table-column label="操作" width="100" fixed="right">
       <template #default="{ row }">
-        <el-popover
-          placement="left"
-          width="200"
-          :key="row.columnName"
-          trigger="click"
-          :visible="row._sort_visible"
-        >
+        <el-popover :key="row.columnName" placement="left" width="200" trigger="click" :visible="row._sort_visible">
           <div class="padding-bottom-sm">
             <el-input v-model="row._sort" placeholder="想插入的序号" type="number" />
           </div>
@@ -248,6 +221,4 @@ function onLoadParams() {
   </el-table>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

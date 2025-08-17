@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import MenuCollapseButton from '@/layout/components/Sidebar/MenuCollapseButton.vue'
-import SidebarColumn from '@/layout/components/Sidebar/column/index.vue'
-import SidebarVertical from '@/layout/components/Sidebar/vertical/index.vue'
-import {useSettingsStore} from "@/store";
+import MenuCollapseButton from '@/layout/components/Sidebar/MenuCollapseButton.vue';
+import SidebarColumn from '@/layout/components/Sidebar/column/index.vue';
+import SidebarVertical from '@/layout/components/Sidebar/vertical/index.vue';
+import { useSettingsStore } from '@/store';
 
-const settingsStore = useSettingsStore()
+const settingsStore = useSettingsStore();
 </script>
 
 <template>
   <aside id="eu-nav-sidebar">
-
     <sidebar-vertical v-if="settingsStore.theme.layout === 'vertical'" />
     <sidebar-column v-else />
 
@@ -27,7 +26,7 @@ const settingsStore = useSettingsStore()
   left: 0;
   display: flex;
   z-index: 100;
-  transition: width .15s linear;
+  transition: width 0.15s linear;
   flex-direction: column;
 
   &:before {

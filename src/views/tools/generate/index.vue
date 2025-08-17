@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import { page, syncTable } from '@/api/system/generate'
-import GeneratePreview from '@/views/tools/generate/GeneratePreview.vue'
-import GenerateSettingDrawer from '@/views/tools/generate/GenerateSettingDrawer/index.vue'
-import {onMounted, ref, useTemplateRef} from "vue";
-import {ElMessage, ElMessageBox} from "element-plus";
-import {download} from "@/utils/request";
-import {Refresh, Search} from "@element-plus/icons-vue";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {GenerateTable} from "@/types/system/generate";
+import { onMounted, useTemplateRef } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Refresh, Search } from '@element-plus/icons-vue';
+
+import { page, syncTable } from '@/api/system/generate';
+import GeneratePreview from '@/views/tools/generate/GeneratePreview.vue';
+import GenerateSettingDrawer from '@/views/tools/generate/GenerateSettingDrawer/index.vue';
+import { download } from '@/utils/request';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { GenerateTable } from '@/types/system/generate';
 
 type GenerateRow = GenerateTable & {
-  _genLoading: boolean
-}
+  _genLoading: boolean;
+};
 
-const refGeneratePreview = useTemplateRef<InstanceType<typeof GeneratePreview>>('refGeneratePreview')
-const refGenerateSettingDrawer = useTemplateRef<InstanceType<typeof GenerateSettingDrawer>>('refGenerateSettingDrawer')
+const refGeneratePreview = useTemplateRef<InstanceType<typeof GeneratePreview>>('refGeneratePreview');
+const refGenerateSettingDrawer = useTemplateRef<InstanceType<typeof GenerateSettingDrawer>>('refGenerateSettingDrawer');
 const { loading, setLoading } = useLoading(false);
 const [state, reset] = useResettableReactive({
   list: [] as GenerateRow[],
@@ -29,38 +30,40 @@ const [state, reset] = useResettableReactive({
     size: 10,
     sort: [],
   },
-})
+});
 
 onMounted(() => {
-  onRefresh()
-})
+  onRefresh();
+});
 
 function onQuery() {
-  setLoading(true)
-  page(state.queryParams).then(res => {
-    state.list = res.data.records.map(item => {
-      return {
-        ...item,
-        _genLoading: false
-      } as GenerateRow
+  setLoading(true);
+  page(state.queryParams)
+    .then((res) => {
+      state.list = res.data.records.map((item) => {
+        return {
+          ...item,
+          _genLoading: false,
+        } as GenerateRow;
+      });
+      state.total = res.data.total;
     })
-    state.total = res.data.total
-  }).finally(() => {
-    setLoading(false)
-  })
+    .finally(() => {
+      setLoading(false);
+    });
 }
 
 function onRefresh() {
-  reset('queryParams')
-  onQuery()
+  reset('queryParams');
+  onQuery();
 }
 
 function onRowPreview(row: GenerateRow) {
-  refGeneratePreview.value?.open(row)
+  refGeneratePreview.value?.open(row);
 }
 
 function onRowSetting(row: GenerateRow) {
-  refGenerateSettingDrawer.value?.open(row)
+  refGenerateSettingDrawer.value?.open(row);
 }
 
 function onRowSync(row: GenerateRow) {
@@ -73,27 +76,33 @@ function onRowSync(row: GenerateRow) {
         instance.confirmButtonLoading = true;
         syncTable({
           tableName: row.tableName,
-        }).then(() => {
-          ElMessage.success('同步成功')
-          done()
-          onRefresh()
-        }).finally(() => {
-          instance.confirmButtonLoading = false;
         })
+          .then(() => {
+            ElMessage.success('同步成功');
+            done();
+            onRefresh();
+          })
+          .finally(() => {
+            instance.confirmButtonLoading = false;
+          });
       } else {
-        done()
+        done();
       }
-    }
+    },
   });
 }
 
 function onRowGen(row: GenerateRow) {
-  row._genLoading = true
-  download('/api/gen/gen', {
-    tableName: row.tableName
-  }, `${row.tableName}.zip`).finally(() => {
-    row._genLoading = false
-  })
+  row._genLoading = true;
+  download(
+    '/api/gen/gen',
+    {
+      tableName: row.tableName,
+    },
+    `${row.tableName}.zip`,
+  ).finally(() => {
+    row._genLoading = false;
+  });
 }
 </script>
 
@@ -115,20 +124,12 @@ function onRowGen(row: GenerateRow) {
         </el-form>
       </query-expand-wrapper>
       <div v-loading="loading">
-        <el-table
-          ref="table"
-          :data="state.list"
-          style="width: 100%"
-        >
+        <el-table ref="table" :data="state.list" style="width: 100%">
           <el-table-column prop="tableName" label="表名称"></el-table-column>
           <el-table-column prop="tableComment" label="表描述"></el-table-column>
           <el-table-column prop="createTime" label="表创建时间"></el-table-column>
           <el-table-column prop="updateTime" label="最近一次更新"></el-table-column>
-          <el-table-column
-            v-permissions="['tools:generate:preview', 'tools:generate:config', 'tools:generate:sync', 'tools:generate:generate']"
-            label="操作"
-            width="260"
-          >
+          <el-table-column v-permissions="['tools:generate:preview', 'tools:generate:config', 'tools:generate:sync', 'tools:generate:generate']" label="操作" width="260">
             <template #default="{ row }">
               <el-button v-permissions="['tools:generate:preview']" text type="primary" @click="onRowPreview(row)">预览</el-button>
               <el-button v-permissions="['tools:generate:config']" text type="primary" @click="onRowSetting(row)">配置</el-button>
@@ -137,12 +138,7 @@ function onRowGen(row: GenerateRow) {
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-model:page="state.queryParams.page"
-          v-model:limit="state.queryParams.size"
-          :total="state.total"
-          @pagination="onQuery"
-        />
+        <pagination v-model:page="state.queryParams.page" v-model:limit="state.queryParams.size" :total="state.total" @pagination="onQuery" />
       </div>
     </div>
 
@@ -151,6 +147,4 @@ function onRowGen(row: GenerateRow) {
   </div>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

@@ -1,27 +1,22 @@
 <script setup lang="ts">
-import DeptEditDialog from "@/views/system/depts/DeptEditDialog.vue";
-import {ref, computed, onMounted, nextTick, useTemplateRef} from "vue";
-import {flattenTreeData, getChildrenFields, getParentFieldsByLeafId, handleTreeData} from "@/utils";
-import {list as listApi, batchDel as batchDelApi} from '@/api/system/dept'
-import {ElMessage, ElMessageBox, type TableInstance} from "element-plus";
-import {Plus, Sort} from "@element-plus/icons-vue";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {Dept, DeptTree} from "@/types/system/dept";
-import {EnableFlagEnums} from "@/utils/enums";
-import type {ANY_OBJECT} from "@/types/generic";
+import { computed, onMounted, useTemplateRef } from 'vue';
+import { ElMessage, ElMessageBox, type TableInstance } from 'element-plus';
+import { Plus, Sort } from '@element-plus/icons-vue';
 
-type State = {
-  originList: Dept[];
-  list: DeptTree[];
-} & Partial<ANY_OBJECT>
+import DeptEditDialog from '@/views/system/depts/DeptEditDialog.vue';
+import { flattenTreeData, getChildrenFields, getParentFieldsByLeafId, handleTreeData } from '@/utils';
+import { list as listApi, batchDel as batchDelApi } from '@/api/system/dept';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { Dept, DeptTree } from '@/types/system/dept';
+import { EnableFlagEnums } from '@/utils/enums';
 
-const refTable = useTemplateRef<TableInstance>('refTable') // 添加表格引用
-const refDeptEditDialog = useTemplateRef<InstanceType<typeof DeptEditDialog>>('refDeptEditDialog')
+const refTable = useTemplateRef<TableInstance>('refTable'); // 添加表格引用
+const refDeptEditDialog = useTemplateRef<InstanceType<typeof DeptEditDialog>>('refDeptEditDialog');
 const { loading, setLoading } = useLoading(false);
-const [state, reset] = useResettableReactive<State>({
-  list: [],
-  originList: [],
+const [state, _reset] = useResettableReactive({
+  list: [] as DeptTree[],
+  originList: [] as Dept[],
   queryParams: {
     deptName: null,
 
@@ -30,22 +25,22 @@ const [state, reset] = useResettableReactive<State>({
     sort: [],
   },
   isExpandAll: true,
-})
+});
 
 const treeTable = computed(() => {
-  const searchValue = state.queryParams.deptName
-  if(searchValue){
-    return filterTreeData(state.list, searchValue)
+  const searchValue = state.queryParams.deptName;
+  if (searchValue) {
+    return filterTreeData(state.list, searchValue);
   }
-  return state.list
-})
+  return state.list;
+});
 
 onMounted(() => {
-  onRefresh()
-})
+  onRefresh();
+});
 
 function onRefresh() {
-  onQuery()
+  onQuery();
 }
 
 function filterTreeData(treeData: DeptTree[], searchValue: string): DeptTree[] {
@@ -55,12 +50,12 @@ function filterTreeData(treeData: DeptTree[], searchValue: string): DeptTree[] {
   const array = [];
   for (let i = 0; i < treeData.length; i += 1) {
     let match = false;
-    const item = treeData[i]
-    const labelValue = item.deptName
-    if(labelValue){
+    const item = treeData[i];
+    const labelValue = item.deptName;
+    if (labelValue) {
       match = labelValue.includes(searchValue);
     }
-    if (filterTreeData(treeData[i].children, searchValue).length > 0 || match ) {
+    if (filterTreeData(treeData[i].children, searchValue).length > 0 || match) {
       array.push({
         ...treeData[i],
         children: filterTreeData(treeData[i].children, searchValue),
@@ -71,31 +66,33 @@ function filterTreeData(treeData: DeptTree[], searchValue: string): DeptTree[] {
 }
 
 function onQuery() {
-  setLoading(true)
-  listApi(state.queryParams).then(res => {
-    state.originList = res.data
-    state.list = handleTreeData(state.originList) as DeptTree[]
-  }).finally(() => {
-    setLoading(false)
-  })
+  setLoading(true);
+  listApi(state.queryParams)
+    .then((res) => {
+      state.originList = res.data;
+      state.list = handleTreeData(state.originList) as DeptTree[];
+    })
+    .finally(() => {
+      setLoading(false);
+    });
 }
 
 function onExpandCollapse() {
-  state.isExpandAll = !state.isExpandAll
+  state.isExpandAll = !state.isExpandAll;
   // 获取所有树形节点并切换展开状态
   const allRows = flattenTreeData(state.list);
-  allRows.forEach(row => {
+  allRows.forEach((row) => {
     refTable.value?.toggleRowExpansion(row, state.isExpandAll);
   });
 }
 
 function onAdd() {
   const data = {
-    status: EnableFlagEnums.ENABLE.value
+    status: EnableFlagEnums.ENABLE.value,
   } as DeptTree & {
-    _parentIds: string[]
-  }
-  refDeptEditDialog.value?.open(data, state.list)
+    _parentIds: string[];
+  };
+  refDeptEditDialog.value?.open(data, state.list);
 }
 
 function onRowAdd(row: DeptTree) {
@@ -103,44 +100,45 @@ function onRowAdd(row: DeptTree) {
     status: EnableFlagEnums.ENABLE.value,
     _parentIds: getParentFieldsByLeafId(treeTable.value, row.id, {
       fieldKey: 'id',
-    })
+    }),
   } as DeptTree & {
-    _parentIds: string[]
-  }
-  refDeptEditDialog.value?.open(data, state.list)
+    _parentIds: string[];
+  };
+  refDeptEditDialog.value?.open(data, state.list);
 }
 function onRowEdit(row: DeptTree) {
-  const data = JSON.parse(JSON.stringify(row))
+  const data = JSON.parse(JSON.stringify(row));
   data._parentIds = getParentFieldsByLeafId(treeTable.value, row.parentId, {
     fieldKey: 'id',
-  })
-  refDeptEditDialog.value?.open(data, state.list)
+  });
+  refDeptEditDialog.value?.open(data, state.list);
 }
 function onRowDelete(row: DeptTree) {
-  ElMessageBox.confirm(`确定要删除"${ row.deptName }"${row.children && row.children.length ? '以及它下面的所有部门吗' : ''}吗？`, {
+  ElMessageBox.confirm(`确定要删除"${row.deptName}"${row.children && row.children.length ? '以及它下面的所有部门吗' : ''}吗？`, {
     title: '提示',
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
-        instance.confirmButtonLoading = true
+        instance.confirmButtonLoading = true;
         // 删除当前菜单以及该菜单下所有子菜单
-        const nodeIds = [row.id, ...getChildrenFields(row, { fieldKey: 'id' })]
-        batchDelApi(nodeIds).then(() => {
-          ElMessage.success('删除成功')
-          done()
-          onRefresh()
-        }).finally(() => {
-          instance.confirmButtonLoading = false
-        })
+        const nodeIds = [row.id, ...getChildrenFields(row, { fieldKey: 'id' })];
+        batchDelApi(nodeIds)
+          .then(() => {
+            ElMessage.success('删除成功');
+            done();
+            onRefresh();
+          })
+          .finally(() => {
+            instance.confirmButtonLoading = false;
+          });
       } else {
-        done()
+        done();
       }
-    }
-  })
+    },
+  });
 }
-
 </script>
 
 <template>
@@ -159,15 +157,7 @@ function onRowDelete(row: DeptTree) {
       </div>
       <el-divider />
       <div v-loading="loading">
-        <el-table
-          ref="refTable"
-          :data="treeTable"
-          style="width: 100%;"
-          row-key="id"
-          border
-          :default-expand-all="state.isExpandAll"
-          :tree-props="{children: 'children'}"
-        >
+        <el-table ref="refTable" :data="treeTable" style="width: 100%" row-key="id" border :default-expand-all="state.isExpandAll" :tree-props="{ children: 'children' }">
           <el-table-column prop="deptName" label="部门名称" width="180"></el-table-column>
           <el-table-column prop="status" label="状态">
             <template #default="{ row }">
@@ -187,10 +177,7 @@ function onRowDelete(row: DeptTree) {
     </div>
 
     <dept-edit-dialog ref="refDeptEditDialog" @complete="onRefresh" />
-
   </div>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

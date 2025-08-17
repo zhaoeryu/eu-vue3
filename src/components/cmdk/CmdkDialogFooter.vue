@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import CmdkIconEnter from "@/components/cmdk/CmdkIconEnter.vue";
-import CmdkIconDown from "@/components/cmdk/CmdkIconDown.vue";
-import CmdkIconEsc from "@/components/cmdk/CmdkIconEsc.vue";
-import CmdkIconUp from "@/components/cmdk/CmdkIconUp.vue";
+import CmdkIconEnter from '@/components/cmdk/CmdkIconEnter.vue';
+import CmdkIconDown from '@/components/cmdk/CmdkIconDown.vue';
+import CmdkIconEsc from '@/components/cmdk/CmdkIconEsc.vue';
+import CmdkIconUp from '@/components/cmdk/CmdkIconUp.vue';
 </script>
 
 <template>

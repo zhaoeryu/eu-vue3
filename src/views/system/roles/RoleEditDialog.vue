@@ -1,24 +1,25 @@
 <script setup lang="ts">
-import {computed, nextTick, ref, useTemplateRef, watch} from "vue";
-import {ElMessage, type FormInstance, type TreeInstance, type TreeKey} from "element-plus";
-import { add, getMenuIdsByRoleId, update } from '@/api/system/role'
-import { list as menuList } from '@/api/system/menu'
-import { handleTreeData } from '@/utils'
-import {Search} from "@element-plus/icons-vue";
-import useVisible from "@/hooks/visible";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {MenuTree} from "@/types/system/menu";
-import EnumRadioGroup from "@/components/EnumRadioGroup.vue";
-import {EnableFlagEnums} from "@/utils/enums";
+import { computed, nextTick, useTemplateRef, watch } from 'vue';
+import { ElMessage, type FormInstance, type TreeInstance, type TreeKey } from 'element-plus';
+import { Search } from '@element-plus/icons-vue';
 
-const emit = defineEmits(['complete'])
+import { add, getMenuIdsByRoleId, update } from '@/api/system/role';
+import { list as menuList } from '@/api/system/menu';
+import { handleTreeData } from '@/utils';
+import useVisible from '@/hooks/visible';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { MenuTree } from '@/types/system/menu';
+import EnumRadioGroup from '@/components/EnumRadioGroup.vue';
+import { EnableFlagEnums } from '@/utils/enums';
+
+const emit = defineEmits(['complete']);
 
 const rules = {
   roleName: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
   roleKey: [{ required: true, message: '请输入权限字符串', trigger: 'blur' }],
-  status: [{ required: true, message: '请选择角色状态', trigger: 'blur' }]
-}
+  status: [{ required: true, message: '请选择角色状态', trigger: 'blur' }],
+};
 const DEFAULT_FORM = {
   id: null,
   roleName: null,
@@ -26,117 +27,123 @@ const DEFAULT_FORM = {
   roleKey: null,
   status: null,
   dataScope: 1,
-}
+};
 const DEFAULT_FORM_EXTRA = {
   expand: false,
   checkedAll: false,
   checkStrictly: true,
-  filterKeyword: null
-}
+  filterKeyword: null,
+};
 
-const refForm = useTemplateRef<FormInstance>('refForm')
-const refMenuTree = useTemplateRef<TreeInstance>('refMenuTree')
-const { visible, setVisible } = useVisible(false)
-const { loading: formLoading, setLoading: setFormLoading } = useLoading(false)
-const { loading: menuTreeLoading, setLoading: setMenuTreeLoading } = useLoading(false)
-const [ state, reset ] = useResettableReactive({
+const refForm = useTemplateRef<FormInstance>('refForm');
+const refMenuTree = useTemplateRef<TreeInstance>('refMenuTree');
+const { visible, setVisible } = useVisible(false);
+const { loading: formLoading, setLoading: setFormLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
   form: {
-    ...DEFAULT_FORM
+    ...DEFAULT_FORM,
   },
 
   formStepActive: 0,
   formExtra: {
-    ...DEFAULT_FORM_EXTRA
+    ...DEFAULT_FORM_EXTRA,
   },
 
   menuTree: [] as MenuTree[],
   menuOriginList: [],
-
-})
+});
 
 const title = computed(() => {
-  return state.form.id ? '修改角色' : '新增角色'
-})
+  return state.form.id ? '修改角色' : '新增角色';
+});
 
-watch(() => state.formExtra.filterKeyword, () => {
-  refMenuTree.value?.filter(state.formExtra.filterKeyword)
-}, {
-  flush: 'post'
-})
+watch(
+  () => state.formExtra.filterKeyword,
+  () => {
+    refMenuTree.value?.filter(state.formExtra.filterKeyword);
+  },
+  {
+    flush: 'post',
+  },
+);
 
 function open(row: any) {
-  reset()
-  state.form = Object.assign({...DEFAULT_FORM}, row)
-  setVisible(true)
+  reset();
+  state.form = Object.assign({ ...DEFAULT_FORM }, row);
+  setVisible(true);
 
-  menuList({}).then(res => {
-    state.menuOriginList = res.data
-    state.menuTree = handleTreeData(state.menuOriginList) as MenuTree[]
-  })
+  menuList({}).then((res) => {
+    state.menuOriginList = res.data;
+    state.menuTree = handleTreeData(state.menuOriginList) as MenuTree[];
+  });
 }
 
 function onNext() {
-  refForm.value?.validate(valid => {
+  refForm.value?.validate((valid) => {
     if (!valid) {
-      return
+      return;
     }
 
-    state.formStepActive++
+    state.formStepActive++;
 
     if (state.form.id) {
-      setFormLoading(true)
-      getMenuIdsByRoleId(state.form.id).then(res => {
-        try {
-          (res.data || []).forEach((key: TreeKey) => {
-            refMenuTree.value?.setChecked(key, true, false)
-          })
-        } catch (e) {
-          console.error(e)
-        }
-      }).finally(() => {
-        setFormLoading(false)
-      })
+      setFormLoading(true);
+      getMenuIdsByRoleId(state.form.id)
+        .then((res) => {
+          try {
+            (res.data || []).forEach((key: TreeKey) => {
+              refMenuTree.value?.setChecked(key, true, false);
+            });
+          } catch (e) {
+            console.error(e);
+          }
+        })
+        .finally(() => {
+          setFormLoading(false);
+        });
     }
-  })
+  });
 }
 
 function onSubmit() {
   // 当前选中的菜单
-  const checkedKeys = refMenuTree.value?.getCheckedKeys() || []
+  const checkedKeys = refMenuTree.value?.getCheckedKeys() || [];
   // 当前选中的菜单和半选中的菜单
-  const halfCheckedKeys = refMenuTree.value?.getHalfCheckedKeys() || []
-  const checkedIds = [...checkedKeys, ...halfCheckedKeys]
-  refForm.value?.validate(valid => {
+  const halfCheckedKeys = refMenuTree.value?.getHalfCheckedKeys() || [];
+  const checkedIds = [...checkedKeys, ...halfCheckedKeys];
+  refForm.value?.validate((valid) => {
     if (!valid) {
-      return
+      return;
     }
 
-    setFormLoading(true)
+    setFormLoading(true);
 
     const reqPayload = {
       ...state.form,
       // 1: 表示本次操作为分配菜单
       operAction: 1,
-      menuIds: checkedIds
-    }
+      menuIds: checkedIds,
+    };
 
-    const reqPromise = state.form.id ? update(reqPayload) : add(reqPayload)
-    reqPromise.then(() => {
-      ElMessage.success(state.form.id ? '修改成功' : '新增成功')
-      setVisible(false)
-      emit('complete')
-    }).finally(() => {
-      setFormLoading(false)
-    })
-  })
+    const reqPromise = state.form.id ? update(reqPayload) : add(reqPayload);
+    reqPromise
+      .then(() => {
+        ElMessage.success(state.form.id ? '修改成功' : '新增成功');
+        setVisible(false);
+        emit('complete');
+      })
+      .finally(() => {
+        setFormLoading(false);
+      });
+  });
 }
 
 function onDialogOpen() {
   nextTick(() => {
     if (refForm.value) {
-      refForm.value.clearValidate()
+      refForm.value.clearValidate();
     }
-  })
+  });
 }
 
 // 树权限（展开/折叠）
@@ -149,33 +156,24 @@ function handleCheckedTreeExpand(checked: boolean) {
 }
 // 树权限（全选/全不选）
 function handleCheckedTreeNodeAll(checked: boolean) {
-  // @ts-ignore
-  refMenuTree.value?.setCheckedNodes(checked ? state.menuTree : [], false)
+  refMenuTree.value?.setCheckedNodes(checked ? state.menuTree : [], false);
 }
 
 function onFilterNode(value: string, node: any) {
   if (!value) {
-    return true
+    return true;
   }
 
-  return node.menuName.indexOf(value) !== -1
+  return node.menuName.indexOf(value) !== -1;
 }
 
 defineExpose({
-  open
-})
+  open,
+});
 </script>
 
 <template>
-  <el-dialog
-    :title="title"
-    v-model="visible"
-    :close-on-click-modal="false"
-    width="800px"
-    class="eu-role-dialog"
-    destroy-on-close
-    @open="onDialogOpen"
-  >
+  <el-dialog v-model="visible" :title="title" :close-on-click-modal="false" width="800px" class="eu-role-dialog" destroy-on-close @open="onDialogOpen">
     <el-form ref="refForm" :model="state.form" :rules="rules" label-width="100px">
       <el-steps :active="state.formStepActive" :align-center="true" finish-status="success">
         <el-step title="角色信息"></el-step>
@@ -207,22 +205,22 @@ defineExpose({
       </template>
       <template v-else-if="state.formStepActive === 1">
         <el-form-item label="菜单权限">
-          <div style="display: flex;margin-bottom: 12px;">
-            <div style="flex: 1;">
+          <div style="display: flex; margin-bottom: 12px">
+            <div style="flex: 1">
               <el-checkbox v-model="state.formExtra.expand" @change="handleCheckedTreeExpand($event)">展开/折叠</el-checkbox>
               <el-checkbox v-model="state.formExtra.checkedAll" @change="handleCheckedTreeNodeAll($event)">全选/全不选</el-checkbox>
               <el-checkbox v-model="state.formExtra.checkStrictly">父子联动</el-checkbox>
             </div>
-            <el-input placeholder="输入关键字进行搜索" v-model="state.formExtra.filterKeyword" style="width: 200px;" clearable>
+            <el-input v-model="state.formExtra.filterKeyword" placeholder="输入关键字进行搜索" style="width: 200px" clearable>
               <template #prefix>
-                <el-icon><Search/></el-icon>
+                <el-icon><Search /></el-icon>
               </template>
             </el-input>
           </div>
           <el-tree
+            ref="refMenuTree"
             :data="state.menuTree"
             show-checkbox
-            ref="refMenuTree"
             node-key="id"
             empty-text="暂无数据"
             :check-strictly="!state.formExtra.checkStrictly"
@@ -234,7 +232,7 @@ defineExpose({
     </el-form>
     <template #footer>
       <el-button v-if="state.formStepActive > 0" @click="state.formStepActive--">上一步</el-button>
-      <div style="flex: 1;">
+      <div style="flex: 1">
         <el-button @click="setVisible(false)">取 消</el-button>
         <el-button v-if="state.formStepActive < 1" class="eu-submit-btn" type="primary" @click="onNext">下一步</el-button>
         <el-button v-else :loading="formLoading" class="eu-submit-btn" type="primary" @click="onSubmit">确 定</el-button>
@@ -291,14 +289,14 @@ defineExpose({
       }
     }
     .el-step__line:before {
-      content: "";
+      content: '';
       width: 150px;
       height: 1px;
       background: #ebeff7;
       position: absolute;
       left: 50%;
       top: 50%;
-      transform: translate3d(-50%,-50%,0);
+      transform: translate3d(-50%, -50%, 0);
     }
     .el-step__line-inner {
       display: none;

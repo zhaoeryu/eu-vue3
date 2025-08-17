@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import IconSelect from '@/components/IconSelect.vue'
-import { add, update } from '@/api/system/menu'
-import {computed, nextTick, ref, useTemplateRef} from "vue";
-import {ElMessage, type FormInstance} from "element-plus";
-import useVisible from "@/hooks/visible";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {MenuTree} from "@/types/system/menu";
-import EnumRadioGroup from "@/components/EnumRadioGroup.vue";
-import {EnableFlagEnums, MenuTypeEnums} from "@/utils/enums";
+import { computed, nextTick, ref, useTemplateRef } from 'vue';
+import { ElMessage, type FormInstance } from 'element-plus';
 
-const emit = defineEmits(['complete'])
+import IconSelect from '@/components/IconSelect.vue';
+import { add, update } from '@/api/system/menu';
+import useVisible from '@/hooks/visible';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { MenuTree } from '@/types/system/menu';
+import EnumRadioGroup from '@/components/EnumRadioGroup.vue';
+import { EnableFlagEnums, MenuTypeEnums } from '@/utils/enums';
+
+const emit = defineEmits(['complete']);
 
 const rules = {
   menuType: [{ required: true, message: '请选择菜单类型', trigger: 'change' }],
@@ -19,7 +20,7 @@ const rules = {
   sortNum: [{ required: true, message: '请输入排序', trigger: 'blur' }],
   path: [{ required: true, message: '请输入路由地址', trigger: 'blur' }],
   component: [{ required: true, message: '请输入组件路径', trigger: 'blur' }],
-}
+};
 const DEFAULT_FORM = {
   id: null,
   menuName: null,
@@ -42,54 +43,56 @@ const DEFAULT_FORM = {
   showFooter: true,
   alwaysShow: null,
 
-  _parentIds: []
-}
+  _parentIds: [],
+};
 
-const refForm = useTemplateRef<FormInstance>('refForm')
-const { visible, setVisible } = useVisible(false)
-const { loading: formLoading, setLoading: setFormLoading } = useLoading(false)
-const [ state, reset ] = useResettableReactive({
+const refForm = useTemplateRef<FormInstance>('refForm');
+const { visible, setVisible } = useVisible(false);
+const { loading: formLoading, setLoading: setFormLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
   form: {
-    ...DEFAULT_FORM
-  }
-})
+    ...DEFAULT_FORM,
+  },
+});
 
-const list = ref<MenuTree[]>([])
+const list = ref<MenuTree[]>([]);
 
 const title = computed(() => {
-  return state.form.id ? '修改菜单' : '新增菜单'
-})
+  return state.form.id ? '修改菜单' : '新增菜单';
+});
 
 function open(row: MenuTree, _list: MenuTree[]) {
-  reset()
-  state.form = Object.assign({...DEFAULT_FORM}, row)
-  list.value = _list
-  setVisible(true)
+  reset();
+  state.form = Object.assign({ ...DEFAULT_FORM }, row);
+  list.value = _list;
+  setVisible(true);
 }
 
 function onSubmit() {
-  refForm.value?.validate(valid => {
+  refForm.value?.validate((valid) => {
     if (!valid) {
-      return
+      return;
     }
 
     // 设置直接父级ID
     if (state.form._parentIds.length) {
-      state.form.parentId = state.form._parentIds[state.form._parentIds.length - 1]
+      state.form.parentId = state.form._parentIds[state.form._parentIds.length - 1];
     } else {
-      state.form.parentId = null
+      state.form.parentId = null;
     }
 
-    setFormLoading(true)
-    const reqPromise = state.form.id ? update(state.form) : add(state.form)
-    reqPromise.then(() => {
-      ElMessage.success(state.form.id ? '修改成功' : '新增成功')
-      setVisible(false)
-      emit('complete')
-    }).finally(() => {
-      setFormLoading(false)
-    })
-  })
+    setFormLoading(true);
+    const reqPromise = state.form.id ? update(state.form) : add(state.form);
+    reqPromise
+      .then(() => {
+        ElMessage.success(state.form.id ? '修改成功' : '新增成功');
+        setVisible(false);
+        emit('complete');
+      })
+      .finally(() => {
+        setFormLoading(false);
+      });
+  });
 }
 
 async function onDialogOpen() {
@@ -101,18 +104,12 @@ async function onDialogOpen() {
 }
 
 defineExpose({
-  open
-})
+  open,
+});
 </script>
 
 <template>
-  <el-dialog
-    :title="title"
-    v-model="visible"
-    width="800px"
-    :close-on-click-modal="false"
-    @open="onDialogOpen"
-  >
+  <el-dialog v-model="visible" :title="title" width="800px" :close-on-click-modal="false" @open="onDialogOpen">
     <el-form ref="refForm" :model="state.form" :rules="rules" label-width="90px">
       <el-row>
         <el-col :span="24">
@@ -120,11 +117,16 @@ defineExpose({
             <el-cascader
               v-model="state.form._parentIds"
               :options="list"
-              :props="{ checkStrictly: true, value: 'id', label: 'menuName', children: 'children' }"
+              :props="{
+                checkStrictly: true,
+                value: 'id',
+                label: 'menuName',
+                children: 'children',
+              }"
               placeholder="请选择上级菜单"
               clearable
               filterable
-              style="width: 100%;"
+              style="width: 100%"
             />
           </el-form-item>
         </el-col>
@@ -145,7 +147,7 @@ defineExpose({
         </el-col>
         <el-col :span="12">
           <el-form-item label="显示排序" prop="sortNum">
-            <el-input-number v-model="state.form.sortNum" placeholder="请输入显示排序" :min="0" :max="9999" style="width: 100%;" />
+            <el-input-number v-model="state.form.sortNum" placeholder="请输入显示排序" :min="0" :max="9999" style="width: 100%" />
           </el-form-item>
         </el-col>
         <el-col v-if="state.form.menuType !== 3" :span="12">
@@ -242,6 +244,4 @@ defineExpose({
   </el-dialog>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

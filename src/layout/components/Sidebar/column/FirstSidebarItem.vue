@@ -1,53 +1,49 @@
 <script lang="ts" setup>
-import AppLink from '@/layout/components/Sidebar/Link.vue'
-import { getMaxMatchedMenu } from '@/utils/route-helpers'
-import { computed, defineProps } from 'vue'
-import {useRoute} from "vue-router";
+import { computed, defineProps } from 'vue';
+import { useRoute } from 'vue-router';
 
-const props = defineProps({
-  item: {
-    type: Object,
-    required: true
-  },
-  menuList: {
-    type: Array,
-    required: true
-  }
-})
+import AppLink from '@/layout/components/Sidebar/Link.vue';
+import { getMaxMatchedMenu } from '@/utils/route-helpers';
+import type { RouteNode } from '@/types/route';
 
-const emit = defineEmits([
-  'item-click'
-])
+export interface Props {
+  item: RouteNode;
+  menuList: RouteNode[];
+}
 
-const route = useRoute()
+const props = defineProps<Props>();
+
+const emit = defineEmits(['item-click']);
+
+const route = useRoute();
 
 const activeFirstMenu = computed(() => {
-  const matchedRoute = route.matched[0]
-  return matchedRoute.path
-})
+  const matchedRoute = route.matched[0];
+  return matchedRoute.path;
+});
 const isActive = computed(() => {
   if (props.item.path === '/' && activeFirstMenu.value === '') {
-    return true
+    return true;
   }
   if (props.item.path === activeFirstMenu.value) {
-    return true
+    return true;
   }
   if (route.meta.hidden === true) {
     // 支持模糊匹配
-    const matched = getMaxMatchedMenu(route.path, props.menuList)
-    return matched && matched === props.item.path
+    const matched = getMaxMatchedMenu(route.path, props.menuList);
+    return matched && matched === props.item.path;
   }
-  return false
-})
+  return false;
+});
 function onItemClick() {
-  emit('item-click', props.item)
+  emit('item-click', props.item);
 }
 </script>
 
 <template>
-  <li :class="{ 'active': isActive }" @click="onItemClick">
+  <li :class="{ active: isActive }" @click="onItemClick">
     <app-link :to="item.path">
-      <svg-icon v-if="item.meta.icon" :icon-class="item.meta.icon" />
+      <svg-icon :icon-class="item.meta.icon || 'menu'" />
       <span class="text-overflow">{{ item.meta.title }}</span>
     </app-link>
   </li>
@@ -63,14 +59,14 @@ li {
   align-items: center;
   margin: 0 8px 4px;
   user-select: none;
-  >a {
+  > a {
     padding: 0 8px;
     color: var(--theme-nav-first-color);
     display: flex;
     align-items: center;
     width: 100%;
     height: 100%;
-    >.svg-icon {
+    > .svg-icon {
       display: inline-block;
       min-width: 1.3em;
       min-height: 1.3em;
@@ -78,15 +74,16 @@ li {
       margin-right: 8px;
     }
   }
-  &.active,&.hover {
+  &.active,
+  &.hover {
     background-color: var(--theme-nav-first-active-bg);
-    >a {
+    > a {
       color: var(--theme-nav-first-active-color);
     }
   }
   &:not(.active):hover {
     background-color: var(--theme-nav-first-hover-bg);
-    >a {
+    > a {
       color: var(--theme-nav-first-hover-color);
     }
   }
@@ -94,12 +91,12 @@ li {
 // 折叠状态
 .sidebar-collapsed li {
   justify-content: center;
-  >a {
+  > a {
     justify-content: center;
-    >span {
+    > span {
       display: none !important;
     }
-    >.svg-icon {
+    > .svg-icon {
       margin-right: 0 !important;
     }
   }

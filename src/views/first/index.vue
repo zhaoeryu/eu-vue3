@@ -6,12 +6,12 @@ export default {
     return {
       dicta: null,
       dictValue: null,
-    }
+    };
   },
   mounted() {
-    this.dictValue = 1234
-  }
-}
+    this.dictValue = 1234;
+  },
+};
 </script>
 
 <template>
@@ -26,6 +26,4 @@ export default {
   </div>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

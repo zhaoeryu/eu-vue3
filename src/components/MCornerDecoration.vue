@@ -10,32 +10,36 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, computed } from 'vue'
+import { defineProps, computed } from 'vue';
 
-const TYPE_MAP = {
-  'success': 'var(--color-success)',
-  'warning': 'var(--color-warning)',
-  'error': 'var(--color-danger)',
-  'primary': 'var(--color-primary)',
-  'info': 'var(--color-info)'
-}
+export type TYPE = 'success' | 'warning' | 'error' | 'primary' | 'info';
 
-type TYPE = 'success' | 'warning' | 'error' | 'primary' | 'info'
-
-interface Props {
+export interface Props {
   text: string;
-  top?: string;
-  left?: string;
-  bottom?: string;
-  right?: string;
+  top?: string | null;
+  left?: string | null;
+  bottom?: string | null;
+  right?: string | null;
   rotate?: number;
   type?: TYPE;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   rotate: 0,
-  type: 'primary'
-})
+  type: 'primary',
+  top: null,
+  left: null,
+  bottom: null,
+  right: null,
+});
+
+const TYPE_MAP = {
+  success: 'var(--color-success)',
+  warning: 'var(--color-warning)',
+  error: 'var(--color-danger)',
+  primary: 'var(--color-primary)',
+  info: 'var(--color-info)',
+};
 
 const elStyle = computed(() => {
   let tmp = {
@@ -44,22 +48,22 @@ const elStyle = computed(() => {
     bottom: props.bottom || 'unset',
     right: props.right || 'unset',
     transform: `rotate(${props.rotate}deg)`,
-    '--decoration-color': TYPE_MAP[props.type] || TYPE_MAP['primary']
-  }
+    '--decoration-color': TYPE_MAP[props.type] || TYPE_MAP['primary'],
+  };
   if (!props.top && !props.bottom) {
-    tmp.top = '0'
+    tmp.top = '0';
   }
   if (!props.left && !props.right) {
-    tmp.left = '0'
+    tmp.left = '0';
   }
-  return tmp
-})
+  return tmp;
+});
 </script>
 
 <script lang="ts">
 export default {
-  name: 'MCornerDecoration'
-}
+  name: 'MCornerDecoration',
+};
 </script>
 
 <style lang="scss" scoped>
@@ -83,12 +87,12 @@ export default {
       line-height: var(--decoration-main-height);
       text-align: center;
       background: var(--decoration-color);
-      color: #FFF;
+      color: #fff;
       font-size: 12px;
       transform: rotate(-45deg) translate(-30%, -85%);
     }
     &:before {
-      content: "";
+      content: '';
       position: absolute;
       top: calc(0px - var(--decoration-sub-width) - var(--decoration-sub-border-width));
       right: calc(0px - var(--decoration-sub-width) - var(--decoration-sub-border-width));
@@ -99,7 +103,7 @@ export default {
       filter: grayscale(30%);
     }
     &:after {
-      content: "";
+      content: '';
       position: absolute;
       bottom: calc(0px - var(--decoration-sub-width) - var(--decoration-sub-border-width));
       left: calc(0px - var(--decoration-sub-width) - var(--decoration-sub-border-width));
@@ -112,4 +116,3 @@ export default {
   }
 }
 </style>
-

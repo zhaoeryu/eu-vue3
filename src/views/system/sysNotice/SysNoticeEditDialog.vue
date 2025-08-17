@@ -1,78 +1,74 @@
 <script setup lang="ts">
-import { add, update } from '@/api/system/sysNotice'
-import {EnableFlagEnums, NoticeTypeEnums} from '@/utils/enums'
-import {computed, nextTick, useTemplateRef} from "vue";
-import {ElMessage, type FormInstance} from "element-plus";
-import useVisible from "@/hooks/visible";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {Notice} from "@/types/system/notice";
-import EnumRadioGroup from "@/components/EnumRadioGroup.vue";
+import { computed, nextTick, useTemplateRef } from 'vue';
+import { ElMessage, type FormInstance } from 'element-plus';
+import * as DOMPurify from 'dompurify';
+
+import { add, update } from '@/api/system/sysNotice';
+import { EnableFlagEnums, NoticeTypeEnums } from '@/utils/enums';
+import useVisible from '@/hooks/visible';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { Notice } from '@/types/system/notice';
+import EnumRadioGroup from '@/components/EnumRadioGroup.vue';
 
 const DEFAULT_FORM = {
   id: null,
   title: null,
   type: null,
   description: null,
-  content: null,
+  content: null as string | null,
   status: null,
-}
+};
 
-const emit = defineEmits(['complete'])
+const emit = defineEmits(['complete']);
 
 const rules = {
-  title: [
-    { required: true, message: '标题不能为空', trigger: 'blur' }
-  ],
-  type: [
-    { required: true, message: '公告类型不能为空', trigger: 'change' }
-  ],
-  description: [
-    { required: true, message: '公告描述不能为空', trigger: 'blur' }
-  ],
-  content: [
-    { required: true, message: '公告内容不能为空', trigger: 'blur' }
-  ],
-  status: [
-    { required: true, message: '公告状态不能为空', trigger: 'change' }
-  ],
-}
+  title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
+  type: [{ required: true, message: '公告类型不能为空', trigger: 'change' }],
+  description: [{ required: true, message: '公告描述不能为空', trigger: 'blur' }],
+  content: [{ required: true, message: '公告内容不能为空', trigger: 'blur' }],
+  status: [{ required: true, message: '公告状态不能为空', trigger: 'change' }],
+};
 
-const refForm = useTemplateRef<FormInstance>('refForm')
-const { visible, setVisible } = useVisible(false)
-const { loading: formLoading, setLoading: setFormLoading } = useLoading(false)
-const [ state, reset ] = useResettableReactive({
+const refForm = useTemplateRef<FormInstance>('refForm');
+const { visible, setVisible } = useVisible(false);
+const { loading: formLoading, setLoading: setFormLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
   form: {
-    ...DEFAULT_FORM
-  }
-})
+    ...DEFAULT_FORM,
+  },
+});
 
 const title = computed(() => {
-  return state.form.id ? '修改通知公告' : '新增通知公告'
-})
+  return state.form.id ? '修改通知公告' : '新增通知公告';
+});
 
 function open(row: Notice) {
-  reset()
-  state.form = Object.assign({...DEFAULT_FORM}, row)
-  setVisible(true)
+  reset();
+  state.form = Object.assign({ ...DEFAULT_FORM }, row);
+  setVisible(true);
 }
 
 function onSubmit() {
-  refForm.value?.validate(valid => {
+  refForm.value?.validate((valid) => {
     if (!valid) {
-      return
+      return;
     }
 
-    setFormLoading(true)
-    const reqPromise = state.form.id ? update(state.form) : add(state.form)
-    reqPromise.then(() => {
-      ElMessage.success(state.form.id ? '修改成功' : '新增成功')
-      setVisible(false)
-      emit('complete')
-    }).finally(() => {
-      setFormLoading(false)
-    })
-  })
+    setFormLoading(true);
+    // 净化内容
+    state.form.content = DOMPurify.default.sanitize(state.form.content as string);
+    const reqPromise = state.form.id ? update(state.form) : add(state.form);
+    reqPromise
+      .then(() => {
+        ElMessage.success(state.form.id ? '修改成功' : '新增成功');
+        setVisible(false);
+        emit('complete');
+      })
+      .finally(() => {
+        setFormLoading(false);
+      });
+  });
 }
 
 async function onDialogOpen() {
@@ -90,18 +86,12 @@ function onReset() {
 }
 
 defineExpose({
-  open
-})
+  open,
+});
 </script>
 
 <template>
-  <el-dialog
-    :title="title"
-    v-model="visible"
-    :close-on-click-modal="false"
-    width="700px"
-    @open="onDialogOpen"
-  >
+  <el-dialog v-model="visible" :title="title" :close-on-click-modal="false" width="700px" @open="onDialogOpen">
     <el-form ref="refForm" :model="state.form" :rules="rules" label-width="80px">
       <el-form-item label="标题" prop="title">
         <el-input v-model="state.form.title" placeholder="请输入标题" clearable />
@@ -112,12 +102,12 @@ defineExpose({
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="公告类型" prop="type">
-            <enum-radio-group :enums="NoticeTypeEnums" v-model="state.form.type" />
+            <enum-radio-group v-model="state.form.type" :enums="NoticeTypeEnums" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="公告状态" prop="status">
-            <enum-radio-group :enums="EnableFlagEnums" v-model="state.form.status" />
+            <enum-radio-group v-model="state.form.status" :enums="EnableFlagEnums" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -132,6 +122,4 @@ defineExpose({
   </el-dialog>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

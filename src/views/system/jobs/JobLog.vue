@@ -1,23 +1,18 @@
 <script setup lang="ts">
-import {batchDel, page} from '@/api/system/jobLog'
-import {download} from "@/utils/request";
-import {computed, ref, useTemplateRef} from "vue";
-import {ElMessage, ElMessageBox, type TableInstance} from "element-plus";
-import {Download, Refresh, Search} from "@element-plus/icons-vue";
-import useVisible from "@/hooks/visible";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {Jobs, JobLog} from "@/types/system/jobs";
-import type {ANY_OBJECT} from "@/types/generic";
+import { computed } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Download, Refresh, Search } from '@element-plus/icons-vue';
 
-type State = {
-  raw: Jobs;
-} & Partial<ANY_OBJECT>
+import { download } from '@/utils/request';
+import { batchDel, page } from '@/api/system/jobLog';
+import useVisible from '@/hooks/visible';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { Jobs, JobLog } from '@/types/system/jobs';
 
-
-const {visible, setVisible} = useVisible(false)
-const {loading, setLoading} = useLoading(false)
-const [state, reset] = useResettableReactive<State>({
+const { visible, setVisible } = useVisible(false);
+const { loading, setLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
   list: [],
   total: 0,
   queryParams: {
@@ -30,7 +25,7 @@ const [state, reset] = useResettableReactive<State>({
   },
 
   raw: {} as Jobs,
-})
+});
 
 const shortcuts = [
   {
@@ -40,51 +35,53 @@ const shortcuts = [
   {
     text: '昨天',
     value: () => {
-      const date = new Date()
-      date.setTime(date.getTime() - 3600 * 1000 * 24)
-      return date
+      const date = new Date();
+      date.setTime(date.getTime() - 3600 * 1000 * 24);
+      return date;
     },
   },
   {
     text: '一周前',
     value: () => {
-      const date = new Date()
-      date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
-      return date
+      const date = new Date();
+      date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+      return date;
     },
   },
-]
+];
 
 const title = computed(() => {
-  return `执行日志 - ${state.raw.jobName}`
-})
+  return `执行日志 - ${state.raw.jobName}`;
+});
 
 function open(_job: Jobs) {
-  reset()
-  state.raw = _job
-  setVisible(true)
+  reset();
+  state.raw = _job;
+  setVisible(true);
 
-  onRefresh()
+  onRefresh();
 }
 
 function onRefresh() {
-  reset('queryParams')
-  onQuery()
+  reset('queryParams');
+  onQuery();
 }
 
 function onQuery() {
-  setLoading(true)
-  state.queryParams.jobId = state.raw.id
-  page(state.queryParams).then(res => {
-    state.list = res.data.records
-    state.total = res.data.total
-  }).finally(() => {
-    setLoading(false)
-  })
+  setLoading(true);
+  state.queryParams.jobId = state.raw.id;
+  page(state.queryParams)
+    .then((res) => {
+      state.list = res.data.records;
+      state.total = res.data.total;
+    })
+    .finally(() => {
+      setLoading(false);
+    });
 }
 
 function onExport() {
-  download('/api/system/job-log/export', state.queryParams, `jobLog_${new Date().getTime()}.xlsx`)
+  download('/api/system/job-log/export', state.queryParams, `jobLog_${new Date().getTime()}.xlsx`);
 }
 
 function onRowDelete(row: JobLog) {
@@ -95,50 +92,35 @@ function onRowDelete(row: JobLog) {
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
         instance.confirmButtonLoading = true;
-        batchDel([row.id]).then(() => {
-          ElMessage.success('删除成功')
-          done()
-          onRefresh()
-        }).finally(() => {
-          instance.confirmButtonLoading = false;
-        })
+        batchDel([row.id])
+          .then(() => {
+            ElMessage.success('删除成功');
+            done();
+            onRefresh();
+          })
+          .finally(() => {
+            instance.confirmButtonLoading = false;
+          });
       } else {
-        done()
+        done();
       }
-    }
+    },
   });
 }
 
 defineExpose({
-  open
-})
+  open,
+});
 </script>
 
 <template>
-  <el-dialog
-    :title="title"
-    v-model="visible"
-    width="1200px"
-    top="7vh"
-  >
+  <el-dialog v-model="visible" :title="title" width="1200px" top="7vh">
     <div class="query-wrapper">
       <el-form :model="state.queryParams" :inline="true">
         <el-form-item label="执行时间">
-          <el-date-picker
-            v-model="state.queryParams.startTime"
-            type="datetime"
-            placeholder="选择开始时间"
-            value-format="YYYY-MM-DD HH:mm:ss"
-            :shortcuts="shortcuts">
-          </el-date-picker>
+          <el-date-picker v-model="state.queryParams.startTime" type="datetime" placeholder="选择开始时间" value-format="YYYY-MM-DD HH:mm:ss" :shortcuts="shortcuts"> </el-date-picker>
           <span> ~ </span>
-          <el-date-picker
-            v-model="state.queryParams.endTime"
-            type="datetime"
-            placeholder="选择结束时间"
-            value-format="YYYY-MM-DD HH:mm:ss"
-            :shortcuts="shortcuts">
-          </el-date-picker>
+          <el-date-picker v-model="state.queryParams.endTime" type="datetime" placeholder="选择结束时间" value-format="YYYY-MM-DD HH:mm:ss" :shortcuts="shortcuts"> </el-date-picker>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="onQuery">查询</el-button>
@@ -146,16 +128,11 @@ defineExpose({
         </el-form-item>
       </el-form>
       <div>
-        <el-button v-permissions="['system:job-log:export']" type="warning" :icon="Download" plain
-          @click="onExport">导出
-        </el-button>
+        <el-button v-permissions="['system:job-log:export']" type="warning" :icon="Download" plain @click="onExport">导出 </el-button>
       </div>
     </div>
     <div v-loading="loading">
-      <el-table
-        :data="state.list"
-        style="width: 100%"
-      >
+      <el-table :data="state.list" style="width: 100%">
         <el-table-column prop="id" label="ID" width="160"></el-table-column>
         <el-table-column prop="jobName" label="任务名称"></el-table-column>
         <el-table-column label="执行类">
@@ -190,22 +167,13 @@ defineExpose({
         </el-table-column>
         <el-table-column v-permissions="['system:job-log:del']" label="操作">
           <template #default="{ row }">
-            <el-button v-permissions="['system:job-log:del']" text type="primary"
-              @click="onRowDelete(row)">删除
-            </el-button>
+            <el-button v-permissions="['system:job-log:del']" text type="primary" @click="onRowDelete(row)">删除 </el-button>
           </template>
         </el-table-column>
       </el-table>
-      <pagination
-        v-model:page="state.queryParams.page"
-        v-model:limit="state.queryParams.size"
-        :total="state.total"
-        @pagination="onQuery"
-      />
+      <pagination v-model:page="state.queryParams.page" v-model:limit="state.queryParams.size" :total="state.total" @pagination="onQuery" />
     </div>
   </el-dialog>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

@@ -1,50 +1,43 @@
 <script setup lang="ts">
-import {defineOptions, reactive} from "vue";
-import {defaultTheme} from "@/settings";
-import {useSettingsStore} from "@/store";
+import { defineOptions, reactive } from 'vue';
+import { ElMessage } from 'element-plus';
+
+import { defaultTheme } from '@/settings';
+import { useSettingsStore } from '@/store';
 import mittBus from '@/utils/mittBus';
-import useVisible from "@/hooks/visible";
-import {ElMessage} from "element-plus";
+import useVisible from '@/hooks/visible';
 
 defineOptions({
-  name: 'ThemeConfig'
-})
+  name: 'ThemeConfig',
+});
 
 const settingsStore = useSettingsStore();
-const {visible, setVisible} = useVisible(false);
+const { visible, setVisible } = useVisible(false);
 
-const form = reactive({...defaultTheme})
+const form = reactive({ ...defaultTheme });
 
 function onSubmit() {
-  settingsStore.saveTheme({...form})
-  ElMessage.success('已更新')
-  setVisible(false)
+  settingsStore.saveTheme({ ...form });
+  ElMessage.success('已更新');
+  setVisible(false);
 }
 
 function onRestoreDefault() {
-  settingsStore.restore()
-  ElMessage.success('已恢复默认主题')
-  setVisible(false)
+  settingsStore.restore();
+  ElMessage.success('已恢复默认主题');
+  setVisible(false);
 }
 
 mittBus.on('theme:open', () => {
-  setVisible(true)
-  Object.assign(form, defaultTheme, { ...settingsStore.theme })
+  setVisible(true);
+  Object.assign(form, defaultTheme, { ...settingsStore.theme });
 });
-
 </script>
 
 <template>
-  <el-drawer
-    title="主题配置"
-    v-model="visible"
-    size="400px"
-    direction="rtl"
-    class="eu-theme-config-drawer"
-    append-to-body
-  >
-    <div style="display: flex;flex-direction: column;height: 100%;overflow: hidden;">
-      <div style="flex: 1;overflow-y: auto;">
+  <el-drawer v-model="visible" title="主题配置" size="400px" direction="rtl" class="eu-theme-config-drawer" append-to-body>
+    <div style="display: flex; flex-direction: column; height: 100%; overflow: hidden">
+      <div style="flex: 1; overflow-y: auto">
         <el-form :model="form" label-position="left">
           <el-form-item label="菜单布局" class="eu-form-item__layout">
             <el-radio-group v-model="form.layout">
@@ -82,17 +75,17 @@ mittBus.on('theme:open', () => {
             <el-radio-group v-model="form.darkMode">
               <el-radio-button value="light">
                 <template #default>
-                  <svg-icon icon-class="sun" style="font-weight: bold;font-size: 18px;height: 18px;" />
+                  <svg-icon icon-class="sun" style="font-weight: bold; font-size: 18px; height: 18px" />
                 </template>
               </el-radio-button>
               <el-radio-button value="dark">
                 <template #default>
-                  <svg-icon icon-class="moon" style="font-weight: bold;font-size: 18px;height: 18px;" />
+                  <svg-icon icon-class="moon" style="font-weight: bold; font-size: 18px; height: 18px" />
                 </template>
               </el-radio-button>
               <el-radio-button value="syncOS">
                 <template #default>
-                  <svg-icon icon-class="auto_mode" style="font-weight: bold;font-size: 18px;"/>
+                  <svg-icon icon-class="auto_mode" style="font-weight: bold; font-size: 18px" />
                 </template>
               </el-radio-button>
             </el-radio-group>

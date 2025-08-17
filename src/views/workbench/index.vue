@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { timeGreeting } from '@/utils'
-import EuAvatar from '@/components/EuAvatar.vue'
-import {useUserStore} from "@/store";
-import {computed} from "vue";
+import { computed } from 'vue';
+
+import { timeGreeting } from '@/utils';
+import EuAvatar from '@/components/EuAvatar.vue';
+import { useUserStore } from '@/store';
 
 const userStore = useUserStore();
 
@@ -27,16 +28,15 @@ const greetings = [
   '希望你的每一天都有无数的理由感到幸福和满足，享受生活中的点点滴滴！',
   '愿你每天都能散发出正能量和善意，将世界变得更加美好和温暖！',
   '希望你的每一天都充满成长和进步，勇敢迎接新的挑战，创造属于你的辉煌！',
-  '愿你的每一天都洒满欢笑和欢乐，将快乐的种子撒向生活的每个角落！'
+  '愿你的每一天都洒满欢笑和欢乐，将快乐的种子撒向生活的每个角落！',
 ];
 
 // 从数组中随机选择一条问候语
 const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
 
-const user = computed(() => userStore.user)
-const greeting1 = computed(() => `${timeGreeting()}，${userStore.user.nickname || '用户'}`)
-const greeting2 = computed(() => randomGreeting)
-
+const user = computed(() => userStore.user);
+const greeting1 = computed(() => `${timeGreeting()}，${userStore.user.nickname || '用户'}`);
+const greeting2 = computed(() => randomGreeting);
 </script>
 
 <template>
@@ -47,7 +47,7 @@ const greeting2 = computed(() => randomGreeting)
           <div class="statistics-overview-header">
             <div class="statistics-overview-header__body">
               <eu-avatar v-if="user" shape="circle" :size="72" :font-size="28" src="" :nickname="user.nickname" />
-              <div style="margin-left: 24px;flex: 1;">
+              <div style="margin-left: 24px; flex: 1">
                 <div class="statistics-overview-header__body__greeting1">{{ greeting1 }}</div>
                 <div class="statistics-overview-header__body__greeting2">{{ greeting2 }}</div>
               </div>
@@ -73,7 +73,7 @@ const greeting2 = computed(() => randomGreeting)
           <div class="business-overview-header">
             <div class="business-overview-header__title">
               <span>实时概况</span>
-              <span style="margin-left: 16px;font-size: 14px;font-weight: 400;color: rgb(var(--gray-5));">更新于：2023/07/07 23:59:59</span>
+              <span style="margin-left: 16px; font-size: 14px; font-weight: 400; color: rgb(var(--gray-5))">更新于：2023/07/07 23:59:59</span>
             </div>
             <div class="business-overview-header__layout">布局</div>
           </div>
@@ -81,12 +81,12 @@ const greeting2 = computed(() => randomGreeting)
             <div class="business-overview-body-list">
               <div v-for="(item, index) in 6" :key="index" class="business-overview-body__item">
                 <div>
-                  <div style="font-size: 14px;color: var(--color-text-2);">本月目标</div>
-                  <div style="font-size: 12px;color: rgb(var(--gray-5));">昨日 0.00</div>
+                  <div style="font-size: 14px; color: var(--color-text-2)">本月目标</div>
+                  <div style="font-size: 12px; color: rgb(var(--gray-5))">昨日 0.00</div>
                 </div>
                 <div>
-                  <div style="font-size: 20px;font-weight: 700;color: var(--color-text-2);">12</div>
-                  <div style="font-size: 14px;color: rgb(var(--red-5))">12</div>
+                  <div style="font-size: 20px; font-weight: 700; color: var(--color-text-2)">12</div>
+                  <div style="font-size: 14px; color: rgb(var(--red-5))">12</div>
                 </div>
               </div>
             </div>
@@ -100,11 +100,7 @@ const greeting2 = computed(() => randomGreeting)
             <div class="text-primary">查看更多</div>
           </div>
           <el-row :gutter="20">
-            <el-col
-              :span="8"
-              v-for="item in 9"
-              :key="item"
-            >
+            <el-col v-for="item in 9" :key="item" :span="8">
               <div class="wrapper">
                 <div class="icon">
                   <svg-icon icon-class="monitor" />
@@ -121,10 +117,8 @@ const greeting2 = computed(() => randomGreeting)
           </div>
           <ul class="panel__list">
             <li v-for="(item, index) in 5" :key="index" class="panel__list-item">
-              <template>
-                <el-tag size="small">通知</el-tag>
-              </template>
-              <span style="font-size: 13px;margin: 0 6px;">7/{{ item + 1 }}系统升级计划通知,本次升级新增xx功能</span>
+              <el-tag size="small">通知</el-tag>
+              <span style="font-size: 13px; margin: 0 6px">7/{{ item + 1 }}系统升级计划通知,本次升级新增xx功能</span>
             </li>
           </ul>
         </div>
@@ -133,7 +127,7 @@ const greeting2 = computed(() => randomGreeting)
   </div>
 </template>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 // 数据统计总览
 .statistics-overview {
   background-color: var(--theme-base-second-bg);
@@ -166,7 +160,7 @@ const greeting2 = computed(() => randomGreeting)
 .m-grid-table {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  >div {
+  > div {
     position: relative;
     padding: 12px;
     margin: 0 12px;
@@ -181,7 +175,7 @@ const greeting2 = computed(() => randomGreeting)
       background-color: var(--color-secondary-hover);
     }
   }
-  >div + div {
+  > div + div {
     &:before {
       content: '';
       position: absolute;
@@ -306,12 +300,12 @@ const greeting2 = computed(() => randomGreeting)
       background: var(--color-border-1);
     }
   }
-  >div:first-child {
+  > div:first-child {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  >div:last-child {
+  > div:last-child {
     display: flex;
     justify-content: space-between;
     align-items: center;

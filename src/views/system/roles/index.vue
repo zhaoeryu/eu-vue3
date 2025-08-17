@@ -1,24 +1,25 @@
 <script setup lang="ts">
-import {onMounted, ref, useTemplateRef} from "vue";
-import {download} from "@/utils/request";
-import {ElMessage, ElMessageBox, type TableInstance} from "element-plus";
-import {Refresh, Search} from "@element-plus/icons-vue";
-import ImportDialog from "@/components/ImportDialog.vue";
-import { page, batchDel } from '@/api/system/role'
-import RoleUserDrawer from '@/views/system/roles/RoleUserDrawer.vue'
-import RoleEditDialog from '@/views/system/roles/RoleEditDialog.vue'
-import DataScopeDialog from '@/views/system/roles/DataScopeDialog.vue'
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {Role} from "@/types/system/role";
-import {EnableFlagEnums} from "@/utils/enums";
-import EnumTag from "@/components/EnumTag.vue";
+import { onMounted, useTemplateRef } from 'vue';
+import { ElMessage, ElMessageBox, type TableInstance } from 'element-plus';
+import { Refresh, Search } from '@element-plus/icons-vue';
 
-const refRoleEditDialog = useTemplateRef<InstanceType<typeof RoleEditDialog>>('refRoleEditDialog')
-const refRoleUserDrawer = useTemplateRef<InstanceType<typeof RoleUserDrawer>>('refRoleUserDrawer')
-const refDataScopeDialog = useTemplateRef<InstanceType<typeof DataScopeDialog>>('refDataScopeDialog')
-const refTable = useTemplateRef<TableInstance>('refTable')
-const refImportDialog = useTemplateRef<InstanceType<typeof ImportDialog>>('refImportDialog')
+import { download } from '@/utils/request';
+import ImportDialog from '@/components/ImportDialog.vue';
+import { page, batchDel } from '@/api/system/role';
+import RoleUserDrawer from '@/views/system/roles/RoleUserDrawer.vue';
+import RoleEditDialog from '@/views/system/roles/RoleEditDialog.vue';
+import DataScopeDialog from '@/views/system/roles/DataScopeDialog.vue';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { Role } from '@/types/system/role';
+import { EnableFlagEnums } from '@/utils/enums';
+import EnumTag from '@/components/EnumTag.vue';
+
+const refRoleEditDialog = useTemplateRef<InstanceType<typeof RoleEditDialog>>('refRoleEditDialog');
+const refRoleUserDrawer = useTemplateRef<InstanceType<typeof RoleUserDrawer>>('refRoleUserDrawer');
+const refDataScopeDialog = useTemplateRef<InstanceType<typeof DataScopeDialog>>('refDataScopeDialog');
+const refTable = useTemplateRef<TableInstance>('refTable');
+const refImportDialog = useTemplateRef<InstanceType<typeof ImportDialog>>('refImportDialog');
 const { loading, setLoading } = useLoading(false);
 const [state, reset] = useResettableReactive({
   list: [],
@@ -32,47 +33,49 @@ const [state, reset] = useResettableReactive({
     size: 10,
     sort: [],
   },
-})
+});
 
 onMounted(() => {
-  onRefresh()
-})
+  onRefresh();
+});
 
 function onQuery() {
-  setLoading(true)
-  page(state.queryParams).then(res => {
-    state.list = res.data.records
-    state.total = res.data.total
-  }).finally(() => {
-    setLoading(false)
-  })
+  setLoading(true);
+  page(state.queryParams)
+    .then((res) => {
+      state.list = res.data.records;
+      state.total = res.data.total;
+    })
+    .finally(() => {
+      setLoading(false);
+    });
 }
 
 function onRefresh() {
-  reset('queryParams')
-  onQuery()
+  reset('queryParams');
+  onQuery();
 }
 
 function onAdd() {
   refRoleEditDialog.value?.open({
-    status: EnableFlagEnums.ENABLE.value
-  })
+    status: EnableFlagEnums.ENABLE.value,
+  });
 }
 
 function onSelectable(row: Role) {
-  return row.roleKey !== 'admin'
+  return row.roleKey !== 'admin';
 }
 
 function onExport() {
-  download('/api/system/role/export', state.queryParams, `role_${new Date().getTime()}.xlsx`)
+  download('/api/system/role/export', state.queryParams, `role_${new Date().getTime()}.xlsx`);
 }
 
 function onImport() {
-  refImportDialog.value?.open()
+  refImportDialog.value?.open();
 }
 
 function onBatchDel() {
-  const ids = refTable.value?.getSelectionRows().map(item => item.id) || []
+  const ids = refTable.value?.getSelectionRows().map((item) => item.id) || [];
   ElMessageBox.confirm(`确认要删除选中的${ids.length}条记录吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -80,56 +83,60 @@ function onBatchDel() {
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
         instance.confirmButtonLoading = true;
-        batchDel(ids).then(() => {
-          ElMessage.success('删除成功')
-          done()
-          onRefresh()
-        }).finally(() => {
-          instance.confirmButtonLoading = false;
-        })
+        batchDel(ids)
+          .then(() => {
+            ElMessage.success('删除成功');
+            done();
+            onRefresh();
+          })
+          .finally(() => {
+            instance.confirmButtonLoading = false;
+          });
       } else {
-        done()
+        done();
       }
-    }
+    },
   });
 }
 
 function onSelectionChange(selection: Role[]) {
-  state.multipleDisabled = !selection.length
+  state.multipleDisabled = !selection.length;
 }
 
 function onRowUpdate(row: Role) {
-  refRoleEditDialog.value?.open(row)
+  refRoleEditDialog.value?.open(row);
 }
 
 function onRowDelete(row: Role) {
-  ElMessageBox.confirm(`确认要删除"${ row.roleName }"吗？`, '提示', {
+  ElMessageBox.confirm(`确认要删除"${row.roleName}"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
         instance.confirmButtonLoading = true;
-        batchDel([row.id]).then(() => {
-          ElMessage.success('删除成功')
-          done()
-          onRefresh()
-        }).finally(() => {
-          instance.confirmButtonLoading = false;
-        })
+        batchDel([row.id])
+          .then(() => {
+            ElMessage.success('删除成功');
+            done();
+            onRefresh();
+          })
+          .finally(() => {
+            instance.confirmButtonLoading = false;
+          });
       } else {
-        done()
+        done();
       }
-    }
+    },
   });
 }
 
 function onRowRoleMember(row: Role) {
-  refRoleUserDrawer.value?.open(row)
+  refRoleUserDrawer.value?.open(row);
 }
 
 function onRowDataScope(row: Role) {
-  refDataScopeDialog.value?.open(row)
+  refDataScopeDialog.value?.open(row);
 }
 </script>
 
@@ -149,9 +156,10 @@ function onRowDataScope(row: Role) {
       </query-expand-wrapper>
       <div v-loading="loading">
         <eu-table-toolbar
+          v-model:search-toggle="state.isQueryShow"
           :multiple-disabled="state.multipleDisabled"
           :opt-show="{
-            sort: false
+            sort: false,
           }"
           :permission="{
             add: ['system:role:add'],
@@ -161,18 +169,12 @@ function onRowDataScope(row: Role) {
           }"
           :ref-table="refTable"
           @add="onAdd"
-          @batchDel="onBatchDel"
+          @batch-del="onBatchDel"
           @export="onExport"
           @import="onImport"
           @refresh="onRefresh"
-          v-model:searchToggle="state.isQueryShow"
         />
-        <el-table
-          ref="refTable"
-          :data="state.list"
-          @selection-change="onSelectionChange"
-          style="width: 100%"
-        >
+        <el-table ref="refTable" :data="state.list" style="width: 100%" @selection-change="onSelectionChange">
           <el-table-column type="selection" :selectable="onSelectable"></el-table-column>
           <el-table-column prop="roleName" label="角色名称"></el-table-column>
           <el-table-column prop="description" label="角色描述"></el-table-column>
@@ -193,12 +195,7 @@ function onRowDataScope(row: Role) {
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-model:page="state.queryParams.page"
-          v-model:limit="state.queryParams.size"
-          :total="state.total"
-          @pagination="onQuery"
-        />
+        <pagination v-model:page="state.queryParams.page" v-model:limit="state.queryParams.size" :total="state.total" @pagination="onQuery" />
       </div>
     </div>
 
@@ -206,12 +203,7 @@ function onRowDataScope(row: Role) {
 
     <role-user-drawer ref="refRoleUserDrawer" />
     <data-scope-dialog ref="refDataScopeDialog" @complete="onRefresh" />
-    <import-dialog
-        ref="refImportDialog"
-        upload-url="/api/system/role/import"
-        tpl-export-url="/api/system/role/export-template"
-        @complete="onRefresh"
-    >
+    <import-dialog ref="refImportDialog" upload-url="/api/system/role/import" tpl-export-url="/api/system/role/export-template" @complete="onRefresh">
       <template #importTip>
         <li>状态字段可选项：正常、禁用</li>
       </template>
@@ -219,6 +211,4 @@ function onRowDataScope(row: Role) {
   </div>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

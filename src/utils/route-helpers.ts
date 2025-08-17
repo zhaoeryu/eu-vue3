@@ -1,23 +1,17 @@
 // 路由处理相关的工具函数
-import _ from 'lodash'
-import { toArray } from 'tree-lodash'
-import {
-  isExternal,
-  removeLeadingSlash,
-  addLeadingSlash,
-  pathTrim,
-  removeEndSlash,
-  getFirstChildrenFields,
-  type TreeNode
-} from './index'
-import { MenuTypeEnums } from './enums'
-import Layout from '@/layout/index.vue'
-import MiddleDirectory from '@/layout/components/MiddleDirectory.vue'
-import NotFound from "@/views/404.vue";
-import {type Menu} from "@/types/system/menu";
-import {type RouteNode, type RouteNodeMeta} from "@/types/route";
-import {type ANY_OBJECT} from "@/types/generic";
-const VIEW_MODULES: ANY_OBJECT = import.meta.glob('@/views/**/*.vue')
+import _ from 'lodash';
+import { toArray } from 'tree-lodash';
+
+import Layout from '@/layout/index.vue';
+import MiddleDirectory from '@/layout/components/MiddleDirectory.vue';
+import NotFound from '@/views/404.vue';
+import { type Menu } from '@/types/system/menu';
+import { type RouteNode, type RouteNodeMeta } from '@/types/route';
+import { type ANY_OBJECT } from '@/types/generic';
+
+import { MenuTypeEnums } from './enums';
+import { isExternal, removeLeadingSlash, addLeadingSlash, pathTrim, removeEndSlash, getFirstChildrenFields, type TreeNode } from './index';
+const VIEW_MODULES: ANY_OBJECT = import.meta.glob('@/views/**/*.vue');
 
 /**
  * 验证路由节点数据的有效性
@@ -25,10 +19,7 @@ const VIEW_MODULES: ANY_OBJECT = import.meta.glob('@/views/**/*.vue')
  * @returns {boolean} 是否有效
  */
 export function isValidRouteNode(node: Menu) {
-  return node &&
-    typeof node === 'object' &&
-    node.id &&
-    node.path !== undefined
+  return node && typeof node === 'object' && node.id && node.path !== undefined;
 }
 
 /**
@@ -38,9 +29,9 @@ export function isValidRouteNode(node: Menu) {
  */
 export function sanitizePath(path: string) {
   if (!path) {
-    return ''
+    return '';
   }
-  return String(path).replace(/^\/+/, '').replace(/\/+$/, '')
+  return String(path).replace(/^\/+/, '').replace(/\/+$/, '');
 }
 
 /**
@@ -51,17 +42,17 @@ export function sanitizePath(path: string) {
  */
 export function buildFullPath(parentPath: string | null | undefined, currentPath: string) {
   if (isExternal(currentPath)) {
-    return currentPath
+    return currentPath;
   }
 
-  const cleanParent = (parentPath || '').replace(/\/+$/, '')
-  const cleanCurrent = sanitizePath(currentPath)
+  const cleanParent = (parentPath || '').replace(/\/+$/, '');
+  const cleanCurrent = sanitizePath(currentPath);
 
   if (!cleanParent) {
-    return `/${cleanCurrent}`
+    return `/${cleanCurrent}`;
   }
 
-  return removeEndSlash(`${cleanParent}/${cleanCurrent}`)
+  return removeEndSlash(`${cleanParent}/${cleanCurrent}`);
 }
 
 /**
@@ -86,7 +77,7 @@ export function createRouteNodeMeta(item: Menu): RouteNodeMeta {
     embed: Boolean(item.embed),
     embedUrl: item.embedUrl || '',
     hidden: !item.visible,
-  }
+  };
 }
 
 /**
@@ -96,7 +87,7 @@ export function createRouteNodeMeta(item: Menu): RouteNodeMeta {
  */
 export function formatMenuToRoute(item: Menu): RouteNode | null {
   if (!isValidRouteNode(item)) {
-    return null
+    return null;
   }
 
   return {
@@ -109,8 +100,8 @@ export function formatMenuToRoute(item: Menu): RouteNode | null {
     path: item.path || '',
     name: item.componentName,
     meta: createRouteNodeMeta(item),
-    children: []
-  }
+    children: [],
+  };
 }
 
 /**
@@ -122,27 +113,30 @@ export function formatMenuToRoute(item: Menu): RouteNode | null {
 export function processDirectoryNode(node: RouteNode, parentNode: RouteNode | null) {
   if (!parentNode) {
     // 根目录节点
-    node.component = Layout
+    node.component = Layout;
   } else {
     // 中间目录节点
-    node.path = removeLeadingSlash(node.path)
-    node.component = MiddleDirectory
+    node.path = removeLeadingSlash(node.path);
+    node.component = MiddleDirectory;
   }
 
   // redirect 到第一个子菜单
-  const condition = (n: TreeNode) => n.menuType !== MenuTypeEnums.MENU.value
-  const firstChildPath = getFirstChildrenFields(node, { fieldKey: 'path', condition }).join('/')
-  node.redirect = pathTrim(addLeadingSlash(firstChildPath))
+  const condition = (n: TreeNode) => n.menuType !== MenuTypeEnums.MENU.value;
+  const firstChildPath = getFirstChildrenFields(node, {
+    fieldKey: 'path',
+    condition,
+  }).join('/');
+  node.redirect = pathTrim(addLeadingSlash(firstChildPath));
 
   // 目录下只有一个子节点时，菜单栏直接显示子节点内容
-  const isSingleChild = node.children.length === 1
+  const isSingleChild = node.children.length === 1;
   if (isSingleChild && !node.meta.alwaysShow) {
-    const child = node.children[0]
-    node.meta = { ...child.meta }
-    node.meta.isChildMeta = true
+    const child = node.children[0];
+    node.meta = { ...child.meta };
+    node.meta.isChildMeta = true;
   }
 
-  return node
+  return node;
 }
 
 /**
@@ -154,17 +148,17 @@ export function processDirectoryNode(node: RouteNode, parentNode: RouteNode | nu
 export function processMenuNode(node: RouteNode, parentNode: RouteNode | null) {
   if (isExternal(node.path)) {
     // 外链处理
-    node.path = removeLeadingSlash(node.path, true)
+    node.path = removeLeadingSlash(node.path, true);
   } else if (!parentNode) {
     // 根节点为菜单，包装 Layout
-    return wrapMenuWithLayout(node)
+    return wrapMenuWithLayout(node);
   } else {
     // 普通菜单节点
-    node.path = removeLeadingSlash(node.path)
-    node.component = loadComponent(node)
+    node.path = removeLeadingSlash(node.path);
+    node.component = loadComponent(node);
   }
 
-  return node
+  return node;
 }
 
 /**
@@ -173,25 +167,25 @@ export function processMenuNode(node: RouteNode, parentNode: RouteNode | null) {
  * @returns {Object} 包装后的节点
  */
 export function wrapMenuWithLayout(node: RouteNode) {
-  const childNode = _.cloneDeep(node)
+  const childNode = _.cloneDeep(node);
 
   // 清理父节点属性
-  delete node.name
-  node.path = addLeadingSlash(node.path)
-  node.redirect = node.path
-  node.component = Layout
+  delete node.name;
+  node.path = addLeadingSlash(node.path);
+  node.redirect = node.path;
+  node.component = Layout;
 
   // 设置子节点属性
-  childNode.path = ''
-  childNode.children = []
+  childNode.path = '';
+  childNode.children = [];
 
   // 处理所有子节点
-  node.children = [childNode, ...(node.children || [])].map(item => ({
+  node.children = [childNode, ...(node.children || [])].map((item) => ({
     ...item,
-    component: loadComponent(item)
-  }))
+    component: loadComponent(item),
+  }));
 
-  return node
+  return node;
 }
 
 /**
@@ -202,32 +196,31 @@ export function wrapMenuWithLayout(node: RouteNode) {
 export function loadComponent(menu: RouteNode) {
   // 内嵌iframe
   if (_.get(menu, 'meta.embed') === true) {
-    // @ts-ignore
-    return () => import('/src/layout/components/InnerIframe.vue')
+    return () => import('/src/layout/components/InnerIframe.vue');
   }
 
   // 外链不需要组件
   if (isExternal(menu.path)) {
-    return null
+    return null;
   }
 
   // 没有组件路径
   if (!menu.componentPath) {
-    return null
+    return null;
   }
 
   // 动态加载组件
-  let viewPath = removeLeadingSlash(menu.componentPath)
+  let viewPath = removeLeadingSlash(menu.componentPath);
   // 判断viewPath是否以/index结尾，如果不是则添加/index
   if (!viewPath.endsWith('/index')) {
-    viewPath += '/index'
+    viewPath += '/index';
   }
-  viewPath = `/src/views/${viewPath}.vue`
-  const isExist = Object.keys(VIEW_MODULES).some(item => item === viewPath)
+  viewPath = `/src/views/${viewPath}.vue`;
+  const isExist = Object.keys(VIEW_MODULES).some((item) => item === viewPath);
   if (isExist) {
-    return VIEW_MODULES[viewPath]
+    return VIEW_MODULES[viewPath];
   }
-  return NotFound
+  return NotFound;
 }
 
 /**
@@ -239,34 +232,33 @@ export function loadComponent(menu: RouteNode) {
 export function getMaxMatchedMenu(activeMenu: string, menuList: RouteNode[]) {
   // 参数验证
   if (!activeMenu || !Array.isArray(menuList) || menuList.length === 0) {
-    return null
+    return null;
   }
 
   // 预处理：获取所有有效的菜单路径
-  // @ts-ignore
-  const validMenuPaths: string[] = toArray(menuList)
-    .filter(item => item && item.fullPath)
-    .map(item => String(item.fullPath))
+  const validMenuPaths: string[] = toArray<'children'>(menuList)
+    .filter((item) => item && item.fullPath)
+    .map((item) => String(item.fullPath));
 
   if (validMenuPaths.length === 0) {
-    return null
+    return null;
   }
 
   // 找到匹配的菜单并计算匹配度
-  let bestMatch = null
-  let maxSegments = 0
+  let bestMatch = null;
+  let maxSegments = 0;
 
   for (const path of validMenuPaths) {
     if (isMenuSegmentMatch(activeMenu, path)) {
-      const segments = path.split('/').length
+      const segments = path.split('/').length;
       if (segments > maxSegments) {
-        maxSegments = segments
-        bestMatch = path
+        maxSegments = segments;
+        bestMatch = path;
       }
     }
   }
 
-  return bestMatch
+  return bestMatch;
 }
 
 /**
@@ -278,23 +270,23 @@ export function getMaxMatchedMenu(activeMenu: string, menuList: RouteNode[]) {
 export function isMenuSegmentMatch(curMenu: string, matchMenu: string) {
   // 参数验证
   if (!curMenu || !matchMenu || typeof curMenu !== 'string' || typeof matchMenu !== 'string') {
-    return false
+    return false;
   }
 
   // 如果当前菜单不是以匹配菜单开头，直接返回false
   if (!curMenu.startsWith(matchMenu)) {
-    return false
+    return false;
   }
 
   // 分割路径进行比较
-  const curParts = curMenu.split('/')
-  const matchParts = matchMenu.split('/')
+  const curParts = curMenu.split('/');
+  const matchParts = matchMenu.split('/');
 
   // 匹配菜单必须是当前菜单的父级路径
   if (matchParts.length === curParts.length) {
-    return false
+    return false;
   }
 
   // 检查匹配菜单的每个部分是否与当前菜单对应部分一致
-  return matchParts.every((part, index) => part === curParts[index])
+  return matchParts.every((part, index) => part === curParts[index]);
 }

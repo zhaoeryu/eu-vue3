@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import {onMounted, ref, useTemplateRef} from "vue";
-import JobEditDialog from "@/views/system/jobs/JobEditDialog.vue";
-import JobLog from "@/views/system/jobs/JobLog.vue";
-import { page, batchDel, execJob, pauseOrResume } from '@/api/system/job'
-import {download} from "@/utils/request";
-import {ElMessage, ElMessageBox, type TableInstance} from "element-plus";
-import {Refresh, Search} from "@element-plus/icons-vue";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {Jobs} from "@/types/system/jobs";
+import { onMounted, useTemplateRef } from 'vue';
+import { ElMessage, ElMessageBox, type TableInstance } from 'element-plus';
+import { Refresh, Search } from '@element-plus/icons-vue';
 
-const refJobEditDialog = useTemplateRef<InstanceType<typeof JobEditDialog>>('refJobEditDialog')
-const refJobLog = useTemplateRef<InstanceType<typeof JobLog>>('refJobLog')
-const refTable = useTemplateRef<TableInstance>('refTable')
+import JobEditDialog from '@/views/system/jobs/JobEditDialog.vue';
+import JobLog from '@/views/system/jobs/JobLog.vue';
+import { page, batchDel, execJob, pauseOrResume } from '@/api/system/job';
+import { download } from '@/utils/request';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { Jobs } from '@/types/system/jobs';
+
+const refJobEditDialog = useTemplateRef<InstanceType<typeof JobEditDialog>>('refJobEditDialog');
+const refJobLog = useTemplateRef<InstanceType<typeof JobLog>>('refJobLog');
+const refTable = useTemplateRef<TableInstance>('refTable');
 const { loading, setLoading } = useLoading(false);
 const [state, reset] = useResettableReactive({
   list: [],
@@ -26,36 +27,38 @@ const [state, reset] = useResettableReactive({
     size: 10,
     sort: [],
   },
-})
+});
 
 onMounted(() => {
-  onRefresh()
-})
+  onRefresh();
+});
 
 function onQuery() {
-  setLoading(true)
-  page(state.queryParams).then(res => {
-    state.list = res.data.records
-    state.total = res.data.total
-  }).finally(() => {
-    setLoading(false)
-  })
+  setLoading(true);
+  page(state.queryParams)
+    .then((res) => {
+      state.list = res.data.records;
+      state.total = res.data.total;
+    })
+    .finally(() => {
+      setLoading(false);
+    });
 }
 function onRefresh() {
-  reset('queryParams')
-  onQuery()
+  reset('queryParams');
+  onQuery();
 }
 
 function onAdd() {
-  refJobEditDialog.value?.open({} as Jobs)
+  refJobEditDialog.value?.open({} as Jobs);
 }
 
 function onExport() {
-  download('/api/system/job/export', state.queryParams, `job_${new Date().getTime()}.xlsx`)
+  download('/api/system/job/export', state.queryParams, `job_${new Date().getTime()}.xlsx`);
 }
 
 function onBatchDel() {
-  const ids = refTable.value?.getSelectionRows().map(item => item.id) || []
+  const ids = refTable.value?.getSelectionRows().map((item) => item.id) || [];
   ElMessageBox.confirm(`确认要删除选中的${ids.length}条记录吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -63,47 +66,51 @@ function onBatchDel() {
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
         instance.confirmButtonLoading = true;
-        batchDel(ids).then(() => {
-          ElMessage.success('删除成功')
-          done()
-          onRefresh()
-        }).finally(() => {
-          instance.confirmButtonLoading = false;
-        })
+        batchDel(ids)
+          .then(() => {
+            ElMessage.success('删除成功');
+            done();
+            onRefresh();
+          })
+          .finally(() => {
+            instance.confirmButtonLoading = false;
+          });
       } else {
-        done()
+        done();
       }
-    }
+    },
   });
 }
 
 function onSelectionChange(selection: Jobs[]) {
-  state.multipleDisabled = !selection.length
+  state.multipleDisabled = !selection.length;
 }
 
 function onRowUpdate(row: Jobs) {
-  refJobEditDialog.value?.open(row)
+  refJobEditDialog.value?.open(row);
 }
 
 function onRowDelete(row: Jobs) {
-  ElMessageBox.confirm(`确认要删除"${ row.jobName }"吗？`, '提示', {
+  ElMessageBox.confirm(`确认要删除"${row.jobName}"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
         instance.confirmButtonLoading = true;
-        batchDel([row.id]).then(() => {
-          ElMessage.success('删除成功')
-          done()
-          onRefresh()
-        }).finally(() => {
-          instance.confirmButtonLoading = false;
-        })
+        batchDel([row.id])
+          .then(() => {
+            ElMessage.success('删除成功');
+            done();
+            onRefresh();
+          })
+          .finally(() => {
+            instance.confirmButtonLoading = false;
+          });
       } else {
-        done()
+        done();
       }
-    }
+    },
   });
 }
 
@@ -115,44 +122,48 @@ function onRowRun(row: Jobs) {
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
         instance.confirmButtonLoading = true;
-        execJob(row.id).then(() => {
-          ElMessage.success('执行成功')
-          done()
-        }).finally(() => {
-          instance.confirmButtonLoading = false;
-        })
+        execJob(row.id)
+          .then(() => {
+            ElMessage.success('执行成功');
+            done();
+          })
+          .finally(() => {
+            instance.confirmButtonLoading = false;
+          });
       } else {
-        done()
+        done();
       }
-    }
+    },
   });
 }
 
 function onStatusChange(row: Jobs) {
-  const status = row.status
-  ElMessageBox.confirm(`确认要${status === 0 ? '暂停' : '恢复'}"${ row.jobName }"吗？`, '提示', {
+  const status = row.status;
+  ElMessageBox.confirm(`确认要${status === 0 ? '暂停' : '恢复'}"${row.jobName}"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
         instance.confirmButtonLoading = true;
-        pauseOrResume(row).then(() => {
-          ElMessage.success(`${status === 0 ? '暂停' : '恢复'}成功`)
-          done()
-          onRefresh()
-        }).finally(() => {
-          instance.confirmButtonLoading = false;
-        })
+        pauseOrResume(row)
+          .then(() => {
+            ElMessage.success(`${status === 0 ? '暂停' : '恢复'}成功`);
+            done();
+            onRefresh();
+          })
+          .finally(() => {
+            instance.confirmButtonLoading = false;
+          });
       } else {
-        done()
+        done();
       }
-    }
+    },
   });
 }
 
 function onRowLog(row: Jobs) {
-  refJobLog.value?.open(row)
+  refJobLog.value?.open(row);
 }
 </script>
 
@@ -172,11 +183,12 @@ function onRowLog(row: Jobs) {
       </query-expand-wrapper>
       <div v-loading="loading">
         <eu-table-toolbar
+          v-model:search-toggle="state.isQueryShow"
           :multiple-disabled="state.multipleDisabled"
           :opt-show="{
             export: false,
             import: false,
-            sort: false
+            sort: false,
           }"
           :permission="{
             add: ['system:job:add'],
@@ -184,17 +196,11 @@ function onRowLog(row: Jobs) {
           }"
           :ref-table="refTable"
           @add="onAdd"
-          @batchDel="onBatchDel"
+          @batch-del="onBatchDel"
           @export="onExport"
           @refresh="onRefresh"
-          v-model:searchToggle="state.isQueryShow"
         />
-        <el-table
-          ref="refTable"
-          :data="state.list"
-          @selection-change="onSelectionChange"
-          style="width: 100%"
-        >
+        <el-table ref="refTable" :data="state.list" style="width: 100%" @selection-change="onSelectionChange">
           <el-table-column type="selection"></el-table-column>
           <el-table-column prop="jobName" label="任务名称"></el-table-column>
           <el-table-column prop="jobGroup" label="任务分组"></el-table-column>
@@ -227,12 +233,7 @@ function onRowLog(row: Jobs) {
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-model:page="state.queryParams.page"
-          v-model:limit="state.queryParams.size"
-          :total="state.total"
-          @pagination="onQuery"
-        />
+        <pagination v-model:page="state.queryParams.page" v-model:limit="state.queryParams.size" :total="state.total" @pagination="onQuery" />
       </div>
     </div>
 
@@ -242,6 +243,4 @@ function onRowLog(row: Jobs) {
   </div>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

@@ -1,71 +1,68 @@
 <script setup lang="ts">
-import { add, update } from '@/api/system/post'
-import {ElMessage, type FormInstance} from "element-plus";
-import {computed, nextTick, ref, useTemplateRef} from "vue";
-import useVisible from "@/hooks/visible";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {Post} from "@/types/system/post";
-import {EnableFlagEnums} from "@/utils/enums";
+import { ElMessage, type FormInstance } from 'element-plus';
+import { computed, nextTick, useTemplateRef } from 'vue';
 
-const emit = defineEmits(['complete'])
+import { add, update } from '@/api/system/post';
+import useVisible from '@/hooks/visible';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { Post } from '@/types/system/post';
+import { EnableFlagEnums } from '@/utils/enums';
+
+const emit = defineEmits(['complete']);
 
 const rules = {
-  postName: [
-    { required: true, message: '请输入岗位名称', trigger: 'blur' }
-  ],
-  code: [
-    { required: true, message: '请输入岗位编码', trigger: 'blur' }
-  ],
-  status: [
-    { required: true, message: '请选择岗位状态', trigger: 'blur' }
-  ]
-}
+  postName: [{ required: true, message: '请输入岗位名称', trigger: 'blur' }],
+  code: [{ required: true, message: '请输入岗位编码', trigger: 'blur' }],
+  status: [{ required: true, message: '请选择岗位状态', trigger: 'blur' }],
+};
 const DEFAULT_FORM = {
   id: null,
   postName: null,
   code: null,
-  status: null
-}
+  status: null,
+};
 
-const refForm = useTemplateRef<FormInstance>('refForm')
-const { visible, setVisible } = useVisible(false)
-const { loading: formLoading, setLoading: setFormLoading } = useLoading(false)
-const [ state, reset ] = useResettableReactive({
+const refForm = useTemplateRef<FormInstance>('refForm');
+const { visible, setVisible } = useVisible(false);
+const { loading: formLoading, setLoading: setFormLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
   form: {
-    ...DEFAULT_FORM
-  }
-})
+    ...DEFAULT_FORM,
+  },
+});
 
 const title = computed(() => {
-  return state.form.id ? '修改岗位' : '新增岗位'
-})
+  return state.form.id ? '修改岗位' : '新增岗位';
+});
 
 function open(row: Post) {
-  reset()
+  reset();
   if (!row.id) {
-    row.status = EnableFlagEnums.ENABLE.value
+    row.status = EnableFlagEnums.ENABLE.value;
   }
-  state.form = Object.assign({...DEFAULT_FORM}, row)
-  setVisible(true)
+  state.form = Object.assign({ ...DEFAULT_FORM }, row);
+  setVisible(true);
 }
 
 function onSubmit() {
-  refForm.value?.validate(valid => {
+  refForm.value?.validate((valid) => {
     if (!valid) {
-      return
+      return;
     }
 
-    setFormLoading(true)
-    const reqPromise = state.form.id ? update(state.form) : add(state.form)
-    reqPromise.then(() => {
-      ElMessage.success(state.form.id ? '修改成功' : '新增成功')
-      setVisible(false)
-      emit('complete')
-    }).finally(() => {
-      setFormLoading(false)
-    })
-  })
+    setFormLoading(true);
+    const reqPromise = state.form.id ? update(state.form) : add(state.form);
+    reqPromise
+      .then(() => {
+        ElMessage.success(state.form.id ? '修改成功' : '新增成功');
+        setVisible(false);
+        emit('complete');
+      })
+      .finally(() => {
+        setFormLoading(false);
+      });
+  });
 }
 
 function onReset() {
@@ -83,18 +80,12 @@ async function onDialogOpen() {
 }
 
 defineExpose({
-  open
-})
+  open,
+});
 </script>
 
 <template>
-  <el-dialog
-    :title="title"
-    v-model="visible"
-    :close-on-click-modal="false"
-    width="500px"
-    @open="onDialogOpen"
-  >
+  <el-dialog v-model="visible" :title="title" :close-on-click-modal="false" width="500px" @open="onDialogOpen">
     <el-form ref="refForm" :model="state.form" :rules="rules" label-width="80px">
       <el-form-item label="岗位名称" prop="postName">
         <el-input v-model="state.form.postName" placeholder="请输入岗位名称" maxlength="20" />
@@ -113,6 +104,4 @@ defineExpose({
   </el-dialog>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

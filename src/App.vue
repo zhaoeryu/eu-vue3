@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {useSettingsStore} from "@/store";
-import {watchEffect} from "vue";
-import {darkMode} from "@/utils/darkMode";
+import { watchEffect } from 'vue';
+
+import { useSettingsStore } from '@/store';
+import { darkMode } from '@/utils/darkMode';
 
 watchEffect(() => {
-  darkMode(useSettingsStore().theme.darkMode)
-})
-
+  darkMode(useSettingsStore().theme.darkMode);
+});
 </script>
 
 <template>

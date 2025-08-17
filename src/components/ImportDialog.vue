@@ -1,95 +1,90 @@
 <script setup lang="ts">
-import {computed, ref, defineProps, withDefaults} from "vue";
-import {download} from "@/utils/request";
-import {ElMessage} from "element-plus";
-import {UploadFilled} from "@element-plus/icons-vue";
-import useVisible from "@/hooks/visible";
-import {useResettableReactive} from "@/hooks/resettable";
+import { computed, defineProps, withDefaults } from 'vue';
+import { ElMessage } from 'element-plus';
+import { UploadFilled } from '@element-plus/icons-vue';
+
+import { download } from '@/utils/request';
+import useVisible from '@/hooks/visible';
+import { useResettableReactive } from '@/hooks/resettable';
+
+export interface Props {
+  uploadUrl: string;
+  tplExportUrl: string;
+  sizeLimit?: number;
+  reqData?: object;
+}
 
 const DEFAULT_UPLOAD_RESULT = {
   updateCount: 0,
-  addCount: 0
-}
-
-interface Props {
-  uploadUrl: string,
-  tplExportUrl: string,
-  sizeLimit?: number,
-  reqData?: object
-}
+  addCount: 0,
+};
 
 const props = withDefaults(defineProps<Props>(), {
   sizeLimit: 20,
-  reqData: () => ({})
-})
+  reqData: () => ({}),
+});
 
-const emit = defineEmits(['complete'])
+const emit = defineEmits(['complete']);
 
-const { visible, setVisible } = useVisible(false)
+const { visible, setVisible } = useVisible(false);
 const [state, reset] = useResettableReactive({
   stepActive: 0,
   importMode: 0,
   file: '',
   uploadResult: {
-    ...DEFAULT_UPLOAD_RESULT
+    ...DEFAULT_UPLOAD_RESULT,
   },
-  uploadResponse: {}
-})
+  uploadResponse: {},
+});
 
 const uploadData = computed(() => {
   return {
     importMode: state.importMode,
-    ...(props.reqData || {})
-  }
-})
+    ...(props.reqData || {}),
+  };
+});
 
 function open() {
-  reset()
-  setVisible(true)
+  reset();
+  setVisible(true);
 }
 
 function onExportTemplate() {
-  download(props.tplExportUrl, {}, `模版_${new Date().getTime()}.xlsx`)
+  download(props.tplExportUrl, {}, `模版_${new Date().getTime()}.xlsx`);
 }
 function onSuccessCallback(response: any) {
-  state.uploadResponse = response
+  state.uploadResponse = response;
   if (response.code !== 200) {
-    ElMessage.error(response.msg)
+    ElMessage.error(response.msg);
   } else {
-    state.stepActive ++
-    state.uploadResult = response.data
-    emit('complete')
+    state.stepActive++;
+    state.uploadResult = response.data;
+    emit('complete');
   }
 }
 function onComplete() {
-  setVisible(false)
+  setVisible(false);
 }
 
 defineExpose({
-  open
-})
+  open,
+});
 </script>
 
 <script lang="ts">
 export default {
-  name: 'ImportDialog'
-}
+  name: 'ImportDialog',
+};
 </script>
 
 <template>
-  <el-dialog
-    title="导入Excel数据"
-    v-model="visible"
-    width="600px"
-    class="dialog-footer-flex"
-    append-to-body
-  >
+  <el-dialog v-model="visible" title="导入Excel数据" width="600px" class="dialog-footer-flex" append-to-body>
     <el-steps :active="state.stepActive" :align-center="true" finish-status="success">
       <el-step title="上传Excel"></el-step>
       <el-step title="完成"></el-step>
     </el-steps>
     <div v-if="state.stepActive === 0">
-      <div style="padding: 10px 40px;">
+      <div style="padding: 10px 40px">
         <div class="import-mode">
           <span>导入模式：</span>
           <el-radio-group v-model="state.importMode">
@@ -101,10 +96,10 @@ export default {
         <ul class="import-tip">
           <li>
             <span>为保证数据导入顺利，推荐您使用</span>
-            <span style="cursor: pointer;color: var(--color-primary);" @click="onExportTemplate">标准模板</span>
+            <span style="cursor: pointer; color: var(--color-primary)" @click="onExportTemplate">标准模板</span>
           </li>
           <li>支持 {{ sizeLimit }}MB 以内的xls、xlsx格式文件</li>
-          <slot name="importTip"></slot>
+          <slot name="importTip" />
         </ul>
       </div>
       <upload-file
@@ -126,14 +121,14 @@ export default {
       </upload-file>
     </div>
     <div v-if="state.stepActive === 1">
-      <slot name="stepFinish" :response="state.uploadResponse"></slot>
+      <slot name="stepFinish" :response="state.uploadResponse" />
       <el-result v-if="!$slots.stepFinish" icon="success">
         <template #sub-title>
           <p>
             <span>导入完成,更新</span>
-            <span class="text-success" style="padding: 0 0.5em;">{{ state.uploadResult.updateCount }}</span>
+            <span class="text-success" style="padding: 0 0.5em">{{ state.uploadResult.updateCount }}</span>
             <span>条数据，新增</span>
-            <span class="text-success" style="padding: 0 0.5em;">{{state.uploadResult.addCount }}</span>
+            <span class="text-success" style="padding: 0 0.5em">{{ state.uploadResult.addCount }}</span>
             <span>条数据</span>
           </p>
         </template>
@@ -141,7 +136,7 @@ export default {
     </div>
     <template v-if="state.stepActive > 0" #footer>
       <el-button @click="state.stepActive = 0">上一步</el-button>
-      <div style="flex: 1;">
+      <div style="flex: 1">
         <el-button class="eu-submit-btn" type="primary" @click="onComplete">完成</el-button>
       </div>
     </template>
@@ -216,14 +211,14 @@ export default {
       }
     }
     .el-step__line:before {
-      content: "";
+      content: '';
       width: 150px;
       height: 1px;
       background: #ebeff7;
       position: absolute;
       left: 50%;
       top: 50%;
-      transform: translate3d(-50%,-50%,0);
+      transform: translate3d(-50%, -50%, 0);
     }
     .el-step__line-inner {
       display: none;

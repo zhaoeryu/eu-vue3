@@ -48,6 +48,9 @@ export interface GenerateColumn {
   createTime: string | null;
   updateBy: string | null;
   updateTime: string | null;
+
+  _sort?: string;
+  _sort_visible?: boolean;
 }
 
 export interface GeneratePreview {
@@ -59,6 +62,9 @@ export interface GeneratePreview {
   i18n: boolean;
 }
 
-export type GeneratePreviewTree = GeneratePreview & {
-  children: GeneratePreviewTree[]
-}
+export type GeneratePreviewTree = {
+  name: string;
+  type: string;
+  code: string;
+  children: GeneratePreviewTree[];
+};

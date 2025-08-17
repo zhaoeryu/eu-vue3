@@ -1,27 +1,27 @@
-import {createRouter, createWebHistory} from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 
-import Layout from '@/layout/index.vue'
+import Layout from '@/layout/index.vue';
 
 export const constantRouteList = [
   {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/login/index.vue'),
-    hidden: true
+    hidden: true,
   },
   {
     path: '/404',
     name: 'NotFound',
     component: () => import('@/views/404.vue'),
-    hidden: true
+    hidden: true,
   },
   {
     path: '/401',
     name: 'Unauthorized',
     component: () => import('@/views/401.vue'),
-    hidden: true
+    hidden: true,
   },
-]
+];
 
 export const layoutRouteList = [
   {
@@ -30,7 +30,7 @@ export const layoutRouteList = [
     component: Layout,
     meta: {
       title: '工作台',
-      icon: 'workbench'
+      icon: 'workbench',
     },
     redirect: '/workbench',
     children: [
@@ -43,9 +43,9 @@ export const layoutRouteList = [
           icon: 'workbench',
           affix: true,
           showHeader: false,
-          showFooter: true
-        }
-      }
+          showFooter: true,
+        },
+      },
     ],
     hidden: false,
   },
@@ -69,18 +69,18 @@ export const layoutRouteList = [
           icon: 'workbench',
           affix: false,
           showHeader: false,
-          showFooter: true
+          showFooter: true,
         },
         hidden: true,
-      }
+      },
     ],
     hidden: true,
   },
-]
+];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: constantRouteList
-})
+  routes: constantRouteList,
+});
 
-export default router
+export default router;

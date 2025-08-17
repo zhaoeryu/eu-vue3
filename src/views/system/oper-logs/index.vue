@@ -1,22 +1,23 @@
 <script setup lang="ts">
-import { page } from '@/api/system/sysOperLog'
-import {BusinessTypeEnums, enumsConvertToList, enumsParseLabel} from '@/utils/enums'
-import {computed, onMounted, ref, useTemplateRef} from "vue";
-import {download} from "@/utils/request";
-import {Refresh, Search} from "@element-plus/icons-vue";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {TableInstance} from "element-plus";
-import EnumSelect from "@/components/EnumSelect.vue";
-import EnumTag from "@/components/EnumTag.vue";
+import { onMounted, useTemplateRef } from 'vue';
+import { Refresh, Search } from '@element-plus/icons-vue';
+import type { TableInstance } from 'element-plus';
+
+import { page } from '@/api/system/sysOperLog';
+import { BusinessTypeEnums } from '@/utils/enums';
+import { download } from '@/utils/request';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import EnumSelect from '@/components/EnumSelect.vue';
+import EnumTag from '@/components/EnumTag.vue';
 
 const DEFAULT_PAGE = {
   page: 1,
   size: 10,
   sort: ['create_time,desc'],
-}
+};
 
-const refTable = useTemplateRef<TableInstance>('refTable')
+const refTable = useTemplateRef<TableInstance>('refTable');
 const { loading, setLoading } = useLoading(false);
 const [state, reset] = useResettableReactive({
   list: [],
@@ -29,46 +30,48 @@ const [state, reset] = useResettableReactive({
     reqUrl: null,
     status: null,
 
-    ...DEFAULT_PAGE
+    ...DEFAULT_PAGE,
   },
 
   errorStackDialog: {
     show: false,
     content: null as string | null,
-  }
-})
+  },
+});
 
 onMounted(() => {
-  onRefresh()
-})
+  onRefresh();
+});
 
 function onQuery() {
-  setLoading(true)
-  page(state.queryParams).then(res => {
-    state.list = res.data.records
-    state.total = res.data.total
-  }).finally(() => {
-    setLoading(false)
-  })
+  setLoading(true);
+  page(state.queryParams)
+    .then((res) => {
+      state.list = res.data.records;
+      state.total = res.data.total;
+    })
+    .finally(() => {
+      setLoading(false);
+    });
 }
 
 function onRefresh() {
-  reset('queryParams')
-  onQuery()
+  reset('queryParams');
+  onQuery();
 }
 
 function onExport() {
-  download('/api/system/sysOperLog/export', state.queryParams, `操作日志_${new Date().getTime()}.xlsx`)
+  download('/api/system/sysOperLog/export', state.queryParams, `操作日志_${new Date().getTime()}.xlsx`);
 }
 
 function onRowStackView(row: { errorStack: string | null }) {
-  state.errorStackDialog.show = true
-  state.errorStackDialog.content = row.errorStack
+  state.errorStackDialog.show = true;
+  state.errorStackDialog.content = row.errorStack;
 }
 
 function onSortComplete() {
-  state.queryParams.page = DEFAULT_PAGE.page
-  onQuery()
+  state.queryParams.page = DEFAULT_PAGE.page;
+  onQuery();
 }
 </script>
 
@@ -81,13 +84,13 @@ function onSortComplete() {
             <el-input v-model="state.queryParams.title" placeholder="请输入操作模块" clearable />
           </el-form-item>
           <el-form-item label="业务类型" prop="businessType">
-            <enum-select v-model="state.queryParams.businessType" :enums="BusinessTypeEnums" placeholder="请选择业务类型" clearable style="width: 150px;" />
+            <enum-select v-model="state.queryParams.businessType" :enums="BusinessTypeEnums" placeholder="请选择业务类型" clearable style="width: 150px" />
           </el-form-item>
           <el-form-item label="操作人名称" prop="operName">
             <el-input v-model="state.queryParams.operName" placeholder="请输入操作人名称" clearable />
           </el-form-item>
           <el-form-item label="操作状态" prop="status">
-            <el-select v-model="state.queryParams.status" placeholder="请选择操作状态" clearable style="width: 150px;">
+            <el-select v-model="state.queryParams.status" placeholder="请选择操作状态" clearable style="width: 150px">
               <el-option label="成功" :value="0" />
               <el-option label="失败" :value="1" />
             </el-select>
@@ -100,30 +103,26 @@ function onSortComplete() {
       </query-expand-wrapper>
       <div v-loading="loading">
         <eu-table-toolbar
+          v-model:sort="state.queryParams.sort"
+          v-model:search-toggle="state.isQueryShow"
           :opt-show="{
             add: false,
             del: false,
-            import: false
+            import: false,
           }"
           :permission="{
-            export: ['system:operLog:export']
+            export: ['system:operLog:export'],
           }"
-          v-model:sort="state.queryParams.sort"
-          v-model:searchToggle="state.isQueryShow"
           :ref-table="refTable"
           @export="onExport"
           @refresh="onRefresh"
           @sort="onSortComplete"
         />
-        <el-table
-          ref="refTable"
-          :data="state.list"
-          style="width: 100%"
-        >
+        <el-table ref="refTable" :data="state.list" style="width: 100%">
           <el-table-column type="index" label="#" />
           <el-table-column type="expand">
             <template #default="{ row }">
-              <div style="padding-top: 20px;line-height: 1.75rem;">
+              <div style="padding-top: 20px; line-height: 1.75rem">
                 <el-row :gutter="16">
                   <el-col :span="2" class="text-gray-600">请求url：</el-col>
                   <el-col :span="22" class="text-gray-400">{{ row.reqUrl }}</el-col>
@@ -152,7 +151,7 @@ function onSortComplete() {
                   <el-col :span="2" class="text-gray-600">异常消息：</el-col>
                   <el-col :span="22" class="text-gray-400">
                     <span>{{ row.errorMsg }}</span>
-                    <el-button style="margin-left: 16px;" icon="el-icon-view" type="primary" text @click="onRowStackView(row)">查看异常堆栈</el-button>
+                    <el-button style="margin-left: 16px" icon="el-icon-view" type="primary" text @click="onRowStackView(row)">查看异常堆栈</el-button>
                   </el-col>
                 </el-row>
               </div>
@@ -177,23 +176,18 @@ function onSortComplete() {
           </el-table-column>
           <el-table-column label="操作时间" prop="createTime" min-width="160" />
         </el-table>
-        <pagination
-          v-model:page="state.queryParams.page"
-          v-model:limit="state.queryParams.size"
-          :total="state.total"
-          @pagination="onQuery"
-        />
+        <pagination v-model:page="state.queryParams.page" v-model:limit="state.queryParams.size" :total="state.total" @pagination="onQuery" />
       </div>
     </div>
 
-    <el-dialog title="异常堆栈" v-model="state.errorStackDialog.show" width="80%" top="7vh">
-      <pre class="p-4 text-gray-400 text-xs" style="white-space: pre-wrap;">{{ state.errorStackDialog.content || '暂无堆栈信息' }}</pre>
+    <el-dialog v-model="state.errorStackDialog.show" title="异常堆栈" width="80%" top="7vh">
+      <pre class="p-4 text-gray-400 text-xs" style="white-space: pre-wrap">{{ state.errorStackDialog.content || '暂无堆栈信息' }}</pre>
     </el-dialog>
   </div>
 </template>
 
 <style scoped lang="scss">
-.el-divider--horizontal{
+.el-divider--horizontal {
   margin-top: 0;
   margin-bottom: 18px;
 }

@@ -1,20 +1,16 @@
-import {defineStore} from 'pinia';
-import {getRouters} from "@/api/system/menu";
-import {layoutRouteList} from "@/router/routers";
-import { MenuTypeEnums } from '@/utils/enums'
-import { fromArray } from 'tree-lodash'
-import _ from 'lodash'
-import {
-  formatMenuToRoute,
-  buildFullPath,
-  processDirectoryNode,
-  processMenuNode,
-} from '@/utils/route-helpers'
-import {type RouteNode} from "@/types/route";
-import {type Menu} from "@/types/system/menu";
+import { defineStore } from 'pinia';
+import { fromArray } from 'tree-lodash';
+import _ from 'lodash';
+
+import { getRouters } from '@/api/system/menu';
+import { layoutRouteList } from '@/router/routers';
+import { MenuTypeEnums } from '@/utils/enums';
+import { formatMenuToRoute, buildFullPath, processDirectoryNode, processMenuNode } from '@/utils/route-helpers';
+import { type RouteNode } from '@/types/route';
+import { type Menu } from '@/types/system/menu';
 
 interface RoutesState {
-  routes: RouteNode[],
+  routes: RouteNode[];
 }
 
 const useRouteStore = defineStore('route', {
@@ -25,59 +21,61 @@ const useRouteStore = defineStore('route', {
   actions: {
     generateRoutes(): Promise<RouteNode[]> {
       return new Promise((resolve, reject) => {
-        getRouters().then((res) => {
-          const menus = res.data || []
+        getRouters()
+          .then((res) => {
+            const menus = res.data || [];
 
-          // 将后台返回的菜单数据转换为vue-router的格式
-          const routers = convertMenuToVueRouterFormat(menus)
-          const constantRouteList = handleConstantRouteList(layoutRouteList as RouteNode[])
-          routers.unshift(...constantRouteList)
+            // 将后台返回的菜单数据转换为vue-router的格式
+            const routers = convertMenuToVueRouterFormat(menus);
+            const constantRouteList = handleConstantRouteList(layoutRouteList as RouteNode[]);
+            routers.unshift(...constantRouteList);
 
-          // 兜底方案（放到最后）：当用户访问的路由不存在时，跳转到 404 页面
-          routers.push({
-            path: '/:pathMatch(.*)*',
-            redirect: '/404',
-            hidden: true
-          } as RouteNode)
+            // 兜底方案（放到最后）：当用户访问的路由不存在时，跳转到 404 页面
+            routers.push({
+              path: '/:pathMatch(.*)*',
+              redirect: '/404',
+              hidden: true,
+            } as RouteNode);
 
-          const routes = routers
-          this.routes = routers
-          resolve(routes)
-        }).catch(error => {
-          reject(error)
-        })
-      })
+            const routes = routers;
+            this.routes = routers;
+            resolve(routes);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
     },
-  }
-})
-
+  },
+});
 
 /**
  * 处理后台返回的菜单数据，将其转换为vue-router的格式
  * @param {Array} menus 后台返回的菜单数据
  * @returns {Array} vue-router格式的路由数组
  */
-function convertMenuToVueRouterFormat(menus: Menu[]) {
+function convertMenuToVueRouterFormat(menus: Menu[]): RouteNode[] {
   if (!Array.isArray(menus) || menus.length === 0) {
-    return []
+    return [];
   }
 
   // 使用 lodash 链式操作优化数据处理流程
   const processedMenus = _(menus)
     .sortBy('sortNum')
     .map(formatMenuToRoute)
-    .filter(item => item !== null)
-    .value()
+    .filter((item) => item !== null)
+    .value() as RouteNode[];
 
-  // @ts-ignore
-  const tree = fromArray(processedMenus, {
+  const tree = fromArray<'id', 'parentId', 'children'>(processedMenus, {
     itemKey: 'id',
     parentKey: 'parentId',
-    childrenKey: 'children'
-  })
+    childrenKey: 'children',
+  }) as RouteNode[];
 
-  // @ts-ignore
-  return _.sortBy(tree.map(node => processNode(node, null)), 'meta.sort')
+  return _.sortBy(
+    tree.map((node) => processNode(node, null)),
+    'meta.sort',
+  );
 }
 
 /**
@@ -86,7 +84,7 @@ function convertMenuToVueRouterFormat(menus: Menu[]) {
  * @returns {Array} 处理后的路由数组
  */
 function handleConstantRouteList(menus: RouteNode[]) {
-  return menus.map(node => processNode(node, null, true))
+  return menus.map((node) => processNode(node, null, true));
 }
 
 /**
@@ -101,17 +99,17 @@ function processNode(node: RouteNode, parentNode: RouteNode | null, isConstant =
   const fullPath = getFullPath(parentNode, node);
 
   // 节点类型处理
-  const processed = isConstant ? {...node, fullPath} : handleNodeByType({ ...node, fullPath }, parentNode)
+  const processed = isConstant ? { ...node, fullPath } : handleNodeByType({ ...node, fullPath }, parentNode);
 
   // 统一 children 处理
-  const children = Array.isArray(processed.children) ? processed.children : []
-  const hasChildren = children.length > 0
+  const children = Array.isArray(processed.children) ? processed.children : [];
+  const hasChildren = children.length > 0;
 
   // 递归处理 children
   return {
     ...processed,
-    children: hasChildren ? children.map((child: RouteNode) => processNode(child, processed, isConstant)) : []
-  }
+    children: hasChildren ? children.map((child: RouteNode) => processNode(child, processed, isConstant)) : [],
+  };
 }
 
 /**
@@ -121,8 +119,8 @@ function processNode(node: RouteNode, parentNode: RouteNode | null, isConstant =
  * @returns {string} 完整路径
  */
 function getFullPath(parentNode: RouteNode | null, node: RouteNode) {
-  const parentPath = parentNode ? parentNode.fullPath : ''
-  return buildFullPath(parentPath, node.path)
+  const parentPath = parentNode ? parentNode.fullPath : '';
+  return buildFullPath(parentPath, node.path);
 }
 
 /**
@@ -132,17 +130,17 @@ function getFullPath(parentNode: RouteNode | null, node: RouteNode) {
  * @returns {Object} 处理后的节点
  */
 function handleNodeByType(node: RouteNode, parentNode: RouteNode | null) {
-  const { menuType } = node
+  const { menuType } = node;
 
   switch (menuType) {
     case MenuTypeEnums.DIR.value:
-      return processDirectoryNode(node, parentNode)
+      return processDirectoryNode(node, parentNode);
     case MenuTypeEnums.MENU.value:
-      return processMenuNode(node, parentNode)
+      return processMenuNode(node, parentNode);
     default:
-      console.warn('未知的节点类型: %s', menuType)
-      return node
+      console.warn('未知的节点类型: %s', menuType);
+      return node;
   }
 }
 
-export default useRouteStore
+export default useRouteStore;

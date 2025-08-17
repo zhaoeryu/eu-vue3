@@ -1,4 +1,4 @@
-import { type BaseEntity } from '@/types/api'
+import { type BaseEntity } from '@/types/api';
 
 export interface Online extends BaseEntity {
   id: string;

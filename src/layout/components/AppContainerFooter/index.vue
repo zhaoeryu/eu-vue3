@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import {defaultSetting} from "@/settings";
-import {defineOptions} from "vue";
+import { defineOptions } from 'vue';
+
+import { defaultSetting } from '@/settings';
 
 defineOptions({
-  name: 'AppContainerFooter'
-})
+  name: 'AppContainerFooter',
+});
 </script>
 
 <template>
   <footer id="app-container__footer">
-    <span v-html="defaultSetting.copyright"></span>
+    <!-- eslint-disable vue/no-v-html -->
+    <span v-html="defaultSetting.copyright" />
   </footer>
 </template>
 

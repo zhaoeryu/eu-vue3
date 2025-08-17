@@ -1,7 +1,7 @@
 <template>
   <div class="not-found-page">
-    <div style="display: flex;justify-content: space-between;align-items: center;margin-bottom: 200px;">
-      <img src="@/assets/images/notfound.png" alt="" width="200">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 200px">
+      <img src="@/assets/images/notfound.png" alt="" width="200" />
       <div class="not-found">
         <div class="not-found__404">抱歉，页面暂时无法访问</div>
         <div class="not-found__url">来源：{{ $route.redirectedFrom?.path || '-' }}</div>
@@ -18,8 +18,7 @@
   </div>
 </template>
 
-
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 html.dark {
   img {
     filter: invert(0.5);

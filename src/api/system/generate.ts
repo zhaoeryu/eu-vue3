@@ -1,51 +1,51 @@
-import request from '@/utils/request'
-import type {PageResult, ResultBody} from "@/types/api";
-import type {GenerateTable} from "@/types/system/generate";
+import request from '@/utils/request';
+import type { PageResult, ResultBody } from '@/types/api';
+import type { GenerateTable } from '@/types/system/generate';
 
 export function page(params: any): Promise<ResultBody<PageResult<GenerateTable>>> {
   return request({
     url: '/api/gen/page',
     method: 'get',
-    params
-  })
+    params,
+  });
 }
 export function preview(params: any) {
   return request({
     url: '/api/gen/preview',
     method: 'get',
-    params
-  })
+    params,
+  });
 }
 export function tableInfo(params: any) {
   return request({
     url: '/api/gen/tableInfo',
     method: 'get',
-    params
-  })
+    params,
+  });
 }
 export function syncTable(params: any) {
   return request({
     url: '/api/gen/sync',
     method: 'post',
-    params
-  })
+    params,
+  });
 }
 export function save(data: any) {
   return request({
     url: '/api/gen/save',
     method: 'post',
-    data
-  })
+    data,
+  });
 }
 export function queryTypeList() {
   return request({
     url: '/api/gen/queryType',
-    method: 'get'
-  })
+    method: 'get',
+  });
 }
 export function formTypeList() {
   return request({
     url: '/api/gen/formType',
-    method: 'get'
-  })
+    method: 'get',
+  });
 }

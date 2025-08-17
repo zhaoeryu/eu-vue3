@@ -1,158 +1,156 @@
 <script setup lang="ts">
-import {ElMessage, type FormInstance, type TreeInstance, type TreeKey} from "element-plus";
-import {nextTick, ref, useTemplateRef, watch} from "vue";
-import {Search} from "@element-plus/icons-vue";
-import { getDeptIdsByRoleId, update } from '@/api/system/role'
-import { DataScopeEnums as dataScopeEnums } from '@/utils/enums'
-import { list as deptListApi } from '@/api/system/dept'
-import { handleTreeData } from '@/utils'
-import useVisible from "@/hooks/visible";
-import useLoading from "@/hooks/loading";
-import {useResettableReactive} from "@/hooks/resettable";
-import type {DeptTree, Dept} from "@/types/system/dept";
-import type {Role} from "@/types/system/role";
+import { ElMessage, type FormInstance, type TreeInstance, type TreeKey } from 'element-plus';
+import { nextTick, ref, useTemplateRef, watch } from 'vue';
+import { Search } from '@element-plus/icons-vue';
 
-const emit = defineEmits(['complete'])
+import { getDeptIdsByRoleId, update } from '@/api/system/role';
+import { DataScopeEnums as dataScopeEnums } from '@/utils/enums';
+import { list as deptListApi } from '@/api/system/dept';
+import { handleTreeData } from '@/utils';
+import useVisible from '@/hooks/visible';
+import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import type { DeptTree, Dept } from '@/types/system/dept';
+import type { Role } from '@/types/system/role';
+
+const emit = defineEmits(['complete']);
 
 const rules = {
-  dataScope: [{ required: true, message: '请选择数据范围', trigger: 'change' }]
-}
+  dataScope: [{ required: true, message: '请选择数据范围', trigger: 'change' }],
+};
 const DEFAULT_FORM = {
   id: null as number | null,
   roleName: null,
-  dataScope: null
-}
+  dataScope: null,
+};
 const DEFAULT_FORM_EXTRA = {
   expand: false,
   checkedAll: false,
   checkStrictly: true,
-  filterKeyword: null
-}
+  filterKeyword: null,
+};
 
-const refForm = useTemplateRef<FormInstance>('refForm')
-const refDeptTree = useTemplateRef<TreeInstance>('refDeptTree')
-const { visible, setVisible } = useVisible(false)
-const { loading: formLoading, setLoading: setFormLoading } = useLoading(false)
-const [ state, reset ] = useResettableReactive({
+const refForm = useTemplateRef<FormInstance>('refForm');
+const refDeptTree = useTemplateRef<TreeInstance>('refDeptTree');
+const { visible, setVisible } = useVisible(false);
+const { loading: formLoading, setLoading: setFormLoading } = useLoading(false);
+const [state, reset] = useResettableReactive({
   form: {
-    ...DEFAULT_FORM
+    ...DEFAULT_FORM,
   },
   formExtra: {
-    ...DEFAULT_FORM_EXTRA
+    ...DEFAULT_FORM_EXTRA,
   },
 
   deptTree: [] as DeptTree[],
   deptList: [] as Dept[],
-})
+});
 
+const title = ref('分配数据权限');
 
-const title = ref('分配数据权限')
-
-watch(() => state.formExtra.filterKeyword, () => {
-  refDeptTree.value?.filter(state.formExtra.filterKeyword)
-}, {
-  flush: 'post'
-})
+watch(
+  () => state.formExtra.filterKeyword,
+  () => {
+    refDeptTree.value?.filter(state.formExtra.filterKeyword);
+  },
+  {
+    flush: 'post',
+  },
+);
 
 function open(row: Role) {
-  reset()
-  state.form = Object.assign({...DEFAULT_FORM}, row)
-  setVisible(true)
+  reset();
+  state.form = Object.assign({ ...DEFAULT_FORM }, row);
+  setVisible(true);
 
-  setFormLoading(true)
-  Promise.all([
-    deptListApi({}),
-    getDeptIdsByRoleId(state.form.id!)
-  ]).then(res => {
-    state.deptList = res[0].data
-    state.deptTree = handleTreeData(state.deptList) as DeptTree[]
+  setFormLoading(true);
+  Promise.all([deptListApi({}), getDeptIdsByRoleId(state.form.id!)])
+    .then((res) => {
+      state.deptList = res[0].data;
+      state.deptTree = handleTreeData(state.deptList) as DeptTree[];
 
-    nextTick(() => {
-      try {
-        (res[1].data || []).forEach((key: TreeKey) => {
-          refDeptTree.value?.setChecked(key, true, false)
-        })
-      } catch (e) {
-        console.error(e)
-      }
+      nextTick(() => {
+        try {
+          (res[1].data || []).forEach((key: TreeKey) => {
+            refDeptTree.value?.setChecked(key, true, false);
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      });
     })
-  }).finally(() => {
-    setFormLoading(false)
-  })
+    .finally(() => {
+      setFormLoading(false);
+    });
 }
 
 function onSubmit() {
-  refForm.value?.validate(valid => {
+  refForm.value?.validate((valid) => {
     if (!valid) {
-      return
+      return;
     }
 
-    let checkedIds: TreeKey[] = []
+    let checkedIds: TreeKey[] = [];
     if (dataScopeEnums.CUSTOM.value === state.form.dataScope) {
-      const checkedKeys = refDeptTree.value?.getCheckedKeys() || []
-      const halfCheckedKeys = refDeptTree.value?.getHalfCheckedKeys() || []
-      checkedIds = [...checkedKeys, ...halfCheckedKeys]
+      const checkedKeys = refDeptTree.value?.getCheckedKeys() || [];
+      const halfCheckedKeys = refDeptTree.value?.getHalfCheckedKeys() || [];
+      checkedIds = [...checkedKeys, ...halfCheckedKeys];
     }
 
     const reqPayload = {
       ...state.form,
       // 2: 表示本次操作为分配数据权限
       operAction: 2,
-      deptIds: checkedIds
-    }
+      deptIds: checkedIds,
+    };
 
-    setFormLoading(true)
-    update(reqPayload).then(() => {
-      ElMessage.success('操作成功')
-      setVisible(false)
-      emit('complete')
-    }).finally(() => {
-      setFormLoading(false)
-    })
-  })
+    setFormLoading(true);
+    update(reqPayload)
+      .then(() => {
+        ElMessage.success('操作成功');
+        setVisible(false);
+        emit('complete');
+      })
+      .finally(() => {
+        setFormLoading(false);
+      });
+  });
 }
 
 function onDialogOpen() {
   nextTick(() => {
     if (refForm.value) {
-      refForm.value.clearValidate()
+      refForm.value.clearValidate();
     }
-  })
+  });
 }
 
 // 树权限（展开/折叠）
 function handleCheckedTreeExpand(checked: boolean) {
   for (let i = 0; i < state.deptList.length; i++) {
-    refDeptTree.value?.setChecked(state.deptList[i].id, checked, false)
+    refDeptTree.value?.setChecked(state.deptList[i].id, checked, false);
   }
 }
 // 树权限（全选/全不选）
 function handleCheckedTreeNodeAll(checked: boolean) {
-  // @ts-ignore
-  refDeptTree.value?.setCheckedNodes(checked ? state.deptList : [], false)
+  refDeptTree.value?.setCheckedNodes(checked ? state.deptList : [], false);
 }
 
 function onFilterNode(value: string, node: any) {
   if (!value) {
-    return true
+    return true;
   }
 
-  return node.deptName.indexOf(value) !== -1
+  return node.deptName.indexOf(value) !== -1;
 }
 
 defineExpose({
-  open
-})
+  open,
+});
 </script>
 
 <template>
-  <el-dialog
-    :title="title"
-    v-model="visible"
-    :close-on-click-modal="false"
-    width="770px"
-    @open="onDialogOpen"
-  >
+  <el-dialog v-model="visible" :title="title" :close-on-click-modal="false" width="770px" @open="onDialogOpen">
     <template #header>
       <div>
         <span class="el-dialog__title">{{ title }}</span>
@@ -162,31 +160,27 @@ defineExpose({
     <el-form ref="refForm" :model="state.form" :rules="rules" label-width="80px">
       <el-form-item label="权限范围" prop="dataScope">
         <el-radio-group v-model="state.form.dataScope">
-          <el-radio-button
-            v-for="item in dataScopeEnums"
-            :key="item.value"
-            :value="item.value"
-          >{{ item.label }}</el-radio-button>
+          <el-radio-button v-for="item in dataScopeEnums" :key="item.value" :value="item.value">{{ item.label }}</el-radio-button>
         </el-radio-group>
       </el-form-item>
       <el-form-item v-if="state.form.dataScope === dataScopeEnums.CUSTOM.value" label="数据权限">
         <div>
-          <div style="display: flex;margin-bottom: 12px;">
-            <div style="flex: 1;">
+          <div style="display: flex; margin-bottom: 12px">
+            <div style="flex: 1">
               <el-checkbox v-model="state.formExtra.expand" @change="handleCheckedTreeExpand($event)">展开/折叠</el-checkbox>
               <el-checkbox v-model="state.formExtra.checkedAll" @change="handleCheckedTreeNodeAll($event)">全选/全不选</el-checkbox>
               <el-checkbox v-model="state.formExtra.checkStrictly">父子联动</el-checkbox>
             </div>
-            <el-input placeholder="输入关键字进行搜索" v-model="state.formExtra.filterKeyword" style="width: 200px;" clearable class="margin-left-sm">
+            <el-input v-model="state.formExtra.filterKeyword" placeholder="输入关键字进行搜索" style="width: 200px" clearable class="margin-left-sm">
               <template #prefix>
-                <el-icon><Search/></el-icon>
+                <el-icon><Search /></el-icon>
               </template>
             </el-input>
           </div>
           <el-tree
+            ref="refDeptTree"
             :data="state.deptTree"
             show-checkbox
-            ref="refDeptTree"
             node-key="id"
             empty-text="暂无数据"
             :check-strictly="!state.formExtra.checkStrictly"
@@ -204,6 +198,4 @@ defineExpose({
   </el-dialog>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

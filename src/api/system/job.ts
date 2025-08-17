@@ -1,50 +1,50 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function page(params: any) {
   return request({
     url: '/api/system/job/page',
     method: 'get',
-    params
-  })
+    params,
+  });
 }
 
 export function add(data: any) {
   return request({
     url: '/api/system/job',
     method: 'post',
-    data
-  })
+    data,
+  });
 }
 
 export function update(data: any) {
   return request({
     url: '/api/system/job',
     method: 'put',
-    data
-  })
+    data,
+  });
 }
 
 export function batchDel(ids: any[]) {
   return request({
     url: '/api/system/job/batch',
     method: 'delete',
-    data: ids
-  })
+    data: ids,
+  });
 }
 
 export function pauseOrResume(data: any) {
   return request({
     url: '/api/system/job/pause-or-resume',
     method: 'post',
-    data
-  })
+    data,
+  });
 }
 export function execJob(id: string | number) {
   return request({
     url: '/api/system/job/exec',
     method: 'post',
     params: {
-      id
-    }
-  })
+      id,
+    },
+  });
 }

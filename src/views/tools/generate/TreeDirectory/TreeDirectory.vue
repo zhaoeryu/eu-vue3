@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import TreeDirectoryItem from '@/views/tools/generate/TreeDirectory/TreeDirectoryItem.vue'
-import {ref, watch, defineProps} from "vue";
-import type {GeneratePreviewTree} from "@/types/system/generate";
+import { defineProps } from 'vue';
+
+import TreeDirectoryItem from '@/views/tools/generate/TreeDirectory/TreeDirectoryItem.vue';
+import type { GeneratePreviewTree } from '@/types/system/generate';
 
 type State = {
-  tree: GeneratePreviewTree[]
-}
+  tree: GeneratePreviewTree[];
+};
 
-const model = defineModel()
-defineProps<State>()
+const model = defineModel<string | null>();
+defineProps<State>();
 </script>
 
 <template>
@@ -16,17 +17,12 @@ defineProps<State>()
     <summary>
       <span class="tree-item">EuBackend</span>
     </summary>
-    <tree-directory-item
-      v-for="(item, index) in tree"
-      :key="index"
-      :item="item"
-      v-model="model"
-    />
+    <tree-directory-item v-for="(item, index) in tree" :key="index" v-model="model" :item="item" />
   </details>
 </template>
 
 <style scoped lang="scss">
-@use "@/assets/styles/mixin.scss";
+@use '@/assets/styles/mixin.scss';
 .eu-directory {
   width: 200px;
   overflow: auto;
@@ -38,8 +34,8 @@ defineProps<State>()
   :deep(details) {
     padding-left: 10px;
 
-    &[open]>summary {
-      background-image: url("data:image/svg+xml;base64,PHN2ZyB0PSIxNjkzMTA3OTE3NDcxIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjExMjQxIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+PHBhdGggZD0iTTUxMiAzNDEuMzMzMzMzTDI1NiA1OTcuMzMzMzMzbDYwLjM3MzMzMyA2MC4zNzMzMzRMNTEyIDQ2Mi4wOGwxOTUuNjI2NjY3IDE5NS42MjY2NjdMNzY4IDU5Ny4zMzMzMzN6IiBwLWlkPSIxMTI0MiIgZmlsbD0iIzcwNzA3MCI+PC9wYXRoPjwvc3ZnPg==");
+    &[open] > summary {
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB0PSIxNjkzMTA3OTE3NDcxIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjExMjQxIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+PHBhdGggZD0iTTUxMiAzNDEuMzMzMzMzTDI1NiA1OTcuMzMzMzMzbDYwLjM3MzMzMyA2MC4zNzMzMzRMNTEyIDQ2Mi4wOGwxOTUuNjI2NjY3IDE5NS42MjY2NjdMNzY4IDU5Ny4zMzMzMzN6IiBwLWlkPSIxMTI0MiIgZmlsbD0iIzcwNzA3MCI+PC9wYXRoPjwvc3ZnPg==');
       background-size: 20px;
       background-repeat: no-repeat;
       background-position: left center;
@@ -49,15 +45,15 @@ defineProps<State>()
       }
 
       &:not(:only-child) {
-        &>.tree-item::before {
-          background-image: url("data:image/svg+xml;base64,PHN2ZyB0PSIxNjkzMTA5ODQ1NDU3IiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjE0Njc3IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+PHBhdGggZD0iTTkyOCA0NDRIODIwVjMzMC40YzAtMTcuNy0xNC4zLTMyLTMyLTMySDQ3M0wzNTUuNyAxODYuMmMtMS41LTEuNC0zLjUtMi4yLTUuNS0yLjJIOTZjLTE3LjcgMC0zMiAxNC4zLTMyIDMydjU5MmMwIDE3LjcgMTQuMyAzMiAzMiAzMmg2OThjMTMgMCAyNC44LTcuOSAyOS43LTIwbDEzNC0zMzJjMS41LTMuOCAyLjMtNy45IDIuMy0xMiAwLTE3LjctMTQuMy0zMi0zMi0zMnpNMTM2IDI1NmgxODguNWwxMTkuNiAxMTQuNEg3NDhWNDQ0SDIzOGMtMTMgMC0yNC44IDcuOS0yOS43IDIwTDEzNiA2NDMuMlYyNTZ6IG02MzUuMyA1MTJIMTU5bDEwMy4zLTI1Nmg2MTIuNEw3NzEuMyA3Njh6IiBwLWlkPSIxNDY3OCIgZmlsbD0iIzcwNzA3MCI+PC9wYXRoPjwvc3ZnPg==");
+        & > .tree-item::before {
+          background-image: url('data:image/svg+xml;base64,PHN2ZyB0PSIxNjkzMTA5ODQ1NDU3IiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjE0Njc3IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+PHBhdGggZD0iTTkyOCA0NDRIODIwVjMzMC40YzAtMTcuNy0xNC4zLTMyLTMyLTMySDQ3M0wzNTUuNyAxODYuMmMtMS41LTEuNC0zLjUtMi4yLTUuNS0yLjJIOTZjLTE3LjcgMC0zMiAxNC4zLTMyIDMydjU5MmMwIDE3LjcgMTQuMyAzMiAzMiAzMmg2OThjMTMgMCAyNC44LTcuOSAyOS43LTIwbDEzNC0zMzJjMS41LTMuOCAyLjMtNy45IDIuMy0xMiAwLTE3LjctMTQuMy0zMi0zMi0zMnpNMTM2IDI1NmgxODguNWwxMTkuNiAxMTQuNEg3NDhWNDQ0SDIzOGMtMTMgMC0yNC44IDcuOS0yOS43IDIwTDEzNiA2NDMuMlYyNTZ6IG02MzUuMyA1MTJIMTU5bDEwMy4zLTI1Nmg2MTIuNEw3NzEuMyA3Njh6IiBwLWlkPSIxNDY3OCIgZmlsbD0iIzcwNzA3MCI+PC9wYXRoPjwvc3ZnPg==');
         }
       }
     }
   }
   :deep(summary) {
     list-style: none;
-    background-image: url("data:image/svg+xml;base64,PHN2ZyB0PSIxNjkzMTA4MDk5NzczIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjEyODAyIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+PHBhdGggZD0iTTcwNy42MjY2NjcgMzY2LjI5MzMzM0w1MTIgNTYxLjkybC0xOTUuNjI2NjY3LTE5NS42MjY2NjdMMjU2IDQyNi42NjY2NjdsMjU2IDI1NiAyNTYtMjU2eiIgcC1pZD0iMTI4MDMiIGZpbGw9IiM3MDcwNzAiPjwvcGF0aD48L3N2Zz4=");
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB0PSIxNjkzMTA4MDk5NzczIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjEyODAyIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+PHBhdGggZD0iTTcwNy42MjY2NjcgMzY2LjI5MzMzM0w1MTIgNTYxLjkybC0xOTUuNjI2NjY3LTE5NS42MjY2NjdMMjU2IDQyNi42NjY2NjdsMjU2IDI1NiAyNTYtMjU2eiIgcC1pZD0iMTI4MDMiIGZpbGw9IiM3MDcwNzAiPjwvcGF0aD48L3N2Zz4=');
     background-size: 20px;
     background-repeat: no-repeat;
     background-position: left center;
@@ -113,7 +109,7 @@ defineProps<State>()
       display: inline-block;
       width: 20px;
       height: 20px;
-      background-image: url("data:image/svg+xml;base64,PHN2ZyB0PSIxNjkzMTA5NjU3MTE2IiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjE0MzcwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+PHBhdGggZD0iTTg1My4zMzMzMzMgMjY2LjY2NjY2N0g1MTQuMTMzMzMzYy00LjI2NjY2NyAwLTYuNC0yLjEzMzMzMy04LjUzMzMzMy00LjI2NjY2N2wtMzguNC02Ni4xMzMzMzNjLTEyLjgtMjEuMzMzMzMzLTM4LjQtMzYuMjY2NjY3LTY0LTM2LjI2NjY2N0gxNzAuNjY2NjY3Yy00MC41MzMzMzMgMC03NC42NjY2NjcgMzQuMTMzMzMzLTc0LjY2NjY2NyA3NC42NjY2Njd2NTU0LjY2NjY2NmMwIDQwLjUzMzMzMyAzNC4xMzMzMzMgNzQuNjY2NjY3IDc0LjY2NjY2NyA3NC42NjY2NjdoNjgyLjY2NjY2NmM0MC41MzMzMzMgMCA3NC42NjY2NjctMzQuMTMzMzMzIDc0LjY2NjY2Ny03NC42NjY2NjdWMzQxLjMzMzMzM2MwLTQwLjUzMzMzMy0zNC4xMzMzMzMtNzQuNjY2NjY3LTc0LjY2NjY2Ny03NC42NjY2NjZ6IG0tNjgyLjY2NjY2Ni00Mi42NjY2NjdoMjMyLjUzMzMzM2M0LjI2NjY2NyAwIDYuNCAyLjEzMzMzMyA4LjUzMzMzMyA0LjI2NjY2N2wzOC40IDY2LjEzMzMzM2MxMi44IDIxLjMzMzMzMyAzOC40IDM2LjI2NjY2NyA2NCAzNi4yNjY2NjdIODUzLjMzMzMzM2M2LjQgMCAxMC42NjY2NjcgNC4yNjY2NjcgMTAuNjY2NjY3IDEwLjY2NjY2NnY3NC42NjY2NjdoLTcwNFYyMzQuNjY2NjY3YzAtNi40IDQuMjY2NjY3LTEwLjY2NjY2NyAxMC42NjY2NjctMTAuNjY2NjY3eiBtNjgyLjY2NjY2NiA1NzZIMTcwLjY2NjY2N2MtNi40IDAtMTAuNjY2NjY3LTQuMjY2NjY3LTEwLjY2NjY2Ny0xMC42NjY2NjdWNDgwaDcwNFY3ODkuMzMzMzMzYzAgNi40LTQuMjY2NjY3IDEwLjY2NjY2Ny0xMC42NjY2NjcgMTAuNjY2NjY3eiIgZmlsbD0iIzcwNzA3MCIgcC1pZD0iMTQzNzEiPjwvcGF0aD48L3N2Zz4=");
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB0PSIxNjkzMTA5NjU3MTE2IiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjE0MzcwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+PHBhdGggZD0iTTg1My4zMzMzMzMgMjY2LjY2NjY2N0g1MTQuMTMzMzMzYy00LjI2NjY2NyAwLTYuNC0yLjEzMzMzMy04LjUzMzMzMy00LjI2NjY2N2wtMzguNC02Ni4xMzMzMzNjLTEyLjgtMjEuMzMzMzMzLTM4LjQtMzYuMjY2NjY3LTY0LTM2LjI2NjY2N0gxNzAuNjY2NjY3Yy00MC41MzMzMzMgMC03NC42NjY2NjcgMzQuMTMzMzMzLTc0LjY2NjY2NyA3NC42NjY2Njd2NTU0LjY2NjY2NmMwIDQwLjUzMzMzMyAzNC4xMzMzMzMgNzQuNjY2NjY3IDc0LjY2NjY2NyA3NC42NjY2NjdoNjgyLjY2NjY2NmM0MC41MzMzMzMgMCA3NC42NjY2NjctMzQuMTMzMzMzIDc0LjY2NjY2Ny03NC42NjY2NjdWMzQxLjMzMzMzM2MwLTQwLjUzMzMzMy0zNC4xMzMzMzMtNzQuNjY2NjY3LTc0LjY2NjY2Ny03NC42NjY2NjZ6IG0tNjgyLjY2NjY2Ni00Mi42NjY2NjdoMjMyLjUzMzMzM2M0LjI2NjY2NyAwIDYuNCAyLjEzMzMzMyA4LjUzMzMzMyA0LjI2NjY2N2wzOC40IDY2LjEzMzMzM2MxMi44IDIxLjMzMzMzMyAzOC40IDM2LjI2NjY2NyA2NCAzNi4yNjY2NjdIODUzLjMzMzMzM2M2LjQgMCAxMC42NjY2NjcgNC4yNjY2NjcgMTAuNjY2NjY3IDEwLjY2NjY2NnY3NC42NjY2NjdoLTcwNFYyMzQuNjY2NjY3YzAtNi40IDQuMjY2NjY3LTEwLjY2NjY2NyAxMC42NjY2NjctMTAuNjY2NjY3eiBtNjgyLjY2NjY2NiA1NzZIMTcwLjY2NjY2N2MtNi40IDAtMTAuNjY2NjY3LTQuMjY2NjY3LTEwLjY2NjY2Ny0xMC42NjY2NjdWNDgwaDcwNFY3ODkuMzMzMzMzYzAgNi40LTQuMjY2NjY3IDEwLjY2NjY2Ny0xMC42NjY2NjcgMTAuNjY2NjY3eiIgZmlsbD0iIzcwNzA3MCIgcC1pZD0iMTQzNzEiPjwvcGF0aD48L3N2Zz4=');
       background-size: 1.2em;
       background-repeat: no-repeat;
       background-position: left center;

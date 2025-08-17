@@ -18,7 +18,7 @@ export interface RouteNodeMeta extends RouteMeta {
   hidden: boolean;
 }
 
-export interface RouteNode extends Omit<RouteRecordRaw, 'meta' | 'children' | 'component'>{
+export interface RouteNode extends Omit<RouteRecordRaw, 'meta' | 'children' | 'component'> {
   id: number;
   parentId?: number;
   menuType: number;

@@ -1,116 +1,110 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, useTemplateRef} from "vue";
-import {NoticeTypeEnums} from "@/utils/enums";
-import {STORAGE_KEY_READ_MESSAGE} from "@/utils/constants";
-import { page as noticePage } from '@/api/system/sysNotice'
-import dayjs from "dayjs";
-import SysNoticeViewDialog from "@/views/system/sysNotice/SysNoticeViewDialog.vue";
-import useLoading from "@/hooks/loading";
-import {type PopoverInstance} from "element-plus";
-import {type Notice} from "@/types/system/notice";
+import { computed, onMounted, ref, useTemplateRef } from 'vue';
+import dayjs from 'dayjs';
+import { type PopoverInstance } from 'element-plus';
+
+import { NoticeTypeEnums } from '@/utils/enums';
+import { STORAGE_KEY_READ_MESSAGE } from '@/utils/constants';
+import { page as noticePage } from '@/api/system/sysNotice';
+import SysNoticeViewDialog from '@/views/system/sysNotice/SysNoticeViewDialog.vue';
+import useLoading from '@/hooks/loading';
+import { type Notice } from '@/types/system/notice';
 
 type NoticeItem = Notice & {
-  read: boolean
-  time: string
-}
+  read: boolean;
+  time: string;
+};
 
-const refMessagePopover = useTemplateRef<PopoverInstance>('refMessagePopover')
-const refSysNoticeViewDialog = useTemplateRef('refSysNoticeViewDialog')
-const { loading, setLoading } = useLoading(false)
-const active = ref(NoticeTypeEnums.INFO.value)
-const list = ref<NoticeItem[]>([])
+const refMessagePopover = useTemplateRef<PopoverInstance>('refMessagePopover');
+const refSysNoticeViewDialog = useTemplateRef('refSysNoticeViewDialog');
+const { loading, setLoading } = useLoading(false);
+const active = ref(NoticeTypeEnums.INFO.value);
+const list = ref<NoticeItem[]>([]);
 
 const unReadMessageCount1 = computed(() => {
-  const count = list.value
-    .filter(item => item.type === NoticeTypeEnums.INFO.value)
-    .filter(item => !item.read).length
+  const count = list.value.filter((item) => item.type === NoticeTypeEnums.INFO.value).filter((item) => !item.read).length;
   if (count < 1) {
-    return ''
+    return '';
   }
-  return `(${count > 99 ? '99+' : count})`
-})
+  return `(${count > 99 ? '99+' : count})`;
+});
 const unReadMessageCount2 = computed(() => {
-  const count = list.value
-    .filter(item => item.type === NoticeTypeEnums.ANNOUNCEMENT.value)
-    .filter(item => !item.read).length
+  const count = list.value.filter((item) => item.type === NoticeTypeEnums.ANNOUNCEMENT.value).filter((item) => !item.read).length;
   if (count < 1) {
-    return ''
+    return '';
   }
-  return `(${count > 99 ? '99+' : count})`
-})
+  return `(${count > 99 ? '99+' : count})`;
+});
 const allUnReadMessageCount = computed(() => {
-  return list.value.filter(item => !item.read).length
-})
+  return list.value.filter((item) => !item.read).length;
+});
 const showList = computed(() => {
   // 对结果进行排序，未读的排在前面
-  return list.value.filter(item => item.type === active.value)
+  return list.value
+    .filter((item) => item.type === active.value)
     .sort((a, b) => {
       if (a.read && !b.read) {
-        return 1
+        return 1;
       }
       if (!a.read && b.read) {
-        return -1
+        return -1;
       }
-      return 0
-    })
-})
+      return 0;
+    });
+});
 
 onMounted(() => {
-  onRefresh()
-})
+  onRefresh();
+});
 
 function onChecked(index: number) {
-  active.value = index
-  onRefresh()
+  active.value = index;
+  onRefresh();
 }
 function onRefresh() {
-  setLoading(true)
+  setLoading(true);
   noticePage({
     sort: ['create_time,desc'],
-    status: 0
-  }).then(res => {
-    const readMessage = localStorage.getItem(STORAGE_KEY_READ_MESSAGE)
-    const readMessageList = readMessage ? JSON.parse(readMessage) : []
-    list.value = res.data.records.map(item => {
-      return {
-        ...item,
-        read: readMessageList.includes(item.id),
-        time: dayjs(item.createTime).fromNow()
-      }
-    })
-  }).finally(() => {
-    setLoading(false)
+    status: 0,
   })
+    .then((res) => {
+      const readMessage = localStorage.getItem(STORAGE_KEY_READ_MESSAGE);
+      const readMessageList = readMessage ? JSON.parse(readMessage) : [];
+      list.value = res.data.records.map((item) => {
+        return {
+          ...item,
+          read: readMessageList.includes(item.id),
+          time: dayjs(item.createTime).fromNow(),
+        };
+      });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
 }
 function onItemChecked(item: NoticeItem) {
-  item.read = true
-  const readMessage = localStorage.getItem(STORAGE_KEY_READ_MESSAGE)
-  const readMessageList = readMessage ? JSON.parse(readMessage) : []
-  readMessageList.push(item.id)
-  localStorage.setItem(STORAGE_KEY_READ_MESSAGE, JSON.stringify(readMessageList))
-  refSysNoticeViewDialog.value?.open(item)
+  item.read = true;
+  const readMessage = localStorage.getItem(STORAGE_KEY_READ_MESSAGE);
+  const readMessageList = readMessage ? JSON.parse(readMessage) : [];
+  readMessageList.push(item.id);
+  localStorage.setItem(STORAGE_KEY_READ_MESSAGE, JSON.stringify(readMessageList));
+  refSysNoticeViewDialog.value?.open(item);
 }
 function onAllRead() {
-  const readMessageList = list.value.map(item => item.id)
-  list.value.forEach(item => item.read = true)
-  localStorage.setItem(STORAGE_KEY_READ_MESSAGE, JSON.stringify(readMessageList))
+  const readMessageList = list.value.map((item) => item.id);
+  list.value.forEach((item) => (item.read = true));
+  localStorage.setItem(STORAGE_KEY_READ_MESSAGE, JSON.stringify(readMessageList));
 }
 </script>
 
 <script lang="ts">
 export default {
-  name: 'Message'
-}
+  name: 'Message',
+};
 </script>
 
 <template>
-  <el-popover
-    ref="refMessagePopover"
-    placement="bottom-start"
-    width="fit-content"
-    popper-class="message-box-popover"
-    trigger="click"
-  >
+  <el-popover ref="refMessagePopover" placement="bottom-start" width="fit-content" popper-class="message-box-popover" trigger="click">
     <div class="message-box-wrapper">
       <nav class="message-box-wrapper__header">
         <ul>
@@ -125,7 +119,9 @@ export default {
               <eu-avatar shape="square" :size="40" :src="item.publisher" :nickname="item.publisher" class="message-box-wrapper__body-item__avatar" />
               <div class="message-box-wrapper__body-item__content">
                 <div class="message-box-wrapper__body-item__content-title">{{ item.title }}</div>
-                <div class="message-box-wrapper__body-item__content-description">{{ item.description }}</div>
+                <div class="message-box-wrapper__body-item__content-description">
+                  {{ item.description }}
+                </div>
                 <div class="message-box-wrapper__body-item__content-time">{{ item.time }}</div>
               </div>
             </li>
@@ -140,7 +136,7 @@ export default {
     </div>
     <template #reference>
       <div @click="onRefresh()">
-        <slot name="reference" :message-count="allUnReadMessageCount"></slot>
+        <slot name="reference" :message-count="allUnReadMessageCount" />
       </div>
     </template>
     <sys-notice-view-dialog ref="refSysNoticeViewDialog" />
@@ -154,7 +150,7 @@ export default {
 }
 </style>
 <style scoped lang="scss">
-@use "@/assets/styles/mixin.scss";
+@use '@/assets/styles/mixin.scss';
 .message-box-wrapper {
   width: 350px;
   box-sizing: border-box;
@@ -163,7 +159,7 @@ export default {
   padding: 0 16px;
   position: relative;
   &:after {
-    content: "";
+    content: '';
     position: absolute;
     bottom: 0;
     left: 0;
@@ -184,7 +180,7 @@ export default {
       box-sizing: border-box;
       cursor: pointer;
       &.active:after {
-        content: "";
+        content: '';
         display: block;
         position: absolute;
         bottom: 0;
@@ -197,7 +193,8 @@ export default {
         height: 0;
         width: 70px;
       }
-      &.active,&:hover {
+      &.active,
+      &:hover {
         color: var(--color-primary);
       }
       & + li {
@@ -231,7 +228,7 @@ export default {
         margin: 5px 0;
       }
       .message-box-wrapper__body-item__content-time {
-        color: #C0C4CC;
+        color: #c0c4cc;
       }
     }
     & + .message-box-wrapper__body-item {
@@ -271,7 +268,7 @@ export default {
     height: 1px;
     background: var(--color-border-1, #ebeef5);
   }
-  >div {
+  > div {
     flex: 1;
     text-align: center;
     position: relative;
