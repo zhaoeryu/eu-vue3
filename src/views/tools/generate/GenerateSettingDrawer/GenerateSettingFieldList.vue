@@ -9,7 +9,7 @@ import { page as dictPage } from '@/api/system/dict';
 import type { GenerateColumn } from '@/types/system/generate';
 import mFormItemComponents from '@/utils/m-form-item-components';
 import type { Dict } from '@/types/system/dict';
-import businessEnums from '@/utils/business-enums';
+import * as businessEnums from '@/utils/business-enums';
 
 const generateInfo = inject<State>('generateInfo')!;
 const [state, _reset] = useResettableReactive({

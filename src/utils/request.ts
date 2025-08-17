@@ -97,7 +97,7 @@ export async function download(url: string, params: object, filename: string, co
       ...config,
     })
     .then(async (data) => {
-      if (data instanceof Blob && data.type === 'application/octet-stream') {
+      if (data instanceof Blob && data.type !== 'application/json') {
         downloadBlobFile(data, filename);
       } else {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
