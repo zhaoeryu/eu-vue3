@@ -7,9 +7,9 @@ import 'virtual:svg-icons-register';
 import directive from '@/directive';
 import plugins from '@/plugins';
 
-import store from './store';
 import App from './App.vue';
 import router from './router/routers';
+import store from './store';
 import './router';
 
 const app = createApp(App);

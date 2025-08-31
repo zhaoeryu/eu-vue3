@@ -1,5 +1,5 @@
-import type { Enum, EnumItem } from '@/types/generic';
 import type { DeviceType } from '@/store/modules/settings';
+import type { Enum, EnumItem } from '@/types/generic';
 
 /**
  * 设备类型
@@ -84,7 +84,7 @@ export function enumsParse(enums: Enum, value: number | string | null, field = '
       fieldValue = enums[key][field];
     }
   });
-  return fieldValue || defaultValue;
+  return fieldValue ?? defaultValue;
 }
 export function enumsParseLabel(enums: Enum, value: number | string | null, defaultValue = null) {
   return enumsParse(enums, value, 'label', defaultValue);
@@ -100,5 +100,5 @@ export function enumsConvertToList(enums: Enum): EnumItem[] {
 }
 
 export function enumsFindByValue(enums: Enum, value: number | string | boolean | null): EnumItem | null {
-  return enumsConvertToList(enums).find((item) => item.value === value) || null;
+  return enumsConvertToList(enums).find((item) => item.value === value) ?? null;
 }

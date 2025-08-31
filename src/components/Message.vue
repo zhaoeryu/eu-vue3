@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, useTemplateRef } from 'vue';
 import dayjs from 'dayjs';
-import { type PopoverInstance } from 'element-plus';
+import type {PopoverInstance} from 'element-plus';
+import { computed, onMounted, ref, useTemplateRef } from 'vue';
 
-import { NoticeTypeEnums } from '@/utils/enums';
-import { STORAGE_KEY_READ_MESSAGE } from '@/utils/constants';
 import { page as noticePage } from '@/api/system/sysNotice';
-import SysNoticeViewDialog from '@/views/system/sysNotice/SysNoticeViewDialog.vue';
 import useLoading from '@/hooks/loading';
-import { type Notice } from '@/types/system/notice';
+import type {Notice} from '@/types/system/notice';
+import { STORAGE_KEY_READ_MESSAGE } from '@/utils/constants';
+import { NoticeTypeEnums } from '@/utils/enums';
+import SysNoticeViewDialog from '@/views/system/sysNotice/SysNoticeViewDialog.vue';
 
 type NoticeItem = Notice & {
   read: boolean;

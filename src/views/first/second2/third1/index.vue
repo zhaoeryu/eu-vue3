@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 export default {
   name: 'Second2Third1',
   data() {

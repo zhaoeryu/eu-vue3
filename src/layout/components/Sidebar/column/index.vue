@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { computed, nextTick, ref, useTemplateRef } from 'vue';
 import { useRoute } from 'vue-router';
-import { computed, defineOptions, nextTick, ref, useTemplateRef } from 'vue';
 
 import FirstSidebarItem from '@/layout/components/Sidebar/column/FirstSidebarItem.vue';
 import SecondSidebar from '@/layout/components/Sidebar/column/SecondSidebar.vue';
@@ -27,7 +27,7 @@ const menuList = computed(() => {
 });
 
 const secondNavList = computed(() => {
-  return (useRouteStore().routes.find((item) => item.path === activeFirstMenuPath.value)?.children || []).filter((item) => !item.hidden);
+  return (useRouteStore().routes.find((item) => item.path === activeFirstMenuPath.value)?.children ?? []).filter((item) => !item.hidden);
 });
 
 function disabledFirstNav(item: RouteNode) {
@@ -74,17 +74,31 @@ async function onFirstItemClick() {
         >
           <!-- 一级菜单Item -->
           <template #reference>
-            <first-sidebar-item :item="item" :menu-list="menuList" :class="{ hover: firstMenuHover[index] }" @item-click="onFirstItemClick" />
+            <first-sidebar-item
+              :item="item"
+              :menu-list="menuList"
+              :class="{ hover: firstMenuHover[index] }"
+              @item-click="onFirstItemClick"
+            />
           </template>
           <!-- 二级菜单弹出层 -->
           <div class="eu-nav-pop-inner">
-            <second-sidebar ref="popSecondSidebar" :second-nav-list="item.children.filter((m) => !m.hidden)" class="eu-nav-pop-scroll-wrapper" @item-click="onItemClick" />
+            <second-sidebar
+              ref="popSecondSidebar"
+              :second-nav-list="item.children.filter((m) => !m.hidden)"
+              class="eu-nav-pop-scroll-wrapper"
+              @item-click="onItemClick"
+            />
           </div>
         </el-popover>
       </ul>
     </nav>
     <!-- 二级菜单 -->
-    <second-sidebar ref="refSecondSidebar" :second-nav-list="secondNavList" class="eu-nav-sidebar__second" />
+    <second-sidebar
+      ref="refSecondSidebar"
+      :second-nav-list="secondNavList"
+      class="eu-nav-sidebar__second"
+    />
   </div>
 </template>
 
@@ -94,6 +108,7 @@ async function onFirstItemClick() {
   display: inherit;
   width: inherit;
 }
+
 // 一级菜单
 .eu-nav-sidebar__first {
   width: var(--sidebar-first-width, 124px);
@@ -101,16 +116,19 @@ async function onFirstItemClick() {
   height: calc(100vh - var(--layout-header-nav-height));
   display: flex;
   flex-direction: column;
+
   .eu-nav-sidebar__first-list {
     flex: 1;
     font-size: 14px;
     overflow-y: auto;
     padding: 12px 0;
+
     &::-webkit-scrollbar {
       width: 0;
     }
   }
 }
+
 // 二级菜单
 .eu-nav-sidebar__second {
   width: var(--sidebar-second-width, 140px);
@@ -141,6 +159,7 @@ async function onFirstItemClick() {
   border-radius: 2px;
   padding: 12px 0;
 }
+
 .eu-nav-pop-scroll-wrapper {
   :deep(.eu-nav-scroll) {
     max-height: 650px;

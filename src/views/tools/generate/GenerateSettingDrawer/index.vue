@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { computed, provide, useTemplateRef } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { computed, provide, useTemplateRef } from 'vue';
 
-import { useResettableReactive } from '@/hooks/resettable';
+import { tableInfo, syncTable, save } from '@/api/system/generate';
 import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
 import useVisible from '@/hooks/visible';
 import type { GenerateColumn, GenerateTable } from '@/types/system/generate';
-import GenerateSettingTable from '@/views/tools/generate/GenerateSettingDrawer/GenerateSettingTable.vue';
-import GenerateSettingFieldList from '@/views/tools/generate/GenerateSettingDrawer/GenerateSettingFieldList.vue';
-import { tableInfo, syncTable, save } from '@/api/system/generate';
-import GeneratePreview from '@/views/tools/generate/GeneratePreview.vue';
 import { download } from '@/utils/request';
+import GeneratePreview from '@/views/tools/generate/GeneratePreview.vue';
+import GenerateSettingFieldList from '@/views/tools/generate/GenerateSettingDrawer/GenerateSettingFieldList.vue';
+import type GenerateSettingTable from '@/views/tools/generate/GenerateSettingDrawer/GenerateSettingTable.vue';
 
-export type State = {
+export interface State {
   gen: GenerateTable;
   list: GenerateColumn[];
   form: GenerateTable;
@@ -140,15 +140,28 @@ export default {
 </script>
 
 <template>
-  <eu-drawer v-model="visible" :title="pageTitle" size="90%">
+  <eu-drawer
+    v-model="visible"
+    :title="pageTitle"
+    size="90%"
+  >
     <div class="padding-sm">
-      <eu-loading v-if="loading" style="height: 300px" />
+      <eu-loading
+        v-if="loading"
+        style="height: 300px"
+      />
 
       <template v-else>
-        <m-block-header title="表配置" :background="false" />
+        <m-block-header
+          title="表配置"
+          :background="false"
+        />
         <generate-setting-table ref="generateSettingTable" />
 
-        <m-block-header title="字段配置" :background="false" />
+        <m-block-header
+          title="字段配置"
+          :background="false"
+        />
         <generate-setting-field-list ref="generateSettingFieldList" />
       </template>
     </div>
@@ -156,10 +169,27 @@ export default {
     <generate-preview ref="refGeneratePreview" />
 
     <template #footer-right>
-      <el-button :disabled="loading" :loading="formLoading" @click="onSync">同步</el-button>
-      <el-button :disabled="loading" :loading="formLoading" @click="onGenerate">生成</el-button>
-      <el-button :disabled="loading" @click="onPreviewCode">代码预览</el-button>
-      <el-button :disabled="loading" class="eu-submit-btn" type="primary" :loading="formLoading" @click="onSave">保存</el-button>
+      <el-button
+        :disabled="loading"
+        :loading="formLoading"
+        @click="onSync"
+      >同步</el-button>
+      <el-button
+        :disabled="loading"
+        :loading="formLoading"
+        @click="onGenerate"
+      >生成</el-button>
+      <el-button
+        :disabled="loading"
+        @click="onPreviewCode"
+      >代码预览</el-button>
+      <el-button
+        :disabled="loading"
+        class="eu-submit-btn"
+        type="primary"
+        :loading="formLoading"
+        @click="onSave"
+      >保存</el-button>
     </template>
   </eu-drawer>
 </template>

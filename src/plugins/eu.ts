@@ -3,24 +3,24 @@ import type { App, Component } from 'vue';
 import '@/assets/styles/element-plus.scss';
 import '@/assets/styles/index.scss';
 
-import SvgIcon from '@/components/SvgIcon.vue';
-import EuAvatar from '@/components/EuAvatar.vue';
-import MBlockHeader from '@/components/MBlockHeader.vue';
-import EuEditor from '@/components/EuEditor.vue';
-import Pagination from '@/components/Pagination.vue';
 import EuTableToolbar from '@/components/Crud/EuTableToolbar.vue';
 import QueryExpandWrapper from '@/components/Crud/QueryExpandWrapper.vue';
-import UploadFile from '@/components/UploadFile.vue';
-import EuLoading from '@/components/EuLoading.vue';
-import MCornerDecoration from '@/components/MCornerDecoration.vue';
+import DictSelect from '@/components/DictSelect.vue';
+import DictTag from '@/components/DictTag.vue';
+import DictText from '@/components/DictText.vue';
 import EnumRadioGroup from '@/components/EnumRadioGroup.vue';
 import EnumSelect from '@/components/EnumSelect.vue';
 import EnumTag from '@/components/EnumTag.vue';
 import EnumText from '@/components/EnumText.vue';
+import EuAvatar from '@/components/EuAvatar.vue';
 import EuDrawer from '@/components/EuDrawer.vue';
-import DictSelect from '@/components/DictSelect.vue';
-import DictTag from '@/components/DictTag.vue';
-import DictText from '@/components/DictText.vue';
+import EuEditor from '@/components/EuEditor.vue';
+import EuLoading from '@/components/EuLoading.vue';
+import MBlockHeader from '@/components/MBlockHeader.vue';
+import MCornerDecoration from '@/components/MCornerDecoration.vue';
+import Pagination from '@/components/Pagination.vue';
+import SvgIcon from '@/components/SvgIcon.vue';
+import UploadFile from '@/components/UploadFile.vue';
 // 导入自定义的表单组件
 import mFormItemComponents from '@/utils/m-form-item-components';
 
@@ -43,9 +43,7 @@ const components = {
   DictSelect,
   DictTag,
   DictText,
-} as {
-  [key in string]: Component;
-};
+} as Record<string, Component>;
 
 export default {
   install: (Vue: App) => {

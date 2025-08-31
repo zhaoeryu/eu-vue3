@@ -62,9 +62,9 @@ export interface GeneratePreview {
   i18n: boolean;
 }
 
-export type GeneratePreviewTree = {
+export interface GeneratePreviewTree {
   name: string;
   type: string;
   code: string;
   children: GeneratePreviewTree[];
-};
+}

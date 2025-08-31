@@ -1,11 +1,17 @@
 <template>
-  <editor :id="tinymceId" v-model="model" :init="init" :enabled="!disabled" class="eu-tinymce" />
+  <editor
+    :id="tinymceId"
+    v-model="model"
+    :init="init"
+    :enabled="!disabled"
+    class="eu-tinymce"
+  />
 </template>
 <script setup lang="ts">
-import { reactive, ref, defineProps, watch } from 'vue';
-import tinymce from 'tinymce/tinymce';
 import Editor from '@tinymce/tinymce-vue';
 import { useZIndex } from 'element-plus';
+import tinymce from 'tinymce/tinymce';
+import { reactive, ref, watch } from 'vue';
 
 import { uploadFile } from '@/api/upload';
 import 'tinymce/icons/default/icons';
@@ -63,7 +69,6 @@ const props = defineProps({
     default: 400,
   },
   // 编辑器初始可编辑状态
-  // eslint-disable-next-line vue/prop-name-casing
   editable_root: {
     type: Boolean,
     default: true,
@@ -148,10 +153,7 @@ const init = reactive({
           resolve(res.link);
         })
         .catch((e) => {
-          reject({
-            message: e.message,
-            remove: true,
-          });
+          reject(new Error(e.message));
         });
     });
   },

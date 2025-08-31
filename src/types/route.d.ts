@@ -1,4 +1,4 @@
-import { RouteRecordRaw, RouteMeta } from 'vue-router';
+import type { RouteRecordRaw, RouteMeta } from 'vue-router';
 
 export interface RouteNodeMeta extends RouteMeta {
   title: string;

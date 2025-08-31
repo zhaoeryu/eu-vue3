@@ -1,9 +1,9 @@
 import type { App } from 'vue';
 
-import ElementPlus from './element-plus';
-import ThirdParty from './third-party';
-import Eu from './eu';
 import VueDataDict from './dict';
+import ElementPlus from './element-plus';
+import Eu from './eu';
+import ThirdParty from './third-party';
 
 export default {
   install: (Vue: App) => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, useTemplateRef, withDefaults } from 'vue';
 import { Delete, Download, Plus, Refresh, Search, Setting, Sort, Upload } from '@element-plus/icons-vue';
-import { type TableInstance } from 'element-plus';
+import type {TableInstance} from 'element-plus';
+import { computed, useTemplateRef, withDefaults } from 'vue';
 
 import EuSortDialog from '@/components/Crud/EuSortDialog.vue';
 import TableColumnSettingDialog from '@/components/TableColumnSettingDialog.vue';

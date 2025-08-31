@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { computed, watchEffect } from 'vue';
 import { useWindowSize } from '@vueuse/core';
+import { computed, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 
-import Sidebar from '@/layout/components/Sidebar/index.vue';
-import ThemeConfig from '@/layout/components/ThemeConfig/index.vue';
 import AppContainerBody from '@/layout/components/AppContainerBody/index.vue';
 import AppContainerFooter from '@/layout/components/AppContainerFooter/index.vue';
-import HeaderNavBar from '@/layout/components/HeaderNavBar/index.vue';
 import AppContainerHeader from '@/layout/components/AppContainerHeader/index.vue';
 import AppContainerTabs from '@/layout/components/AppContainerTabs/index.vue';
+import HeaderNavBar from '@/layout/components/HeaderNavBar/index.vue';
+import Sidebar from '@/layout/components/Sidebar/index.vue';
+import ThemeConfig from '@/layout/components/ThemeConfig/index.vue';
 import { useSettingsStore, useRouteStore } from '@/store';
-import { DeviceTypeEnums } from '@/utils/enums';
 import type { RouteNode } from '@/types/route';
+import { DeviceTypeEnums } from '@/utils/enums';
 
 const route = useRoute();
 const settingsStore = useSettingsStore();
@@ -21,7 +21,7 @@ const routeStore = useRouteStore();
 const isSecondNavHidden = computed(() => {
   const activeFirstMenu = route.matched[0];
   const activeFirstMenuPath = activeFirstMenu?.path === '' ? '/' : activeFirstMenu?.path;
-  const secondNavList = (routeStore.routes.find((item) => item.path === activeFirstMenuPath)?.children || ([] as RouteNode[])).filter((item) => !item.hidden);
+  const secondNavList = (routeStore.routes.find((item) => item.path === activeFirstMenuPath)?.children ?? ([] as RouteNode[])).filter((item) => !item.hidden);
   const isNotMultiChildren = secondNavList.length < 2;
   const isAlwaysShow = activeFirstMenu?.meta?.alwaysShow;
   return isNotMultiChildren && !isAlwaysShow;
@@ -79,7 +79,10 @@ export default {
     <!-- 主题配置 -->
     <theme-config />
     <!-- 回到顶部 -->
-    <el-backtop ref="elBackTop" target="#app-container__main"></el-backtop>
+    <el-backtop
+      ref="elBackTop"
+      target="#app-container__main"
+    ></el-backtop>
   </div>
 </template>
 
@@ -87,10 +90,12 @@ export default {
 #eu-layout {
   position: relative;
 }
+
 #app-container {
   box-sizing: border-box;
   padding-top: var(--layout-header-nav-height);
 }
+
 #app-container__main {
   margin-left: var(--sidebar-width);
   box-sizing: border-box;
@@ -101,18 +106,23 @@ export default {
   display: flex;
   flex-direction: column;
 }
+
 .sidebar-collapsed {
   // 折叠情况下菜单栏的宽度
   --sidebar-width: var(--sidebar-collapse-width) !important;
 }
+
 #eu-layout {
+
   // 分栏布局
   &.eu-layout_column {
+
     // 不折叠并且二级菜单隐藏情况下的菜单栏宽度
     &:not(.sidebar-collapsed).eu-nav-second-sidebar-hidden {
       --sidebar-width: var(--sidebar-first-width);
     }
   }
+
   // 侧边布局
   &.eu-layout_vertical {
     --sidebar-width: var(--sidebar-vertical-width);
@@ -127,6 +137,7 @@ export default {
     top: var(--layout-header-nav-height);
     z-index: 10;
   }
+
   #app-container__main {
     height: calc(100vh - var(--layout-header-nav-height));
     padding-top: 38px;

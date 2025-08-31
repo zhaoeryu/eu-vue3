@@ -1,5 +1,5 @@
+import type {UploadResult} from '@/types/api';
 import request from '@/utils/request';
-import { type UploadResult } from '@/types/api';
 
 export function uploadFile(data: FormData): Promise<UploadResult> {
   return request({

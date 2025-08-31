@@ -14,16 +14,15 @@ export function darkMode(theme: ThemeMode = 'syncOS') {
   }
   const darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
   // 判断是否匹配深色模式
-  if (darkMode && darkMode.matches) {
+  if (darkMode?.matches) {
     handleDarkMode(true);
   } else {
     handleDarkMode(false);
   }
   // 监听主题切换事件
-  darkMode &&
-    darkMode.addEventListener('change', (e) => {
-      handleDarkMode(e.matches);
-    });
+  darkMode?.addEventListener('change', (e) => {
+    handleDarkMode(e.matches);
+  });
 }
 
 export function isDark() {

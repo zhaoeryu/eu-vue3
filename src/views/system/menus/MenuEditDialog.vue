@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import { ElMessage  } from 'element-plus';
+import type {FormInstance} from 'element-plus';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
-import { ElMessage, type FormInstance } from 'element-plus';
 
-import IconSelect from '@/components/IconSelect.vue';
 import { add, update } from '@/api/system/menu';
-import useVisible from '@/hooks/visible';
+import EnumRadioGroup from '@/components/EnumRadioGroup.vue';
+import IconSelect from '@/components/IconSelect.vue';
 import useLoading from '@/hooks/loading';
 import { useResettableReactive } from '@/hooks/resettable';
+import useVisible from '@/hooks/visible';
 import type { MenuTree } from '@/types/system/menu';
-import EnumRadioGroup from '@/components/EnumRadioGroup.vue';
 import { EnableFlagEnums, MenuTypeEnums } from '@/utils/enums';
 
 const emit = defineEmits(['complete']);

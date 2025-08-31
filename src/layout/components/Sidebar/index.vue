@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import MenuCollapseButton from '@/layout/components/Sidebar/MenuCollapseButton.vue';
 import SidebarColumn from '@/layout/components/Sidebar/column/index.vue';
+import MenuCollapseButton from '@/layout/components/Sidebar/MenuCollapseButton.vue';
 import SidebarVertical from '@/layout/components/Sidebar/vertical/index.vue';
 import { useSettingsStore } from '@/store';
 

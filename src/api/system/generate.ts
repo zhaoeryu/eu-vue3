@@ -1,6 +1,6 @@
-import request from '@/utils/request';
 import type { PageResult, ResultBody } from '@/types/api';
 import type { GenerateTable } from '@/types/system/generate';
+import request from '@/utils/request';
 
 export function page(params: any): Promise<ResultBody<PageResult<GenerateTable>>> {
   return request({

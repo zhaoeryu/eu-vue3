@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import type {PopoverInstance} from 'element-plus';
 import { computed, ref, useTemplateRef } from 'vue';
-import { type PopoverInstance } from 'element-plus';
 
 import icons from '@/utils/icons';
 
@@ -10,7 +10,7 @@ const refPopover = useTemplateRef<PopoverInstance>('refPopover');
 
 const filterIcons = computed(() => {
   if (keyword.value) {
-    return icons.filter((item) => item.includes(keyword.value as string));
+    return icons.filter((item) => item.includes(keyword.value!));
   }
   return icons;
 });

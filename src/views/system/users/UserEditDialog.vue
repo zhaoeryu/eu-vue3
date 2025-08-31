@@ -1,18 +1,19 @@
 <script setup lang="ts">
+import { ElMessage  } from 'element-plus';
+import type {FormInstance} from 'element-plus';
 import { computed, nextTick, useTemplateRef } from 'vue';
-import { ElMessage, type FormInstance } from 'element-plus';
 
 import { page as postListApi } from '@/api/system/post';
 import { page as roleListApi } from '@/api/system/role';
 import { add, update } from '@/api/system/user';
-import useVisible from '@/hooks/visible';
 import useLoading from '@/hooks/loading';
 import { useResettableReactive } from '@/hooks/resettable';
-import type { User } from '@/types/system/user';
-import type { DeptTree } from '@/types/system/dept';
+import useVisible from '@/hooks/visible';
 import type { ANY_OBJECT } from '@/types/generic';
-import type { Role } from '@/types/system/role';
+import type { DeptTree } from '@/types/system/dept';
 import type { Post } from '@/types/system/post';
+import type { Role } from '@/types/system/role';
+import type { User } from '@/types/system/user';
 
 const emit = defineEmits(['complete']);
 
@@ -82,7 +83,7 @@ function onSubmit() {
       return;
     }
 
-    if (state.form._deptIds && state.form._deptIds.length) {
+    if (state.form._deptIds?.length) {
       state.form.deptId = state.form._deptIds[state.form._deptIds.length - 1];
     } else {
       state.form.deptId = null;

@@ -1,6 +1,6 @@
-import request from '@/utils/request';
-import { type ResultBody } from '@/types/api';
+import type {ResultBody} from '@/types/api';
 import type { LoginInfo } from '@/types/system/user';
+import request from '@/utils/request';
 
 export function login(data: any): Promise<ResultBody<string>> {
   return request({

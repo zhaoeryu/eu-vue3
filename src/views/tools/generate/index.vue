@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { onMounted, useTemplateRef } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
 import { Refresh, Search } from '@element-plus/icons-vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { onMounted, useTemplateRef } from 'vue';
 
 import { page, syncTable } from '@/api/system/generate';
-import GeneratePreview from '@/views/tools/generate/GeneratePreview.vue';
-import GenerateSettingDrawer from '@/views/tools/generate/GenerateSettingDrawer/index.vue';
-import { download } from '@/utils/request';
 import useLoading from '@/hooks/loading';
 import { useResettableReactive } from '@/hooks/resettable';
 import type { GenerateTable } from '@/types/system/generate';
+import { download } from '@/utils/request';
+import GeneratePreview from '@/views/tools/generate/GeneratePreview.vue';
+import GenerateSettingDrawer from '@/views/tools/generate/GenerateSettingDrawer/index.vue';
 
 type GenerateRow = GenerateTable & {
   _genLoading: boolean;

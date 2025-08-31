@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, inject, useTemplateRef } from 'vue';
-import type { FormInstance } from 'element-plus';
 import { InfoFilled } from '@element-plus/icons-vue';
+import type { FormInstance } from 'element-plus';
+import { computed, inject, useTemplateRef } from 'vue';
 
 import type { State } from '@/views/tools/generate/GenerateSettingDrawer/index.vue';
 
@@ -21,7 +21,7 @@ function validate() {
   return new Promise((resolve, reject) => {
     refForm.value?.validate((valid) => {
       if (!valid) {
-        reject();
+        reject(new Error('验证失败'));
       } else {
         resolve({});
       }
@@ -35,33 +35,73 @@ defineExpose({
 </script>
 
 <template>
-  <el-form ref="refForm" :model="generateInfo.form" :rules="rules" label-width="150px">
+  <el-form
+    ref="refForm"
+    :model="generateInfo.form"
+    :rules="rules"
+    label-width="150px"
+  >
     <div class="grid grid-cols-3">
-      <el-form-item prop="tableComment" label="表注释">
-        <el-input v-model="generateInfo.form.tableComment" placeholder="请输入表注释"></el-input>
+      <el-form-item
+        prop="tableComment"
+        label="表注释"
+      >
+        <el-input
+          v-model="generateInfo.form.tableComment"
+          placeholder="请输入表注释"
+        ></el-input>
       </el-form-item>
-      <el-form-item prop="packageName" label="包路径">
+      <el-form-item
+        prop="packageName"
+        label="包路径"
+      >
         <template #label>
           <span>包路径</span>
-          <el-tooltip class="item" effect="dark" content="生成代码所在的包路径，默认：cn.eu.business" placement="top">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            content="生成代码所在的包路径，默认：cn.eu.business"
+            placement="top"
+          >
             <i class="el-icon-info" />
           </el-tooltip>
         </template>
-        <el-input v-model="generateInfo.form.packageName" placeholder="请输入包路径"></el-input>
+        <el-input
+          v-model="generateInfo.form.packageName"
+          placeholder="请输入包路径"
+        ></el-input>
       </el-form-item>
-      <el-form-item prop="moduleName" label="模块名">
+      <el-form-item
+        prop="moduleName"
+        label="模块名"
+      >
         <template #label>
           <span>模块名</span>
-          <el-tooltip class="item" effect="dark" content="生成代码所在的模块名，例如：eu-admin、eu-oss等，默认：eu-admin" placement="top">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            content="生成代码所在的模块名，例如：eu-admin、eu-oss等，默认：eu-admin"
+            placement="top"
+          >
             <i class="el-icon-info" />
           </el-tooltip>
         </template>
-        <el-input v-model="generateInfo.form.moduleName" placeholder="请输入模块名"></el-input>
+        <el-input
+          v-model="generateInfo.form.moduleName"
+          placeholder="请输入模块名"
+        ></el-input>
       </el-form-item>
-      <el-form-item prop="funcGroup" label="功能分组">
+      <el-form-item
+        prop="funcGroup"
+        label="功能分组"
+      >
         <template #label>
           <span>功能分组</span>
-          <el-tooltip class="item" effect="dark" placement="top">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            placement="top"
+          >
             <template #content>
               <p>对功能进行分组，例如：功能分组=oss</p>
               <ul>
@@ -73,23 +113,51 @@ defineExpose({
             <i class="el-icon-info" />
           </el-tooltip>
         </template>
-        <el-input v-model="generateInfo.form.funcGroup" placeholder="请输入功能分组"></el-input>
+        <el-input
+          v-model="generateInfo.form.funcGroup"
+          placeholder="请输入功能分组"
+        ></el-input>
       </el-form-item>
-      <el-form-item prop="author" label="作者">
-        <el-input v-model="generateInfo.form.author" placeholder="请输入作者"></el-input>
+      <el-form-item
+        prop="author"
+        label="作者"
+      >
+        <el-input
+          v-model="generateInfo.form.author"
+          placeholder="请输入作者"
+        ></el-input>
       </el-form-item>
-      <el-form-item prop="delShowField" label="删除时显示的字段">
+      <el-form-item
+        prop="delShowField"
+        label="删除时显示的字段"
+      >
         <template #label>
           <span>删除时显示的字段</span>
-          <el-tooltip class="item" effect="dark" placement="top">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            placement="top"
+          >
             <template #content>
               <p>确认要删除"${ row.$delShowField }"吗？</p>
             </template>
-            <el-icon><InfoFilled /></el-icon>
+            <el-icon>
+              <InfoFilled />
+            </el-icon>
           </el-tooltip>
         </template>
-        <el-select v-model="generateInfo.form.delShowField" placeholder="请选择删除时显示的字段" filterable clearable>
-          <el-option v-for="item in fieldOptions" :key="item" :label="item" :value="item"></el-option>
+        <el-select
+          v-model="generateInfo.form.delShowField"
+          placeholder="请选择删除时显示的字段"
+          filterable
+          clearable
+        >
+          <el-option
+            v-for="item in fieldOptions"
+            :key="item"
+            :label="item"
+            :value="item"
+          ></el-option>
         </el-select>
       </el-form-item>
       <!--      <el-form-item prop="i18nEnable" label="开启i18n">-->
@@ -106,7 +174,10 @@ defineExpose({
       <!--          <el-option v-for="item in fieldOptions" :key="item" :label="item" :value="item"></el-option>-->
       <!--        </el-select>-->
       <!--      </el-form-item>-->
-      <el-form-item prop="genMode" label="生成模式">
+      <el-form-item
+        prop="genMode"
+        label="生成模式"
+      >
         <el-radio-group v-model="generateInfo.form.genMode">
           <el-radio :value="0">本地生成</el-radio>
           <el-radio :value="1">下载</el-radio>

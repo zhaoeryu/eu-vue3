@@ -1,12 +1,12 @@
-import { type RouteRecordRaw } from 'vue-router';
 import nProgress from 'nprogress';
+import type {RouteRecordRaw} from 'vue-router';
 
 import 'nprogress/nprogress.css';
 
-import { isExternal } from '@/utils';
 import { defaultSetting } from '@/settings';
-import { getToken } from '@/utils/auth';
 import { useRouteStore, useUserStore } from '@/store';
+import { isExternal } from '@/utils';
+import { getToken } from '@/utils/auth';
 
 import router from './routers';
 
@@ -14,8 +14,8 @@ nProgress.configure({ showSpinner: false });
 
 router.beforeEach((to, from, next) => {
   nProgress.start();
-  if (to.meta && to.meta.title) {
-    document.title = to.meta.title + ' | ' + defaultSetting.title;
+  if (to.meta.title) {
+    document.title = to.meta.title as string + ' | ' + defaultSetting.title;
   }
 
   // 检查是否登录
@@ -25,7 +25,7 @@ router.beforeEach((to, from, next) => {
       next({ path: '/' });
     } else {
       // 为了避免重复设置路由
-      if (!useUserStore().roles || (useUserStore().roles as string[]).length < 1) {
+      if (!useUserStore().roles?.length) {
         useUserStore()
           .getInfo()
           .then(() => {
@@ -55,7 +55,7 @@ router.beforeEach((to, from, next) => {
     }
   } else {
     // 未登录，检查访问的路径是否在白名单中，如果是，直接访问，否则跳转到登录页面
-    if (defaultSetting.anonymousAccessWhiteList.indexOf(to.path) !== -1) {
+    if (defaultSetting.anonymousAccessWhiteList.includes(to.path)) {
       next();
     } else {
       next(`/login?redirect=${to.fullPath}`);

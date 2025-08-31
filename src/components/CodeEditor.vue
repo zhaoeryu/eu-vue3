@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { EditorView, basicSetup } from 'codemirror';
-import { EditorState } from '@codemirror/state';
 import { javascript } from '@codemirror/lang-javascript';
 import { sql } from '@codemirror/lang-sql';
 import { xml } from '@codemirror/lang-xml';
+import { EditorState } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
+import { EditorView, basicSetup } from 'codemirror';
 import { onMounted, ref, watch, onUnmounted } from 'vue';
 
 const props = defineProps({

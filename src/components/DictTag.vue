@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { defineProps, computed, ref, onMounted } from 'vue';
 import { Loading } from '@element-plus/icons-vue';
+import { computed, ref, onMounted } from 'vue';
 
-import { type DictDetail } from '@/types/system/dict';
-import useLoading from '@/hooks/loading';
 import useDict from '@/hooks/dict';
+import useLoading from '@/hooks/loading';
+import type { DictDetail } from '@/types/system/dict';
 
-type Props = {
+interface Props {
   value: number | string | boolean | null;
   dictKey: string;
-};
+}
 const props = defineProps<Props>();
 
 const options = ref<DictDetail[]>([]);
@@ -27,7 +27,7 @@ async function initOptions() {
   setLoading(true);
   try {
     const res = await useDict().fetchOptions(props.dictKey);
-    options.value = res.data || [];
+    options.value = res.data ?? [];
   } finally {
     setLoading(false);
   }
@@ -41,7 +41,9 @@ export default {
 </script>
 
 <template>
-  <el-icon v-if="loading"><Loading /></el-icon>
+  <el-icon v-if="loading">
+    <Loading />
+  </el-icon>
   <template v-else-if="checkedItem">
     <el-tag>{{ checkedItem.dictLabel || '-' }}</el-tag>
   </template>

@@ -2,15 +2,17 @@
 import _ from 'lodash';
 import { toArray } from 'tree-lodash';
 
-import Layout from '@/layout/index.vue';
 import MiddleDirectory from '@/layout/components/MiddleDirectory.vue';
+import Layout from '@/layout/index.vue';
+import type { ANY_OBJECT } from '@/types/generic';
+import type { RouteNode, RouteNodeMeta } from '@/types/route';
+import type { Menu } from '@/types/system/menu';
 import NotFound from '@/views/404.vue';
-import { type Menu } from '@/types/system/menu';
-import { type RouteNode, type RouteNodeMeta } from '@/types/route';
-import { type ANY_OBJECT } from '@/types/generic';
 
 import { MenuTypeEnums } from './enums';
-import { isExternal, removeLeadingSlash, addLeadingSlash, pathTrim, removeEndSlash, getFirstChildrenFields, type TreeNode } from './index';
+
+import { isExternal, removeLeadingSlash, addLeadingSlash, pathTrim, removeEndSlash, getFirstChildrenFields } from './index';
+import type { TreeNode } from './index';
 const VIEW_MODULES: ANY_OBJECT = import.meta.glob('@/views/**/*.vue');
 
 /**
@@ -45,7 +47,7 @@ export function buildFullPath(parentPath: string | null | undefined, currentPath
     return currentPath;
   }
 
-  const cleanParent = (parentPath || '').replace(/\/+$/, '');
+  const cleanParent = (parentPath ?? '').replace(/\/+$/, '');
   const cleanCurrent = sanitizePath(currentPath);
 
   if (!cleanParent) {
@@ -63,19 +65,19 @@ export function buildFullPath(parentPath: string | null | undefined, currentPath
 export function createRouteNodeMeta(item: Menu): RouteNodeMeta {
   return {
     title: item.menuName || '',
-    icon: item.menuIcon || '',
+    icon: item.menuIcon ?? '',
     affix: Boolean(item.affix),
     isChildMeta: false,
-    permission: item.permission || '',
+    permission: item.permission ?? '',
     keepAlive: Boolean(item.cache),
     dot: Boolean(item.dot),
-    badge: item.badge || '',
+    badge: item.badge ?? '',
     showHeader: Boolean(item.showHeader),
     showFooter: Boolean(item.showFooter),
     alwaysShow: Boolean(item.alwaysShow),
     sort: item.sortNum || 0,
     embed: Boolean(item.embed),
-    embedUrl: item.embedUrl || '',
+    embedUrl: item.embedUrl ?? '',
     hidden: !item.visible,
   };
 }
@@ -97,7 +99,7 @@ export function formatMenuToRoute(item: Menu): RouteNode | null {
     componentPath: item.component,
     hidden: !item.visible,
     fullPath: null,
-    path: item.path || '',
+    path: item.path ?? '',
     name: item.componentName,
     meta: createRouteNodeMeta(item),
     children: [],

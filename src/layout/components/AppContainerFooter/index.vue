@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { defineOptions } from 'vue';
-
 import { defaultSetting } from '@/settings';
 
 defineOptions({

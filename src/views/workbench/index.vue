@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { timeGreeting } from '@/utils';
 import EuAvatar from '@/components/EuAvatar.vue';
 import { useUserStore } from '@/store';
+import { timeGreeting } from '@/utils';
 
 const userStore = useUserStore();
 

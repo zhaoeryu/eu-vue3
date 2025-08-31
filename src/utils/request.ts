@@ -1,13 +1,15 @@
-import axios, { type AxiosRequestConfig, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
-import { ElLoading, ElMessage, ElMessageBox, type MessageParams } from 'element-plus';
-import { stringify } from 'qs';
+import axios from 'axios';
+import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import { ElLoading, ElMessage, ElMessageBox } from 'element-plus';
+import type { MessageParams } from 'element-plus';
 import type { LoadingInstance } from 'element-plus/es/components/loading/src/loading';
+import { stringify } from 'qs';
 
+import { defaultSetting } from '@/settings';
+import { useUserStore } from '@/store';
 import { getToken } from '@/utils/auth';
 import { EU_FRONT_KEY, REQUEST_HEADER_TOKEN } from '@/utils/constants';
-import { defaultSetting } from '@/settings';
 import errorCode from '@/utils/errorCode';
-import { useUserStore } from '@/store';
 import { downloadBlobFile } from '@/utils/index';
 
 export const commonReqHeaders = {
@@ -35,16 +37,16 @@ service.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    return Promise.reject(new Error(error));
   },
 );
 
 service.interceptors.response.use(
   (res) => {
     // 未设置状态码则默认成功状态
-    const code = res.data.code || 200;
+    const code = res.data.code ?? 200;
     // 获取错误信息
-    const message = res.data.msg || errorCode[code] || errorCode['default'];
+    const message = res.data.msg ?? errorCode[code] ?? errorCode.default;
     // 二进制数据则直接返回
     if (res.request.responseType === 'blob' || res.request.responseType === 'arraybuffer') {
       return res.data;
@@ -62,7 +64,7 @@ service.interceptors.response.use(
     } else {
       showMessage(res, { message, type: 'error' });
     }
-    return Promise.reject(message);
+    return Promise.reject(new Error(message));
   },
   (error) => {
     let { message } = error;
@@ -74,7 +76,7 @@ service.interceptors.response.use(
       message = '系统接口' + message.substr(message.length - 3) + '异常';
     }
     ElMessage({ message: message, type: 'error', duration: 5 * 1000 });
-    return Promise.reject(error);
+    return Promise.reject(new Error(error));
   },
 );
 
@@ -104,17 +106,17 @@ export async function download(url: string, params: object, filename: string, co
         // @ts-expect-error
         const resText = await data.text();
         const rspObj = JSON.parse(resText);
-        const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default'];
+        const errMsg = errorCode[rspObj.code] ?? rspObj.msg ?? errorCode.default;
         if (rspObj.code === 200) {
-          ElMessage.success(rspObj.msg || '下载成功');
+          ElMessage.success(rspObj.msg ?? '下载成功');
         } else {
-          ElMessage.error(errMsg || '下载失败');
+          ElMessage.error(errMsg ?? '下载失败');
         }
       }
       downloadLoadingInstance.close();
     })
     .catch((r) => {
-      ElMessage.error(r.message || '下载失败！');
+      ElMessage.error(r.message ?? '下载失败！');
       downloadLoadingInstance.close();
     });
 }

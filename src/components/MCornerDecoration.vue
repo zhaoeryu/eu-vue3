@@ -1,5 +1,8 @@
 <template>
-  <div class="m-corner-decoration" :style="elStyle">
+  <div
+    class="m-corner-decoration"
+    :style="elStyle"
+  >
     <div class="m-corner-decoration__body">
       <div class="m-corner-decoration__main">
         <slot v-if="$slots.default" />
@@ -10,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, computed } from 'vue';
+import { computed } from 'vue';
 
 export type TYPE = 'success' | 'warning' | 'error' | 'primary' | 'info';
 
@@ -42,13 +45,13 @@ const TYPE_MAP = {
 };
 
 const elStyle = computed(() => {
-  let tmp = {
-    top: props.top || 'unset',
-    left: props.left || 'unset',
-    bottom: props.bottom || 'unset',
-    right: props.right || 'unset',
+  const tmp = {
+    top: props.top ?? 'unset',
+    left: props.left ?? 'unset',
+    bottom: props.bottom ?? 'unset',
+    right: props.right ?? 'unset',
     transform: `rotate(${props.rotate}deg)`,
-    '--decoration-color': TYPE_MAP[props.type] || TYPE_MAP['primary'],
+    '--decoration-color': TYPE_MAP[props.type] || TYPE_MAP.primary,
   };
   if (!props.top && !props.bottom) {
     tmp.top = '0';
@@ -69,6 +72,7 @@ export default {
 <style lang="scss" scoped>
 .m-corner-decoration {
   position: absolute;
+
   //top: 0;
   //left: 0;
   .m-corner-decoration__body {
@@ -80,6 +84,7 @@ export default {
     width: var(--decoration-width);
     height: var(--decoration-width);
     overflow: hidden;
+
     .m-corner-decoration__main {
       position: relative;
       width: 200%;
@@ -91,6 +96,7 @@ export default {
       font-size: 12px;
       transform: rotate(-45deg) translate(-30%, -85%);
     }
+
     &:before {
       content: '';
       position: absolute;
@@ -102,6 +108,7 @@ export default {
       border-bottom: var(--decoration-sub-border-width) solid var(--decoration-color);
       filter: grayscale(30%);
     }
+
     &:after {
       content: '';
       position: absolute;

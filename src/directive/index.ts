@@ -1,7 +1,7 @@
 import type { App } from 'vue';
 
-import hasRole from '@/directive/permission/role';
 import hasPermissions from '@/directive/permission/permissions';
+import hasRole from '@/directive/permission/role';
 
 export default {
   install: (Vue: App) => {

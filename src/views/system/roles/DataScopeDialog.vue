@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { ElMessage, type FormInstance, type TreeInstance, type TreeKey } from 'element-plus';
-import { nextTick, ref, useTemplateRef, watch } from 'vue';
 import { Search } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
+import type { FormInstance, TreeInstance, TreeKey } from 'element-plus';
+import { nextTick, ref, useTemplateRef, watch } from 'vue';
 
-import { getDeptIdsByRoleId, update } from '@/api/system/role';
-import { DataScopeEnums as dataScopeEnums } from '@/utils/enums';
 import { list as deptListApi } from '@/api/system/dept';
-import { handleTreeData } from '@/utils';
-import useVisible from '@/hooks/visible';
+import { getDeptIdsByRoleId, update } from '@/api/system/role';
 import useLoading from '@/hooks/loading';
 import { useResettableReactive } from '@/hooks/resettable';
+import useVisible from '@/hooks/visible';
 import type { DeptTree, Dept } from '@/types/system/dept';
 import type { Role } from '@/types/system/role';
+import { handleTreeData } from '@/utils';
+import { DataScopeEnums as dataScopeEnums } from '@/utils/enums';
 
 const emit = defineEmits(['complete']);
 
@@ -71,7 +72,7 @@ function open(row: Role) {
 
       nextTick(() => {
         try {
-          (res[1].data || []).forEach((key: TreeKey) => {
+          (res[1].data ?? []).forEach((key: TreeKey) => {
             refDeptTree.value?.setChecked(key, true, false);
           });
         } catch (e) {
@@ -92,8 +93,8 @@ function onSubmit() {
 
     let checkedIds: TreeKey[] = [];
     if (dataScopeEnums.CUSTOM.value === state.form.dataScope) {
-      const checkedKeys = refDeptTree.value?.getCheckedKeys() || [];
-      const halfCheckedKeys = refDeptTree.value?.getHalfCheckedKeys() || [];
+      const checkedKeys = refDeptTree.value?.getCheckedKeys() ?? [];
+      const halfCheckedKeys = refDeptTree.value?.getHalfCheckedKeys() ?? [];
       checkedIds = [...checkedKeys, ...halfCheckedKeys];
     }
 
@@ -127,13 +128,29 @@ function onDialogOpen() {
 
 // 树权限（展开/折叠）
 function handleCheckedTreeExpand(checked: boolean) {
-  for (let i = 0; i < state.deptList.length; i++) {
-    refDeptTree.value?.setChecked(state.deptList[i].id, checked, false);
+  for (const item of state.deptList) {
+    refDeptTree.value?.setChecked(item.id, checked, false);
   }
 }
 // 树权限（全选/全不选）
 function handleCheckedTreeNodeAll(checked: boolean) {
-  refDeptTree.value?.setCheckedNodes(checked ? state.deptList : [], false);
+  if (checked) {
+    // Get all node keys for full selection
+    const getAllKeys = (nodes: DeptTree[]): (string | number)[] => {
+      const keys: (string | number)[] = [];
+      nodes.forEach(node => {
+        keys.push(node.id);
+        if (node.children && node.children.length > 0) {
+          keys.push(...getAllKeys(node.children));
+        }
+      });
+      return keys;
+    };
+    const allKeys = getAllKeys(state.deptTree);
+    refDeptTree.value?.setCheckedKeys(allKeys, false);
+  } else {
+    refDeptTree.value?.setCheckedKeys([], false);
+  }
 }
 
 function onFilterNode(value: string, node: any) {
@@ -150,30 +167,66 @@ defineExpose({
 </script>
 
 <template>
-  <el-dialog v-model="visible" :title="title" :close-on-click-modal="false" width="770px" @open="onDialogOpen">
+  <el-dialog
+    v-model="visible"
+    :title="title"
+    :close-on-click-modal="false"
+    width="770px"
+    @open="onDialogOpen"
+  >
     <template #header>
       <div>
         <span class="el-dialog__title">{{ title }}</span>
         <span> - [{{ state.form.roleName }}]</span>
       </div>
     </template>
-    <el-form ref="refForm" :model="state.form" :rules="rules" label-width="80px">
-      <el-form-item label="权限范围" prop="dataScope">
+    <el-form
+      ref="refForm"
+      :model="state.form"
+      :rules="rules"
+      label-width="80px"
+    >
+      <el-form-item
+        label="权限范围"
+        prop="dataScope"
+      >
         <el-radio-group v-model="state.form.dataScope">
-          <el-radio-button v-for="item in dataScopeEnums" :key="item.value" :value="item.value">{{ item.label }}</el-radio-button>
+          <el-radio-button
+            v-for="item in dataScopeEnums"
+            :key="item.value"
+            :value="item.value"
+          >{{ item.label
+            }}</el-radio-button>
         </el-radio-group>
       </el-form-item>
-      <el-form-item v-if="state.form.dataScope === dataScopeEnums.CUSTOM.value" label="数据权限">
+      <el-form-item
+        v-if="state.form.dataScope === dataScopeEnums.CUSTOM.value"
+        label="数据权限"
+      >
         <div>
           <div style="display: flex; margin-bottom: 12px">
             <div style="flex: 1">
-              <el-checkbox v-model="state.formExtra.expand" @change="handleCheckedTreeExpand($event)">展开/折叠</el-checkbox>
-              <el-checkbox v-model="state.formExtra.checkedAll" @change="handleCheckedTreeNodeAll($event)">全选/全不选</el-checkbox>
+              <el-checkbox
+                v-model="state.formExtra.expand"
+                @change="handleCheckedTreeExpand($event)"
+              >展开/折叠</el-checkbox>
+              <el-checkbox
+                v-model="state.formExtra.checkedAll"
+                @change="handleCheckedTreeNodeAll($event)"
+              >全选/全不选</el-checkbox>
               <el-checkbox v-model="state.formExtra.checkStrictly">父子联动</el-checkbox>
             </div>
-            <el-input v-model="state.formExtra.filterKeyword" placeholder="输入关键字进行搜索" style="width: 200px" clearable class="margin-left-sm">
+            <el-input
+              v-model="state.formExtra.filterKeyword"
+              placeholder="输入关键字进行搜索"
+              style="width: 200px"
+              clearable
+              class="margin-left-sm"
+            >
               <template #prefix>
-                <el-icon><Search /></el-icon>
+                <el-icon>
+                  <Search />
+                </el-icon>
               </template>
             </el-input>
           </div>
@@ -193,7 +246,12 @@ defineExpose({
     </el-form>
     <template #footer>
       <el-button @click="setVisible(false)">取 消</el-button>
-      <el-button :loading="formLoading" class="eu-submit-btn" type="primary" @click="onSubmit">确 定</el-button>
+      <el-button
+        :loading="formLoading"
+        class="eu-submit-btn"
+        type="primary"
+        @click="onSubmit"
+      >确 定</el-button>
     </template>
   </el-dialog>
 </template>

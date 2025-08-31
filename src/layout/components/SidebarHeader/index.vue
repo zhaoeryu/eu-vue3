@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, defineOptions, useTemplateRef } from 'vue';
-import { ElMessageBox, PopoverInstance } from 'element-plus';
+import { ElMessageBox } from 'element-plus';
+import type { PopoverInstance } from 'element-plus';
+import { computed, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useUserStore } from '@/store';
@@ -14,7 +15,7 @@ const router = useRouter();
 const popoverRef = useTemplateRef<PopoverInstance>('popoverRef');
 
 const deptNames = computed(() => {
-  return (userStore.user.deptNames || []).join(' / ') || '暂无部门';
+  return (userStore.user.deptNames ?? []).join(' / ') || '暂无部门';
 });
 
 const user = computed(() => userStore.user);
@@ -44,14 +45,25 @@ const onLogout = () => {
 
 function onToPersonal() {
   router.push('/personal-center');
-  popoverRef.value.hide();
+  popoverRef.value?.hide();
 }
 </script>
 
 <template>
-  <el-popover ref="popoverRef" placement="bottom-start" width="230" :open-delay="0" :close-delay="50" trigger="click">
+  <el-popover
+    ref="popoverRef"
+    placement="bottom-start"
+    width="230"
+    :open-delay="0"
+    :close-delay="50"
+    trigger="click"
+  >
     <template #reference>
-      <eu-avatar :src="user.avatar" :nickname="user.nickname" :size="30" />
+      <eu-avatar
+        :src="user.avatar"
+        :nickname="user.nickname"
+        :size="30"
+      />
     </template>
     <div class="eu-pop-inner">
       <el-row>
@@ -75,13 +87,26 @@ function onToPersonal() {
       <el-divider direction="horizontal"></el-divider>
       <el-row style="display: flex">
         <el-col :span="11">
-          <el-button text type="primary" style="width: 100%" @click="onToPersonal">个人中心</el-button>
+          <el-button
+            text
+            type="primary"
+            style="width: 100%"
+            @click="onToPersonal"
+          >个人中心</el-button>
         </el-col>
         <el-col :span="2">
-          <el-divider direction="vertical" content-position="center"></el-divider>
+          <el-divider
+            direction="vertical"
+            content-position="center"
+          ></el-divider>
         </el-col>
         <el-col :span="11">
-          <el-button text type="primary" style="width: 100%" @click="onLogout">退出登录</el-button>
+          <el-button
+            text
+            type="primary"
+            style="width: 100%"
+            @click="onLogout"
+          >退出登录</el-button>
         </el-col>
       </el-row>
     </div>
@@ -93,6 +118,7 @@ function onToPersonal() {
   background-color: var(--theme-nav-second-bg);
   color: var(--color-text-2);
 }
+
 .el-row {
   .el-col {
     display: flex;
@@ -101,6 +127,7 @@ function onToPersonal() {
     line-height: 2em;
   }
 }
+
 .el-divider--horizontal {
   margin: 12px 0;
 }

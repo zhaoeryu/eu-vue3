@@ -1,6 +1,6 @@
-import request from '@/utils/request';
 import type { ResultBody } from '@/types/api';
 import type { DictDetail } from '@/types/system/dict';
+import request from '@/utils/request';
 
 export function page(params: any) {
   return request({

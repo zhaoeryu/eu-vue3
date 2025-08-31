@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps } from 'vue';
 defineProps({
   show: {
     type: Boolean,
@@ -29,10 +28,12 @@ export default {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+
   &.query-wrapper__show {
     max-height: 500px;
     transition: max-height 0.8s ease-in-out;
   }
+
   .el-divider--horizontal {
     margin-top: 0;
   }

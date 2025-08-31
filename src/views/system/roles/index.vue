@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { onMounted, useTemplateRef } from 'vue';
-import { ElMessage, ElMessageBox, type TableInstance } from 'element-plus';
 import { Refresh, Search } from '@element-plus/icons-vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import type { TableInstance } from 'element-plus';
+import { onMounted, useTemplateRef } from 'vue';
 
-import { download } from '@/utils/request';
-import ImportDialog from '@/components/ImportDialog.vue';
 import { page, batchDel } from '@/api/system/role';
-import RoleUserDrawer from '@/views/system/roles/RoleUserDrawer.vue';
-import RoleEditDialog from '@/views/system/roles/RoleEditDialog.vue';
-import DataScopeDialog from '@/views/system/roles/DataScopeDialog.vue';
+import EnumTag from '@/components/EnumTag.vue';
+import ImportDialog from '@/components/ImportDialog.vue';
 import useLoading from '@/hooks/loading';
 import { useResettableReactive } from '@/hooks/resettable';
 import type { Role } from '@/types/system/role';
 import { EnableFlagEnums } from '@/utils/enums';
-import EnumTag from '@/components/EnumTag.vue';
+import { download } from '@/utils/request';
+import DataScopeDialog from '@/views/system/roles/DataScopeDialog.vue';
+import RoleEditDialog from '@/views/system/roles/RoleEditDialog.vue';
+import RoleUserDrawer from '@/views/system/roles/RoleUserDrawer.vue';
 
 const refRoleEditDialog = useTemplateRef<InstanceType<typeof RoleEditDialog>>('refRoleEditDialog');
 const refRoleUserDrawer = useTemplateRef<InstanceType<typeof RoleUserDrawer>>('refRoleUserDrawer');
@@ -75,7 +76,7 @@ function onImport() {
 }
 
 function onBatchDel() {
-  const ids = refTable.value?.getSelectionRows().map((item) => item.id) || [];
+  const ids = refTable.value?.getSelectionRows().map((item) => item.id) ?? [];
   ElMessageBox.confirm(`确认要删除选中的${ids.length}条记录吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -144,13 +145,31 @@ function onRowDataScope(row: Role) {
   <div class="page-container">
     <div class="page-body">
       <query-expand-wrapper :show="state.isQueryShow">
-        <el-form :model="state.queryParams" :inline="true">
-          <el-form-item label="角色名称" prop="roleName">
-            <el-input v-model="state.queryParams.roleName" placeholder="输入要查找的角色名称" maxlength="20" />
+        <el-form
+          :model="state.queryParams"
+          :inline="true"
+        >
+          <el-form-item
+            label="角色名称"
+            prop="roleName"
+          >
+            <el-input
+              v-model="state.queryParams.roleName"
+              placeholder="输入要查找的角色名称"
+              maxlength="20"
+            />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" :icon="Search" @click="onQuery">查询</el-button>
-            <el-button :icon="Refresh" plain @click="onRefresh">重置</el-button>
+            <el-button
+              type="primary"
+              :icon="Search"
+              @click="onQuery"
+            >查询</el-button>
+            <el-button
+              :icon="Refresh"
+              plain
+              @click="onRefresh"
+            >重置</el-button>
           </el-form-item>
         </el-form>
       </query-expand-wrapper>
@@ -174,36 +193,99 @@ function onRowDataScope(row: Role) {
           @import="onImport"
           @refresh="onRefresh"
         />
-        <el-table ref="refTable" :data="state.list" style="width: 100%" @selection-change="onSelectionChange">
-          <el-table-column type="selection" :selectable="onSelectable"></el-table-column>
-          <el-table-column prop="roleName" label="角色名称"></el-table-column>
-          <el-table-column prop="description" label="角色描述"></el-table-column>
-          <el-table-column prop="roleKey" label="权限字符串"></el-table-column>
-          <el-table-column prop="status" label="状态">
+        <el-table
+          ref="refTable"
+          :data="state.list"
+          style="width: 100%"
+          @selection-change="onSelectionChange"
+        >
+          <el-table-column
+            type="selection"
+            :selectable="onSelectable"
+          ></el-table-column>
+          <el-table-column
+            prop="roleName"
+            label="角色名称"
+          ></el-table-column>
+          <el-table-column
+            prop="description"
+            label="角色描述"
+          ></el-table-column>
+          <el-table-column
+            prop="roleKey"
+            label="权限字符串"
+          ></el-table-column>
+          <el-table-column
+            prop="status"
+            label="状态"
+          >
             <template #default="{ row }">
-              <enum-tag :value="row.status" :enums="EnableFlagEnums" />
+              <enum-tag
+                :value="row.status"
+                :enums="EnableFlagEnums"
+              />
             </template>
           </el-table-column>
-          <el-table-column v-permissions="['system:role:edit', 'system:role:del']" label="操作" width="220">
+          <el-table-column
+            v-permissions="['system:role:edit', 'system:role:del']"
+            label="操作"
+            width="220"
+          >
             <template #default="{ row }">
               <template v-if="row.roleKey !== 'admin'">
-                <el-button v-permissions="['system:role:edit']" text type="primary" @click="onRowUpdate(row)">修改</el-button>
-                <el-button v-permissions="['system:role:del']" text type="primary" @click="onRowDelete(row)">删除</el-button>
-                <el-button v-permissions="['system:role:edit']" text type="primary" @click="onRowRoleMember(row)">分配用户</el-button>
-                <el-button v-permissions="['system:role:edit']" text type="primary" @click="onRowDataScope(row)">数据权限</el-button>
+                <el-button
+                  v-permissions="['system:role:edit']"
+                  text
+                  type="primary"
+                  @click="onRowUpdate(row)"
+                >修改</el-button>
+                <el-button
+                  v-permissions="['system:role:del']"
+                  text
+                  type="primary"
+                  @click="onRowDelete(row)"
+                >删除</el-button>
+                <el-button
+                  v-permissions="['system:role:edit']"
+                  text
+                  type="primary"
+                  @click="onRowRoleMember(row)"
+                >分配用户</el-button>
+                <el-button
+                  v-permissions="['system:role:edit']"
+                  text
+                  type="primary"
+                  @click="onRowDataScope(row)"
+                >数据权限</el-button>
               </template>
             </template>
           </el-table-column>
         </el-table>
-        <pagination v-model:page="state.queryParams.page" v-model:limit="state.queryParams.size" :total="state.total" @pagination="onQuery" />
+        <pagination
+          v-model:page="state.queryParams.page"
+          v-model:limit="state.queryParams.size"
+          :total="state.total"
+          @pagination="onQuery"
+        />
       </div>
     </div>
 
-    <role-edit-dialog ref="refRoleEditDialog" @complete="onRefresh" />
+    <role-edit-dialog
+      ref="refRoleEditDialog"
+      @complete="onRefresh"
+    />
 
     <role-user-drawer ref="refRoleUserDrawer" />
-    <data-scope-dialog ref="refDataScopeDialog" @complete="onRefresh" />
-    <import-dialog ref="refImportDialog" upload-url="/api/system/role/import" tpl-export-url="/api/system/role/export-template" @complete="onRefresh">
+    <data-scope-dialog
+      ref="refDataScopeDialog"
+      @complete="onRefresh"
+    />
+    <import-dialog
+      ref="refImportDialog"
+      upload-url="/api/system/role/import"
+      tpl-export-url="/api/system/role/export-template"
+      @complete="onRefresh"
+    >
       <template #importTip>
         <li>状态字段可选项：正常、禁用</li>
       </template>

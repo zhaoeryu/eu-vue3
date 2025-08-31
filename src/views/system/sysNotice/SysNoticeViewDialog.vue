@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import * as DOMPurify from 'dompurify';
+import { ref } from 'vue';
 
 import type { Notice } from '@/types/system/notice';
 
@@ -10,7 +10,7 @@ const notice = ref<Notice>({} as Notice);
 function open(_notice: Notice) {
   notice.value = _notice || {};
   // 净化内容
-  notice.value.content = DOMPurify.default.sanitize(notice.value.content as string);
+  notice.value.content = DOMPurify.default.sanitize(notice.value.content);
   show.value = true;
 }
 
@@ -20,7 +20,12 @@ defineExpose({
 </script>
 
 <template>
-  <el-dialog v-model="show" title="通知公告" width="80%" append-to-body>
+  <el-dialog
+    v-model="show"
+    title="通知公告"
+    width="80%"
+    append-to-body
+  >
     <div style="line-height: 2em">
       <div style="font-weight: 500; font-size: 16px">{{ notice.title }}</div>
       <div style="color: #909399; font-size: 12px">
@@ -31,7 +36,10 @@ defineExpose({
     <el-divider />
     <div>
       <!-- eslint-disable vue/no-v-html -->
-      <div class="eu-editor-content-view" v-html="notice.content" />
+      <div
+        class="eu-editor-content-view"
+        v-html="notice.content"
+      />
     </div>
   </el-dialog>
 </template>

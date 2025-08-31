@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps } from 'vue';
+import { computed } from 'vue';
 
 export interface Props {
   iconClass: string;
@@ -22,7 +22,11 @@ export default {
 </script>
 
 <template>
-  <svg v-if="iconClass" :class="svgClass" v-bind="$attrs">
+  <svg
+    v-if="iconClass"
+    :class="svgClass"
+    v-bind="$attrs"
+  >
     <use :href="iconName" />
   </svg>
 </template>

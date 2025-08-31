@@ -1,10 +1,10 @@
 <script lang="ts" setup>
+import type { MenuInstance } from 'element-plus';
 import { computed, nextTick, useTemplateRef, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import type { MenuInstance } from 'element-plus';
 
-import { useRouteStore, useSettingsStore } from '@/store';
 import SidebarItem from '@/layout/components/Sidebar/vertical/SidebarItem.vue';
+import { useRouteStore, useSettingsStore } from '@/store';
 import { getMaxMatchedMenu } from '@/utils/route-helpers';
 
 const routeStore = useRouteStore();
@@ -32,14 +32,14 @@ async function tryHighlightMenu() {
     // 首页特殊处理
     const foundHomeMenu = menuList.value.find((item) => item.path === '/' && item.redirect === route.path);
     if (foundHomeMenu) {
-      refMenu.value.updateActiveIndex('/');
+      refMenu.value?.updateActiveIndex('/');
       return;
     }
     if (route.meta.hidden === true) {
       // 支持模糊匹配
       const matched = getMaxMatchedMenu(route.path, menuList.value);
       if (matched) {
-        refMenu.value.updateActiveIndex(matched);
+        refMenu.value?.updateActiveIndex(matched);
         return;
       }
     }
@@ -49,8 +49,21 @@ async function tryHighlightMenu() {
 
 <template>
   <el-scrollbar wrap-class="eu-scrollbar-wrapper">
-    <el-menu ref="refMenu" :default-active="route.path" :collapse="settingsStore.sidebarCollapsed" :unique-opened="true" :collapse-transition="false" mode="vertical" class="eu-menu">
-      <sidebar-item v-for="item in menuList" :key="item.path" :item="item" />
+    <el-menu
+      ref="refMenu"
+      :default-active="route.path"
+      :collapse="settingsStore.sidebarCollapsed"
+      :unique-opened="true"
+      :collapse-transition="false"
+      mode="vertical"
+      class="eu-menu"
+    >
+      <sidebar-item
+        v-for="item in menuList"
+        :key="item.path"
+        :item="item"
+        :level="0"
+      />
     </el-menu>
   </el-scrollbar>
 </template>
@@ -65,10 +78,12 @@ async function tryHighlightMenu() {
   --eu-menu-level: 0;
   --eu-menu-base-level-padding: calc(1.3em + 8px);
 }
+
 :deep(.el-menu) {
   background-color: var(--theme-nav-first-bg);
   border-right: unset !important;
 }
+
 :deep(.eu-menu) {
   height: 100%;
   padding: 12px 0;
@@ -77,25 +92,27 @@ async function tryHighlightMenu() {
 
   // 折叠状态下
   &.el-menu--collapse {
+
     .el-sub-menu__title,
     .el-menu-item {
       > :not(.svg-icon) {
         display: none;
       }
+
       .svg-icon {
         margin-right: unset;
       }
     }
 
     .el-sub-menu__title,
-    .el-menu-item > .el-menu-tooltip__trigger {
+    .el-menu-item>.el-menu-tooltip__trigger {
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
     .el-sub-menu {
-      &.is-active > .el-sub-menu__title {
+      &.is-active>.el-sub-menu__title {
         background-color: var(--theme-nav-first-active-bg);
         color: var(--theme-nav-first-active-color);
       }
@@ -136,9 +153,10 @@ async function tryHighlightMenu() {
 
   // 有子菜单
   .el-sub-menu {
-    &.is-active > .el-sub-menu__title {
+    &.is-active>.el-sub-menu__title {
       color: var(--color-primary);
     }
+
     .el-menu-item,
     .el-sub-menu .el-sub-menu__title {
       min-width: unset;
@@ -152,6 +170,7 @@ async function tryHighlightMenu() {
     color: var(--theme-nav-first-active-color);
   }
 }
+
 :deep(.eu-scrollbar-wrapper) {
   margin-right: unset !important;
   overflow-x: hidden !important;

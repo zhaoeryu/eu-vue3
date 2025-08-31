@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import { ElMessage } from 'element-plus';
+import { computed } from 'vue';
 
-import { assignRole, getUserInfo } from '@/api/system/user';
 import { page as roleListApi } from '@/api/system/role';
-import useVisible from '@/hooks/visible';
+import { assignRole, getUserInfo } from '@/api/system/user';
 import useLoading from '@/hooks/loading';
 import { useResettableReactive } from '@/hooks/resettable';
+import useVisible from '@/hooks/visible';
 import type { ANY_OBJECT } from '@/types/generic';
 import type { Role } from '@/types/system/role';
 
@@ -46,8 +46,8 @@ function open(_userId: string) {
   setLoading(true);
   Promise.all([roleListApi({ page: 1, size: 999 }), getUserInfo(_userId)])
     .then((res) => {
-      state.roleList = res[0].data.records || [];
-      state.roleIds = res[1].data.roleIds || [];
+      state.roleList = res[0].data.records ?? [];
+      state.roleIds = res[1].data.roleIds ?? [];
     })
     .finally(() => {
       setLoading(false);
@@ -88,19 +88,46 @@ defineExpose({
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="分配角色" width="700px" @close="onDialogClose">
+  <el-dialog
+    v-model="visible"
+    title="分配角色"
+    width="700px"
+    @close="onDialogClose"
+  >
     <div class="assign-role-wrapper">
-      <el-tag v-for="tag in assignRoleList" :key="tag.id" closable :disable-transitions="false" @close="onRemoveRole(tag)">
+      <el-tag
+        v-for="tag in assignRoleList"
+        :key="tag.id"
+        closable
+        :disable-transitions="false"
+        @close="onRemoveRole(tag)"
+      >
         {{ tag.roleName }}
       </el-tag>
-      <el-select v-model="state.roleId" placeholder="请选择角色" filterable class="input-new-tag" @change="onAssignRoleSelectChange">
-        <el-option v-for="item in state.roleList" :key="item.id" :disabled="assignRoleList.some((v) => v.id === item.id)" :label="item.roleName" :value="item.id" />
+      <el-select
+        v-model="state.roleId"
+        placeholder="请选择角色"
+        filterable
+        class="input-new-tag"
+        @change="onAssignRoleSelectChange"
+      >
+        <el-option
+          v-for="item in state.roleList"
+          :key="item.id"
+          :disabled="assignRoleList.some((v) => v.id === item.id)"
+          :label="item.roleName"
+          :value="item.id"
+        />
       </el-select>
     </div>
 
     <template #footer>
       <el-button @click="setVisible(false)">取 消</el-button>
-      <el-button :loading="loading" type="primary" @click="onAssignRoleSave">确 定</el-button>
+      <el-button
+        :loading="loading"
+        type="primary"
+        @click="onAssignRoleSave"
+      >确 定</el-button>
     </template>
   </el-dialog>
 </template>
@@ -111,9 +138,11 @@ defineExpose({
     height: 32px;
     line-height: 32px;
   }
-  .el-tag + .el-tag {
+
+  .el-tag+.el-tag {
     margin-left: 10px;
   }
+
   .input-new-tag {
     width: 120px;
     margin-left: 10px;

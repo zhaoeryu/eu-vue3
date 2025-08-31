@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { defineProps, computed } from 'vue';
+import { computed } from 'vue';
 
-import { type Enum } from '@/types/generic';
+import type { Enum } from '@/types/generic';
 import { enumsFindByValue } from '@/utils/enums';
 
-type Props = {
+interface Props {
   value: number | string | boolean;
   enums: Enum;
-};
+}
 const props = defineProps<Props>();
 
 const checkedItem = computed(() => {

@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { DocumentCopy } from '@element-plus/icons-vue';
 import { useClipboard } from '@vueuse/core';
 import { ElMessage } from 'element-plus';
-import { DocumentCopy } from '@element-plus/icons-vue';
+import { computed } from 'vue';
 
-import CodeEditor from '@/components/CodeEditor.vue';
-import TreeDirectory from '@/views/tools/generate/TreeDirectory/TreeDirectory.vue';
 import { preview } from '@/api/system/generate';
-import useVisible from '@/hooks/visible';
-import { useResettableReactive } from '@/hooks/resettable';
+import CodeEditor from '@/components/CodeEditor.vue';
 import useLoading from '@/hooks/loading';
+import { useResettableReactive } from '@/hooks/resettable';
+import useVisible from '@/hooks/visible';
 import type { GeneratePreview, GenerateTable, GeneratePreviewTree } from '@/types/system/generate';
+import TreeDirectory from '@/views/tools/generate/TreeDirectory/TreeDirectory.vue';
 
 const { visible, setVisible } = useVisible(false);
 const { loading, setLoading } = useLoading(false);
@@ -33,14 +33,14 @@ function open(row: GenerateTable) {
     tableName: row.tableName,
   })
     .then((res) => {
-      state.list = (res.data || []).map((item: GeneratePreview) => {
+      state.list = (res.data ?? []).map((item: GeneratePreview) => {
         item.mode = convertMode(item.type);
         return item;
       });
       state.tabActive = state.list[0].name;
 
       // 构建树形目录
-      state.directoryTree = buildTree(state.list) as GeneratePreviewTree[];
+      state.directoryTree = buildTree(state.list);
     })
     .finally(() => {
       setLoading(false);
@@ -48,7 +48,7 @@ function open(row: GenerateTable) {
 }
 
 function onCopy() {
-  const code = state.list.find((item) => item.name === state.tabActive)?.code || '';
+  const code = state.list.find((item) => item.name === state.tabActive)?.code ?? '';
   const { copy, isSupported } = useClipboard();
   if (!isSupported) {
     ElMessage.error('浏览器不支持复制');
@@ -120,16 +120,42 @@ defineExpose({
 </script>
 
 <template>
-  <el-drawer v-model="visible" :title="pageTitle" size="80%" direction="rtl">
-    <div v-loading="loading" style="position: relative">
+  <el-drawer
+    v-model="visible"
+    :title="pageTitle"
+    size="80%"
+    direction="rtl"
+  >
+    <div
+      v-loading="loading"
+      style="position: relative"
+    >
       <div style="display: flex">
         <div style="padding: 0 12px">
-          <tree-directory v-model="state.tabActive" :tree="state.directoryTree" />
+          <tree-directory
+            v-model="state.tabActive"
+            :tree="state.directoryTree"
+          />
         </div>
-        <code-editor v-if="activeItem" :value="activeItem.code" height="100%" style="flex: 1" :mode="activeItem.mode" />
-        <el-empty v-else style="flex: 1" />
+        <code-editor
+          v-if="activeItem"
+          :value="activeItem.code"
+          height="100%"
+          style="flex: 1"
+          :mode="activeItem.mode"
+        />
+        <el-empty
+          v-else
+          style="flex: 1"
+        />
       </div>
-      <el-button class="copy-btn" type="warning" size="small" :icon="DocumentCopy" @click="onCopy">复制代码</el-button>
+      <el-button
+        class="copy-btn"
+        type="warning"
+        size="small"
+        :icon="DocumentCopy"
+        @click="onCopy"
+      >复制代码</el-button>
     </div>
   </el-drawer>
 </template>
@@ -138,6 +164,7 @@ defineExpose({
 :deep(.el-drawer__header) {
   margin-bottom: 12px;
 }
+
 .copy-btn {
   position: fixed;
   top: 100px;

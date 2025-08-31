@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, defineModel, defineProps } from 'vue';
+import { computed } from 'vue';
 
-import { type Enum } from '@/types/generic';
+import type { Enum } from '@/types/generic';
 import { enumsConvertToList } from '@/utils/enums';
 
-type Props = {
+interface Props {
   enums: Enum;
-};
+}
 const model = defineModel<string | number | boolean | null>();
 const props = defineProps<Props>();
 
@@ -20,8 +20,16 @@ export default {
 </script>
 
 <template>
-  <el-select v-model="model" v-bind="$attrs">
-    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+  <el-select
+    v-model="model"
+    v-bind="$attrs"
+  >
+    <el-option
+      v-for="item in options"
+      :key="item.value"
+      :label="item.label"
+      :value="item.value"
+    />
   </el-select>
 </template>
 

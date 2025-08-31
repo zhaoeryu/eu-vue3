@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, defineProps } from 'vue';
+import { computed } from 'vue';
 
 import type { GeneratePreviewTree } from '@/types/system/generate';
 
-type State = {
+interface State {
   item: GeneratePreviewTree;
 };
 
@@ -40,10 +40,21 @@ function onChecked() {
 
 <template>
   <details open>
-    <summary :class="{ active: item.code && model === item.name }" @click="onChecked">
-      <span class="tree-item" :class="iconType">{{ item.name }}</span>
+    <summary
+      :class="{ active: item.code && model === item.name }"
+      @click="onChecked"
+    >
+      <span
+        class="tree-item"
+        :class="iconType"
+      >{{ item.name }}</span>
     </summary>
-    <tree-directory-item v-for="(v, index) in item.children" :key="index" v-model="model" :item="v" />
+    <tree-directory-item
+      v-for="(v, index) in item.children"
+      :key="index"
+      v-model="model"
+      :item="v"
+    />
   </details>
 </template>
 

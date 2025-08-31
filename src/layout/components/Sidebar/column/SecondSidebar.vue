@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeMount, onBeforeUnmount, nextTick, defineProps, useTemplateRef } from 'vue';
 import { ArrowUp, ArrowDown } from '@element-plus/icons-vue';
+import { ref, onMounted, onBeforeMount, onBeforeUnmount, nextTick, useTemplateRef } from 'vue';
 
 import SecondSidebarItem from '@/layout/components/Sidebar/column/SecondSidebarItem.vue';
 import type { RouteNode } from '@/types/route';
@@ -63,16 +63,37 @@ defineExpose({
 
 <template>
   <nav class="eu-nav-scroll-wrapper">
-    <div class="eu-nav-up-indicator" :class="{ 'eu-nav-indicator-hide': !secondNavUpIndicatorShow }">
-      <div class="eu-op" @click="onNavUpScroll">
+    <div
+      class="eu-nav-up-indicator"
+      :class="{ 'eu-nav-indicator-hide': !secondNavUpIndicatorShow }"
+    >
+      <div
+        class="eu-op"
+        @click="onNavUpScroll"
+      >
         <el-icon><arrow-up /></el-icon>
       </div>
     </div>
-    <ul ref="navScrollRef" class="eu-nav-scroll" @scroll="onNavScroll">
-      <second-sidebar-item v-for="(item, index) in secondNavList" :key="index" :item="item" @item-click="emit('item-click', $event)" />
+    <ul
+      ref="navScrollRef"
+      class="eu-nav-scroll"
+      @scroll="onNavScroll"
+    >
+      <second-sidebar-item
+        v-for="(item, index) in secondNavList"
+        :key="index"
+        :item="item"
+        @item-click="emit('item-click', $event)"
+      />
     </ul>
-    <div class="eu-nav-down-indicator" :class="{ 'eu-nav-indicator-hide': !secondNavDownIndicatorShow }">
-      <div class="eu-op" @click="onNavDownScroll">
+    <div
+      class="eu-nav-down-indicator"
+      :class="{ 'eu-nav-indicator-hide': !secondNavDownIndicatorShow }"
+    >
+      <div
+        class="eu-op"
+        @click="onNavDownScroll"
+      >
         <el-icon><arrow-down /></el-icon>
       </div>
     </div>
@@ -82,6 +103,7 @@ defineExpose({
 <style scoped lang="scss">
 // 滚动指示器
 .eu-nav-scroll-wrapper {
+
   .eu-nav-up-indicator,
   .eu-nav-down-indicator {
     height: 64px;
@@ -92,6 +114,7 @@ defineExpose({
     left: 0;
     right: 0;
     transition: opacity 0.15s linear;
+
     .eu-op {
       cursor: pointer;
       height: 20px;
@@ -101,36 +124,43 @@ defineExpose({
       text-align: center;
       font-size: 14px;
       color: #333;
-      > i {
+
+      >i {
         pointer-events: none;
       }
     }
   }
+
   .eu-nav-up-indicator {
     top: 0;
     align-items: flex-start;
     background: linear-gradient(0deg, rgba(255, 255, 255, 0), var(--theme-nav-second-bg) 70%);
   }
+
   .eu-nav-down-indicator {
     bottom: 0;
     align-items: flex-end;
     background: linear-gradient(-180deg, rgba(255, 255, 255, 0), var(--theme-nav-second-bg) 70%);
   }
 }
+
 .eu-nav-indicator-hide {
   opacity: 0 !important;
   height: 0 !important;
 }
+
 // 菜单滚动区域
 .eu-nav-scroll {
   overflow-y: auto;
   overflow-x: hidden;
   height: 100%;
   position: relative;
+
   &::-webkit-scrollbar {
     width: 0;
   }
 }
+
 // 折叠菜单
 .sidebar-collapsed {
   .eu-nav-sidebar__second {
@@ -138,6 +168,7 @@ defineExpose({
     overflow: hidden;
   }
 }
+
 // 隐藏二级菜单
 .eu-nav-second-sidebar-hidden {
   .eu-nav-sidebar__second {

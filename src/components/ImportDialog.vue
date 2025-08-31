@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, defineProps, withDefaults } from 'vue';
-import { ElMessage } from 'element-plus';
 import { UploadFilled } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
+import { computed, withDefaults } from 'vue';
 
-import { download } from '@/utils/request';
-import useVisible from '@/hooks/visible';
 import { useResettableReactive } from '@/hooks/resettable';
+import useVisible from '@/hooks/visible';
+import { download } from '@/utils/request';
 
 export interface Props {
   uploadUrl: string;
@@ -78,8 +78,18 @@ export default {
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="导入Excel数据" width="600px" class="dialog-footer-flex" append-to-body>
-    <el-steps :active="state.stepActive" :align-center="true" finish-status="success">
+  <el-dialog
+    v-model="visible"
+    title="导入Excel数据"
+    width="600px"
+    class="dialog-footer-flex"
+    append-to-body
+  >
+    <el-steps
+      :active="state.stepActive"
+      :align-center="true"
+      finish-status="success"
+    >
       <el-step title="上传Excel"></el-step>
       <el-step title="完成"></el-step>
     </el-steps>
@@ -96,7 +106,10 @@ export default {
         <ul class="import-tip">
           <li>
             <span>为保证数据导入顺利，推荐您使用</span>
-            <span style="cursor: pointer; color: var(--color-primary)" @click="onExportTemplate">标准模板</span>
+            <span
+              style="cursor: pointer; color: var(--color-primary)"
+              @click="onExportTemplate"
+            >标准模板</span>
           </li>
           <li>支持 {{ sizeLimit }}MB 以内的xls、xlsx格式文件</li>
           <slot name="importTip" />
@@ -115,29 +128,53 @@ export default {
         drag
       >
         <template #trigger>
-          <el-icon size="67" color="var(--el-text-color-placeholder)"><UploadFilled /></el-icon>
+          <el-icon
+            size="67"
+            color="var(--el-text-color-placeholder)"
+          >
+            <UploadFilled />
+          </el-icon>
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         </template>
       </upload-file>
     </div>
     <div v-if="state.stepActive === 1">
-      <slot name="stepFinish" :response="state.uploadResponse" />
-      <el-result v-if="!$slots.stepFinish" icon="success">
+      <slot
+        name="stepFinish"
+        :response="state.uploadResponse"
+      />
+      <el-result
+        v-if="!$slots.stepFinish"
+        icon="success"
+      >
         <template #sub-title>
           <p>
             <span>导入完成,更新</span>
-            <span class="text-success" style="padding: 0 0.5em">{{ state.uploadResult.updateCount }}</span>
+            <span
+              class="text-success"
+              style="padding: 0 0.5em"
+            >{{ state.uploadResult.updateCount }}</span>
             <span>条数据，新增</span>
-            <span class="text-success" style="padding: 0 0.5em">{{ state.uploadResult.addCount }}</span>
+            <span
+              class="text-success"
+              style="padding: 0 0.5em"
+            >{{ state.uploadResult.addCount }}</span>
             <span>条数据</span>
           </p>
         </template>
       </el-result>
     </div>
-    <template v-if="state.stepActive > 0" #footer>
+    <template
+      v-if="state.stepActive > 0"
+      #footer
+    >
       <el-button @click="state.stepActive = 0">上一步</el-button>
       <div style="flex: 1">
-        <el-button class="eu-submit-btn" type="primary" @click="onComplete">完成</el-button>
+        <el-button
+          class="eu-submit-btn"
+          type="primary"
+          @click="onComplete"
+        >完成</el-button>
       </div>
     </template>
   </el-dialog>
@@ -148,6 +185,7 @@ export default {
   padding-top: 80px;
   padding-bottom: 80px;
 }
+
 .import-tip {
   list-style-type: square;
   list-style-position: inside;
@@ -155,9 +193,11 @@ export default {
   color: var(--color-text-3);
   line-height: 22px;
 }
+
 .import-upload {
   .el-upload {
     width: 100%;
+
     .el-upload-dragger {
       width: 100%;
     }
@@ -167,10 +207,12 @@ export default {
 // 步骤条样式
 .el-steps {
   margin-bottom: 24px;
+
   :deep(.el-step) {
     .el-step__icon {
       width: 20px;
       height: 20px;
+
       &.is-text {
         color: #fff;
         background-color: var(--color-primary);
@@ -178,38 +220,48 @@ export default {
         border: 1px solid var(--color-primary);
       }
     }
+
     .el-step__title {
       font-size: 13px;
+
       &.is-success {
         color: #333;
       }
     }
+
     .el-step__line {
       background-color: unset;
     }
+
     .is-success {
       .el-step__line:before {
         background: var(--color-primary);
       }
     }
+
     .is-process {
       font-weight: unset;
       color: var(--color-primary);
+
       .el-step__line:before {
         background: linear-gradient(to left, var(--color-primary), #ebeff7);
         color: transparent;
       }
     }
+
     .is-wait {
       color: #999;
+
       .el-step__icon {
         background-color: transparent;
+
         &.is-text {
           color: #999;
           border-color: #d9d9d9;
         }
       }
     }
+
     .el-step__line:before {
       content: '';
       width: 150px;
@@ -220,6 +272,7 @@ export default {
       top: 50%;
       transform: translate3d(-50%, -50%, 0);
     }
+
     .el-step__line-inner {
       display: none;
     }

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { defineOptions, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
+import { reactive } from 'vue';
 
+import useVisible from '@/hooks/visible';
 import { defaultTheme } from '@/settings';
 import { useSettingsStore } from '@/store';
 import mittBus from '@/utils/mittBus';
-import useVisible from '@/hooks/visible';
 
 defineOptions({
   name: 'ThemeConfig',
@@ -35,19 +35,38 @@ mittBus.on('theme:open', () => {
 </script>
 
 <template>
-  <el-drawer v-model="visible" title="主题配置" size="400px" direction="rtl" class="eu-theme-config-drawer" append-to-body>
+  <el-drawer
+    v-model="visible"
+    title="主题配置"
+    size="400px"
+    direction="rtl"
+    class="eu-theme-config-drawer"
+    append-to-body
+  >
     <div style="display: flex; flex-direction: column; height: 100%; overflow: hidden">
       <div style="flex: 1; overflow-y: auto">
-        <el-form :model="form" label-position="left">
-          <el-form-item label="菜单布局" class="eu-form-item__layout">
+        <el-form
+          :model="form"
+          label-position="left"
+        >
+          <el-form-item
+            label="菜单布局"
+            class="eu-form-item__layout"
+          >
             <el-radio-group v-model="form.layout">
               <el-radio-button value="column">
-                <el-tooltip content="分栏布局" placement="top">
+                <el-tooltip
+                  content="分栏布局"
+                  placement="top"
+                >
                   <svg-icon icon-class="layout-column" />
                 </el-tooltip>
               </el-radio-button>
               <el-radio-button value="vertical">
-                <el-tooltip content="垂直布局" placement="top">
+                <el-tooltip
+                  content="垂直布局"
+                  placement="top"
+                >
                   <svg-icon icon-class="layout-vertical" />
                 </el-tooltip>
               </el-radio-button>
@@ -56,7 +75,10 @@ mittBus.on('theme:open', () => {
           <!--          <el-form-item label="头部">-->
           <!--            <el-switch v-model="form.showHeader" />-->
           <!--          </el-form-item>-->
-          <el-form-item label="标签页" prop="showTabsBar">
+          <el-form-item
+            label="标签页"
+            prop="showTabsBar"
+          >
             <el-switch v-model="form.showTabsBar" />
           </el-form-item>
           <!--          <el-form-item label="固定头部">-->
@@ -65,7 +87,10 @@ mittBus.on('theme:open', () => {
           <el-form-item label="固定标签">
             <el-switch v-model="form.fixedTabsBar" />
           </el-form-item>
-          <el-form-item label="进度条" prop="showProgressBar">
+          <el-form-item
+            label="进度条"
+            prop="showProgressBar"
+          >
             <el-switch v-model="form.showProgressBar" />
           </el-form-item>
           <el-form-item label="开启水印">
@@ -75,17 +100,26 @@ mittBus.on('theme:open', () => {
             <el-radio-group v-model="form.darkMode">
               <el-radio-button value="light">
                 <template #default>
-                  <svg-icon icon-class="sun" style="font-weight: bold; font-size: 18px; height: 18px" />
+                  <svg-icon
+                    icon-class="sun"
+                    style="font-weight: bold; font-size: 18px; height: 18px"
+                  />
                 </template>
               </el-radio-button>
               <el-radio-button value="dark">
                 <template #default>
-                  <svg-icon icon-class="moon" style="font-weight: bold; font-size: 18px; height: 18px" />
+                  <svg-icon
+                    icon-class="moon"
+                    style="font-weight: bold; font-size: 18px; height: 18px"
+                  />
                 </template>
               </el-radio-button>
               <el-radio-button value="syncOS">
                 <template #default>
-                  <svg-icon icon-class="auto_mode" style="font-weight: bold; font-size: 18px" />
+                  <svg-icon
+                    icon-class="auto_mode"
+                    style="font-weight: bold; font-size: 18px"
+                  />
                 </template>
               </el-radio-button>
             </el-radio-group>
@@ -94,7 +128,10 @@ mittBus.on('theme:open', () => {
       </div>
 
       <div class="el-drawer__footer">
-        <el-button type="primary" @click="onSubmit">保存</el-button>
+        <el-button
+          type="primary"
+          @click="onSubmit"
+        >保存</el-button>
         <el-button @click="onRestoreDefault">恢复默认</el-button>
       </div>
     </div>
@@ -104,17 +141,21 @@ mittBus.on('theme:open', () => {
 <style scoped lang="scss">
 :deep(.el-form) {
   padding: 0 12px;
+
   .el-form-item {
     display: flex;
     align-items: center;
+
     .el-form-item__label {
       flex: 1;
     }
+
     .el-form-item__content {
       flex: unset;
     }
   }
 }
+
 .eu-form-item__layout {
   align-items: flex-start !important;
   flex-direction: column;
@@ -139,7 +180,7 @@ mittBus.on('theme:open', () => {
     }
   }
 
-  .el-radio-button + .el-radio-button {
+  .el-radio-button+.el-radio-button {
     margin-left: 12px;
   }
 }
@@ -149,6 +190,7 @@ mittBus.on('theme:open', () => {
   .el-drawer__body {
     padding: 0;
   }
+
   .el-drawer__footer {
     border-top: 1px solid var(--color-border);
     width: 100%;

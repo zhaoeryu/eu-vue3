@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia';
 
 import { getInfo, login, logout } from '@/api/system/login';
-import { getToken, removeToken, setToken } from '@/utils/auth';
 import type { LoginInfo } from '@/types/system/user';
+import { getToken, removeToken, setToken } from '@/utils/auth';
 
 interface UserState {
   token: string | null;
   user: LoginInfo;
-  roles: Array<string>;
-  permissions: Array<string>;
+  roles: string[];
+  permissions: string[];
 }
 
 const useUserStore = defineStore('user', {
@@ -25,7 +25,7 @@ const useUserStore = defineStore('user', {
         login(loginBody)
           .then((res) => {
             if (res.code != 200) {
-              reject(res.msg);
+              reject(new Error(res.msg));
               return;
             }
             setToken(res.data);
@@ -36,7 +36,7 @@ const useUserStore = defineStore('user', {
           })
           .catch((error) => {
             removeToken();
-            reject(error);
+            reject(new Error(error));
           });
       });
     },
@@ -45,7 +45,7 @@ const useUserStore = defineStore('user', {
         getInfo()
           .then((res) => {
             let roles = res.data.roles;
-            if (!roles || !roles.length) {
+            if (!roles?.length) {
               roles = ['ROLE_DEFAULT'];
             }
 
@@ -55,7 +55,7 @@ const useUserStore = defineStore('user', {
             resolve(res.data);
           })
           .catch((error) => {
-            reject(error);
+            reject(new Error(error));
           });
       });
     },
@@ -65,8 +65,8 @@ const useUserStore = defineStore('user', {
           .then(() => {
             resolve({});
           })
-          .catch((error) => {
-            reject(error);
+          .catch((err) => {
+            reject(new Error(err));
           })
           .finally(() => {
             // 清空登录状态

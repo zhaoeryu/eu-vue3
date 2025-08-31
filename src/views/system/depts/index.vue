@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { computed, onMounted, useTemplateRef } from 'vue';
-import { ElMessage, ElMessageBox, type TableInstance } from 'element-plus';
 import { Plus, Sort } from '@element-plus/icons-vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import type { TableInstance } from 'element-plus';
+import { computed, onMounted, useTemplateRef } from 'vue';
 
-import DeptEditDialog from '@/views/system/depts/DeptEditDialog.vue';
-import { flattenTreeData, getChildrenFields, getParentFieldsByLeafId, handleTreeData } from '@/utils';
 import { list as listApi, batchDel as batchDelApi } from '@/api/system/dept';
 import useLoading from '@/hooks/loading';
 import { useResettableReactive } from '@/hooks/resettable';
 import type { Dept, DeptTree } from '@/types/system/dept';
+import { flattenTreeData, getChildrenFields, getParentFieldsByLeafId, handleTreeData } from '@/utils';
 import { EnableFlagEnums } from '@/utils/enums';
+import DeptEditDialog from '@/views/system/depts/DeptEditDialog.vue';
 
 const refTable = useTemplateRef<TableInstance>('refTable'); // 添加表格引用
 const refDeptEditDialog = useTemplateRef<InstanceType<typeof DeptEditDialog>>('refDeptEditDialog');
@@ -48,17 +49,16 @@ function filterTreeData(treeData: DeptTree[], searchValue: string): DeptTree[] {
     return [];
   }
   const array = [];
-  for (let i = 0; i < treeData.length; i += 1) {
+  for (const item of treeData) {
     let match = false;
-    const item = treeData[i];
     const labelValue = item.deptName;
     if (labelValue) {
       match = labelValue.includes(searchValue);
     }
-    if (filterTreeData(treeData[i].children, searchValue).length > 0 || match) {
+    if (filterTreeData(item.children, searchValue).length > 0 || match) {
       array.push({
-        ...treeData[i],
-        children: filterTreeData(treeData[i].children, searchValue),
+        ...item,
+        children: filterTreeData(item.children, searchValue),
       });
     }
   }
@@ -114,7 +114,7 @@ function onRowEdit(row: DeptTree) {
   refDeptEditDialog.value?.open(data, state.list);
 }
 function onRowDelete(row: DeptTree) {
-  ElMessageBox.confirm(`确定要删除"${row.deptName}"${row.children && row.children.length ? '以及它下面的所有部门吗' : ''}吗？`, {
+  ElMessageBox.confirm(`确定要删除"${row.deptName}"${row.children?.length ? '以及它下面的所有部门吗' : ''}吗？`, {
     title: '提示',
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -145,38 +145,97 @@ function onRowDelete(row: DeptTree) {
   <div class="page-container">
     <div class="page-body">
       <div class="query-wrapper">
-        <el-form :model="state.queryParams" :inline="true">
+        <el-form
+          :model="state.queryParams"
+          :inline="true"
+        >
           <el-form-item label="部门名称">
-            <el-input v-model="state.queryParams.deptName" placeholder="输入要查找的部门名称" />
+            <el-input
+              v-model="state.queryParams.deptName"
+              placeholder="输入要查找的部门名称"
+            />
           </el-form-item>
         </el-form>
         <div>
-          <el-button :icon="Sort" plain @click="onExpandCollapse">{{ state.isExpandAll ? '全部折叠' : '全部展开' }}</el-button>
-          <el-button v-permissions="['system:dept:add']" type="primary" :icon="Plus" plain @click="onAdd">添加部门</el-button>
+          <el-button
+            :icon="Sort"
+            plain
+            @click="onExpandCollapse"
+          >{{ state.isExpandAll ? '全部折叠' : '全部展开' }}</el-button>
+          <el-button
+            v-permissions="['system:dept:add']"
+            type="primary"
+            :icon="Plus"
+            plain
+            @click="onAdd"
+          >添加部门</el-button>
         </div>
       </div>
       <el-divider />
       <div v-loading="loading">
-        <el-table ref="refTable" :data="treeTable" style="width: 100%" row-key="id" border :default-expand-all="state.isExpandAll" :tree-props="{ children: 'children' }">
-          <el-table-column prop="deptName" label="部门名称" width="180"></el-table-column>
-          <el-table-column prop="status" label="状态">
+        <el-table
+          ref="refTable"
+          :data="treeTable"
+          style="width: 100%"
+          row-key="id"
+          border
+          :default-expand-all="state.isExpandAll"
+          :tree-props="{ children: 'children' }"
+        >
+          <el-table-column
+            prop="deptName"
+            label="部门名称"
+            width="180"
+          ></el-table-column>
+          <el-table-column
+            prop="status"
+            label="状态"
+          >
             <template #default="{ row }">
-              <enum-tag :value="row.status" :enums="EnableFlagEnums" />
+              <enum-tag
+                :value="row.status"
+                :enums="EnableFlagEnums"
+              />
             </template>
           </el-table-column>
-          <el-table-column prop="sortNum" label="排序"></el-table-column>
-          <el-table-column v-permissions="['system:dept:add', 'system:dept:edit', 'system:dept:del']" label="操作" width="200">
+          <el-table-column
+            prop="sortNum"
+            label="排序"
+          ></el-table-column>
+          <el-table-column
+            v-permissions="['system:dept:add', 'system:dept:edit', 'system:dept:del']"
+            label="操作"
+            width="200"
+          >
             <template #default="{ row }">
-              <el-button v-permissions="['system:dept:add']" text type="primary" @click="onRowAdd(row)">新增</el-button>
-              <el-button v-permissions="['system:dept:edit']" text type="primary" @click="onRowEdit(row)">修改</el-button>
-              <el-button v-permissions="['system:dept:del']" text type="primary" @click="onRowDelete(row)">删除</el-button>
+              <el-button
+                v-permissions="['system:dept:add']"
+                text
+                type="primary"
+                @click="onRowAdd(row)"
+              >新增</el-button>
+              <el-button
+                v-permissions="['system:dept:edit']"
+                text
+                type="primary"
+                @click="onRowEdit(row)"
+              >修改</el-button>
+              <el-button
+                v-permissions="['system:dept:del']"
+                text
+                type="primary"
+                @click="onRowDelete(row)"
+              >删除</el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
     </div>
 
-    <dept-edit-dialog ref="refDeptEditDialog" @complete="onRefresh" />
+    <dept-edit-dialog
+      ref="refDeptEditDialog"
+      @complete="onRefresh"
+    />
   </div>
 </template>
 

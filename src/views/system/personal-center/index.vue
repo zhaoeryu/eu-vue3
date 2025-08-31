@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { ElMessage, ElMessageBox } from 'element-plus';
+import type { FormInstance } from 'element-plus';
 import { computed, onMounted, ref, useTemplateRef } from 'vue';
-import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus';
 
-import { useUserStore } from '@/store';
-import UserAvatar from '@/views/system/personal-center/UserAvatar.vue';
 import { updatePassword, updateProfile } from '@/api/system/user';
 import useLoading from '@/hooks/loading';
+import { useUserStore } from '@/store';
+import UserAvatar from '@/views/system/personal-center/UserAvatar.vue';
 
 const refFormBasic = useTemplateRef<FormInstance>('refFormBasic');
 const refFormPassword = useTemplateRef<FormInstance>('refFormPassword');
@@ -64,7 +65,7 @@ const updatePasswordRules = {
 
 const user = computed(() => userStore.user);
 const deptNames = computed(() => {
-  return (userStore.user.deptNames || []).join(' / ') || '暂无部门';
+  return (userStore.user.deptNames ?? []).join(' / ') || '暂无部门';
 });
 
 onMounted(() => {
@@ -130,7 +131,10 @@ function onPasswordSave() {
 <template>
   <div class="page-container">
     <el-row :gutter="16">
-      <el-col :span="8" :xs="24">
+      <el-col
+        :span="8"
+        :xs="24"
+      >
         <div>
           <div style="display: flex; align-items: center">
             <div>
@@ -138,9 +142,17 @@ function onPasswordSave() {
             </div>
             <div style="margin-left: 16px">
               <div>
-                <span style="font-size: 23px; color: var(--theme-text-primary-color); font-weight: 500; display: inline-block; margin-right: 0.3em">{{ user.nickname || '-' }}</span>
-                <svg-icon v-if="user.sex === 1" icon-class="sex_man" />
-                <svg-icon v-else-if="user.sex === 0" icon-class="sex_woman" />
+                <span
+                  style="font-size: 23px; color: var(--theme-text-primary-color); font-weight: 500; display: inline-block; margin-right: 0.3em"
+                >{{ user.nickname || '-' }}</span>
+                <svg-icon
+                  v-if="user.sex === 1"
+                  icon-class="sex_man"
+                />
+                <svg-icon
+                  v-else-if="user.sex === 0"
+                  icon-class="sex_woman"
+                />
               </div>
               <div style="margin-top: 15px; color: var(--theme-text-second-color); font-size: 14px">
                 {{ user.mobile || '未绑定手机号' }}
@@ -176,21 +188,57 @@ function onPasswordSave() {
           </div>
         </div>
       </el-col>
-      <el-col :span="16" :xs="24">
+      <el-col
+        :span="16"
+        :xs="24"
+      >
         <div>
           <el-tabs v-model="tabActive">
-            <el-tab-pane label="用户信息" name="userinfo">
-              <el-form ref="refFormBasic" :model="userForm" :rules="userRules" label-width="90px" :hide-required-asterisk="true">
-                <el-form-item label="姓名" prop="nickname">
-                  <el-input v-model="userForm.nickname" placeholder="请输入姓名，长度在 2 到 10 个字符" maxlength="10" />
+            <el-tab-pane
+              label="用户信息"
+              name="userinfo"
+            >
+              <el-form
+                ref="refFormBasic"
+                :model="userForm"
+                :rules="userRules"
+                label-width="90px"
+                :hide-required-asterisk="true"
+              >
+                <el-form-item
+                  label="姓名"
+                  prop="nickname"
+                >
+                  <el-input
+                    v-model="userForm.nickname"
+                    placeholder="请输入姓名，长度在 2 到 10 个字符"
+                    maxlength="10"
+                  />
                 </el-form-item>
-                <el-form-item label="手机号" prop="mobile">
-                  <el-input v-model="userForm.mobile" placeholder="请输入手机号，11 位数字" maxlength="11" />
+                <el-form-item
+                  label="手机号"
+                  prop="mobile"
+                >
+                  <el-input
+                    v-model="userForm.mobile"
+                    placeholder="请输入手机号，11 位数字"
+                    maxlength="11"
+                  />
                 </el-form-item>
-                <el-form-item label="邮箱" prop="email">
-                  <el-input v-model="userForm.email" placeholder="请输入邮箱" maxlength="50" />
+                <el-form-item
+                  label="邮箱"
+                  prop="email"
+                >
+                  <el-input
+                    v-model="userForm.email"
+                    placeholder="请输入邮箱"
+                    maxlength="50"
+                  />
                 </el-form-item>
-                <el-form-item label="性别" prop="sex">
+                <el-form-item
+                  label="性别"
+                  prop="sex"
+                >
                   <el-radio-group v-model="userForm.sex">
                     <el-radio :value="1">男</el-radio>
                     <el-radio :value="0">女</el-radio>
@@ -198,23 +246,66 @@ function onPasswordSave() {
                 </el-form-item>
               </el-form>
               <div style="text-align: right">
-                <el-button :loading="userFormLoading" type="primary" style="width: 150px" @click="onSave">保 存</el-button>
+                <el-button
+                  :loading="userFormLoading"
+                  type="primary"
+                  style="width: 150px"
+                  @click="onSave"
+                >保 存</el-button>
               </div>
             </el-tab-pane>
-            <el-tab-pane label="修改密码" name="updatePassword">
-              <el-form ref="refFormPassword" :model="updatePasswordForm" :rules="updatePasswordRules" label-width="90px" :hide-required-asterisk="true">
-                <el-form-item label="旧密码" prop="oldPassword">
-                  <el-input v-model="updatePasswordForm.oldPassword" placeholder="请输入旧密码，长度在 6 ～ 30 个字符" maxlength="30" show-password />
+            <el-tab-pane
+              label="修改密码"
+              name="updatePassword"
+            >
+              <el-form
+                ref="refFormPassword"
+                :model="updatePasswordForm"
+                :rules="updatePasswordRules"
+                label-width="90px"
+                :hide-required-asterisk="true"
+              >
+                <el-form-item
+                  label="旧密码"
+                  prop="oldPassword"
+                >
+                  <el-input
+                    v-model="updatePasswordForm.oldPassword"
+                    placeholder="请输入旧密码，长度在 6 ～ 30 个字符"
+                    maxlength="30"
+                    show-password
+                  />
                 </el-form-item>
-                <el-form-item label="新密码" prop="newPassword">
-                  <el-input v-model="updatePasswordForm.newPassword" placeholder="请输入新密码，长度在 6 ～ 30 个字符" maxlength="30" show-password />
+                <el-form-item
+                  label="新密码"
+                  prop="newPassword"
+                >
+                  <el-input
+                    v-model="updatePasswordForm.newPassword"
+                    placeholder="请输入新密码，长度在 6 ～ 30 个字符"
+                    maxlength="30"
+                    show-password
+                  />
                 </el-form-item>
-                <el-form-item label="确认密码" prop="confirmPassword">
-                  <el-input v-model="updatePasswordForm.confirmPassword" placeholder="请再次输入新密码，长度在 6 ～ 30 个字符" maxlength="30" show-password />
+                <el-form-item
+                  label="确认密码"
+                  prop="confirmPassword"
+                >
+                  <el-input
+                    v-model="updatePasswordForm.confirmPassword"
+                    placeholder="请再次输入新密码，长度在 6 ～ 30 个字符"
+                    maxlength="30"
+                    show-password
+                  />
                 </el-form-item>
               </el-form>
               <div style="text-align: right">
-                <el-button :loading="updatePasswordFormLoading" type="primary" style="width: 150px" @click="onPasswordSave">保 存</el-button>
+                <el-button
+                  :loading="updatePasswordFormLoading"
+                  type="primary"
+                  style="width: 150px"
+                  @click="onPasswordSave"
+                >保 存</el-button>
               </div>
             </el-tab-pane>
           </el-tabs>
@@ -226,7 +317,7 @@ function onPasswordSave() {
 
 <style scoped lang="scss">
 .el-col {
-  > div {
+  >div {
     background-color: var(--theme-base-second-bg);
     padding: 16px;
   }
@@ -236,13 +327,13 @@ function onPasswordSave() {
   font-size: 14px;
   color: var(--theme-text-primary-color);
 
-  & > div {
+  &>div {
     display: flex;
     justify-content: space-between;
     align-items: center;
     line-height: 2em;
 
-    > div:nth-child(2) {
+    >div:nth-child(2) {
       color: var(--theme-text-second-color);
     }
   }

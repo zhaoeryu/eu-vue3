@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, defineOptions, ref, watch } from 'vue';
+import type { TabsPaneContext } from 'element-plus';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { type TabsPaneContext } from 'element-plus';
 
 import { useRouteStore, useTabsStore } from '@/store';
-import type { Tab } from '@/types/store/tabs';
 import type { RouteNode } from '@/types/route';
+import type { Tab } from '@/types/store/tabs';
 
 defineOptions({
   name: 'AppContainerTabs',
@@ -34,7 +34,7 @@ watch(
       keepAlive: newRoute.meta.keepAlive as boolean,
     };
     tabsStore.addTab(tab);
-    tabActive.value = tabsStore.tabs.find((item) => item.path === newRoute.path)?.path || null;
+    tabActive.value = tabsStore.tabs.find((item) => item.path === newRoute.path)?.path ?? null;
   },
   {
     immediate: true,
@@ -146,13 +146,33 @@ function onDropdownVisibleChange(isVisible: boolean) {
 
 <template>
   <div id="app-container__tabs">
-    <el-tabs v-model="tabActive" type="card" class="tabs-content eu-tabs-content-smart" @tab-click="onTabClick" @tab-remove="onTabRemove">
-      <el-tab-pane v-for="item in tabsStore.tabs" :key="item.path" :label="item.title" :name="item.path" :closable="!item.affix"></el-tab-pane>
+    <el-tabs
+      v-model="tabActive"
+      type="card"
+      class="tabs-content eu-tabs-content-smart"
+      @tab-click="onTabClick"
+      @tab-remove="onTabRemove"
+    >
+      <el-tab-pane
+        v-for="item in tabsStore.tabs"
+        :key="item.path"
+        :label="item.title"
+        :name="item.path"
+        :closable="!item.affix"
+      ></el-tab-pane>
     </el-tabs>
 
-    <el-dropdown trigger="click" popper-class="eu-tabs-dropdown" @command="onDropdown" @visible-change="onDropdownVisibleChange">
+    <el-dropdown
+      trigger="click"
+      popper-class="eu-tabs-dropdown"
+      @command="onDropdown"
+      @visible-change="onDropdownVisibleChange"
+    >
       <span class="eu-tabs-more">
-        <span class="eu-tabs-more-icon" :class="{ 'eu-tabs-more-icon__mouse-enter': moreIconMouseenter }">
+        <span
+          class="eu-tabs-more-icon"
+          :class="{ 'eu-tabs-more-icon__mouse-enter': moreIconMouseenter }"
+        >
           <svg-icon icon-class="shortcut" />
         </span>
       </span>
@@ -203,24 +223,29 @@ function onDropdownVisibleChange(isVisible: boolean) {
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 4px;
+
   .tabs-content {
     width: calc(100% - 20px - 20px);
   }
+
   .eu-tabs-more {
     box-sizing: border-box;
     display: block;
     text-align: left;
     position: relative;
+
     .eu-tabs-more-icon {
       display: inline-block;
       cursor: pointer;
       transition: transform 0.3s ease-out;
       font-size: 20px;
     }
+
     .eu-tabs-more-icon__mouse-enter {
       transform: rotate(90deg);
       color: var(--color-primary);
     }
+
     //&:hover:after {
     //  position: absolute;
     //  bottom: 0;
@@ -229,18 +254,24 @@ function onDropdownVisibleChange(isVisible: boolean) {
     //  content: "";
     //}
   }
+
   .eu-tabs-content-smart {
     height: 34px;
+
     :deep(.el-tabs__nav-next, .el-tabs__nav-prev) {
       line-height: 34px;
+
       &.is-disabled {
         cursor: not-allowed;
       }
     }
+
     :deep(.el-tabs__header) {
       border-bottom: 0;
+
       .el-tabs__nav {
         border: 0;
+
         .el-tabs__item {
           border: 0;
           line-height: 34px;
@@ -250,6 +281,7 @@ function onDropdownVisibleChange(isVisible: boolean) {
           margin-right: 5px;
           border-radius: 2px 2px 0 0;
           user-select: none;
+
           &:after {
             content: '';
             position: absolute;
@@ -264,16 +296,20 @@ function onDropdownVisibleChange(isVisible: boolean) {
               font-size 0s;
             background-color: var(--color-primary) !important;
           }
+
           &.is-active {
             background: rgba(21, 91, 212, 0.08) !important;
             color: var(--color-primary) !important;
+
             &:after {
               width: 100%;
             }
           }
+
           &:not(.is-active):hover {
             background-color: rgba(21, 91, 212, 0.08);
             color: var(--color-primary) !important;
+
             &:after {
               width: 100%;
               transition:

@@ -1,19 +1,19 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue';
-import { Command } from 'vue-command-palette';
 import { useMagicKeys } from '@vueuse/core';
 import { ElMessageBox } from 'element-plus';
+import { onMounted, ref, watch } from 'vue';
+import { Command } from 'vue-command-palette';
 import { useRouter } from 'vue-router';
 
-import { useRouteStore, useSettingsStore, useUserStore } from '@/store';
 import CmdkButton from '@/components/cmdk/CmdkButton.vue';
-import { defaultSetting } from '@/settings';
-import CmdkIconEnter from '@/components/cmdk/CmdkIconEnter.vue';
 import CmdkDialogFooter from '@/components/cmdk/CmdkDialogFooter.vue';
+import CmdkIconEnter from '@/components/cmdk/CmdkIconEnter.vue';
 import SvgIcon from '@/components/SvgIcon.vue';
+import { defaultSetting } from '@/settings';
+import { useRouteStore, useSettingsStore, useUserStore } from '@/store';
+import type { RouteNode } from '@/types/route';
 import { isExternal } from '@/utils';
 import { isDark } from '@/utils/darkMode';
-import type { RouteNode } from '@/types/route';
 
 const visible = ref(false);
 const keyword = ref('');
@@ -23,23 +23,23 @@ const routeStore = useRouteStore();
 const settingsStore = useSettingsStore();
 
 const CmdK = keys['Meta+K'];
-const Escape = keys['Escape'];
+const Escape = keys.Escape;
 
 const db = ref<CmdkGroup[]>([]);
 const router = useRouter();
 
-type CmdkGroup = {
+interface CmdkGroup {
   key: string;
   label: string;
   children: CmdkRouteItem[];
-};
+}
 
-type CmdkRouteItem = {
+interface CmdkRouteItem {
   key: string;
   label: string;
   labelList: string[];
   value?: string;
-};
+}
 
 watch(CmdK, (v) => {
   if (v) {
@@ -129,14 +129,14 @@ onMounted(() => {
 function generateRoute(_routes: RouteNode[], _result: CmdkRouteItem[], parentItem: CmdkRouteItem) {
   _routes.forEach((item) => {
     const isLink = isExternal(item.path);
-    let parentPath = parentItem.key ? parentItem.key + '/' : '';
+    const parentPath = parentItem.key ? parentItem.key + '/' : '';
     const _item = {
       key: isLink ? item.path : parentPath + item.path,
       label: item.meta.title,
       labelList: [...(parentItem.labelList || []), item.meta.title],
     };
     _result.push(_item);
-    if (item.children && item.children.length) {
+    if (item.children?.length) {
       if (
         item.children.length === 1 &&
         // 首页
@@ -228,22 +228,47 @@ function logout() {
 
 <template>
   <cmdk-button @search="visible = true" />
-  <Command.Dialog :visible="visible" theme="eu">
+  <Command.Dialog
+    :visible="visible"
+    theme="eu"
+  >
     <template #header>
-      <svg-icon icon-class="search" class-name="search-icon" />
-      <Command.Input v-model:value="keyword" placeholder="搜索" />
+      <svg-icon
+        icon-class="search"
+        class-name="search-icon"
+      />
+      <Command.Input
+        v-model:value="keyword"
+        placeholder="搜索"
+      />
     </template>
     <template #body>
       <Command.List>
         <Command.Empty>没有"{{ keyword }}"的搜索结果.</Command.Empty>
 
-        <Command.Group v-for="(group, groupIndex) in db" :key="groupIndex" :heading="group.label">
-          <Command.Item v-for="(child, childIndex) in group.children" :key="childIndex" :data-value="child.labelList.join(',')" @select="onItemSelect(child, group)">
+        <Command.Group
+          v-for="(group, groupIndex) in db"
+          :key="groupIndex"
+          :heading="group.label"
+        >
+          <Command.Item
+            v-for="(child, childIndex) in group.children"
+            :key="childIndex"
+            :data-value="child.labelList.join(',')"
+            @select="onItemSelect(child, group)"
+          >
             <div class="command-palette-item__body">
               <div>
-                <template v-for="(label, labelIndex) in child.labelList" :key="labelIndex">
+                <template
+                  v-for="(label, labelIndex) in child.labelList"
+                  :key="labelIndex"
+                >
                   <span>{{ label }}</span>
-                  <svg-icon v-if="labelIndex + 1 < child.labelList.length" icon-class="arrow-right" style="margin: 0 1em" />
+                  <svg-icon
+                    v-if="labelIndex + 1 < child.labelList.length"
+                    icon-class="arrow-right"
+                    style="margin: 0 1em"
+                  />
                 </template>
               </div>
               <cmdk-icon-enter class="command-palette-item__body__enter" />

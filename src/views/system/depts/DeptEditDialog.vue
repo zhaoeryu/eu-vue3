@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { ElMessage  } from 'element-plus';
+import type {FormInstance} from 'element-plus';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
-import { ElMessage, type FormInstance } from 'element-plus';
 
 import { add, update } from '@/api/system/dept';
-import useVisible from '@/hooks/visible';
 import useLoading from '@/hooks/loading';
 import { useResettableReactive } from '@/hooks/resettable';
+import useVisible from '@/hooks/visible';
 import type { DeptTree } from '@/types/system/dept';
 import { EnableFlagEnums } from '@/utils/enums';
 

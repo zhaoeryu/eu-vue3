@@ -1,6 +1,6 @@
+import type {PageResult, ResultBody} from '@/types/api';
+import type {Notice} from '@/types/system/notice';
 import request from '@/utils/request';
-import { type PageResult, type ResultBody } from '@/types/api';
-import { type Notice } from '@/types/system/notice';
 
 export function page(params: any): Promise<ResultBody<PageResult<Notice>>> {
   return request({

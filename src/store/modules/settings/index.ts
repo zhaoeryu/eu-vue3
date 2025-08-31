@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
-import { defaultTheme, type EuTheme, type PartialEuTheme } from '@/settings';
+import { defaultTheme   } from '@/settings';
+import type {EuTheme, PartialEuTheme} from '@/settings';
 import { DeviceTypeEnums } from '@/utils/enums';
 
 export type DeviceType = 'desktop' | 'mobile';

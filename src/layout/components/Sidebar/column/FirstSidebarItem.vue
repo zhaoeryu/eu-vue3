@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { computed, defineProps } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 import AppLink from '@/layout/components/Sidebar/Link.vue';
-import { getMaxMatchedMenu } from '@/utils/route-helpers';
 import type { RouteNode } from '@/types/route';
+import { getMaxMatchedMenu } from '@/utils/route-helpers';
 
 export interface Props {
   item: RouteNode;
@@ -41,7 +41,10 @@ function onItemClick() {
 </script>
 
 <template>
-  <li :class="{ active: isActive }" @click="onItemClick">
+  <li
+    :class="{ active: isActive }"
+    @click="onItemClick"
+  >
     <app-link :to="item.path">
       <svg-icon :icon-class="item.meta.icon || 'menu'" />
       <span class="text-overflow">{{ item.meta.title }}</span>
@@ -59,14 +62,16 @@ li {
   align-items: center;
   margin: 0 8px 4px;
   user-select: none;
-  > a {
+
+  >a {
     padding: 0 8px;
     color: var(--theme-nav-first-color);
     display: flex;
     align-items: center;
     width: 100%;
     height: 100%;
-    > .svg-icon {
+
+    >.svg-icon {
       display: inline-block;
       min-width: 1.3em;
       min-height: 1.3em;
@@ -74,29 +79,37 @@ li {
       margin-right: 8px;
     }
   }
+
   &.active,
   &.hover {
     background-color: var(--theme-nav-first-active-bg);
-    > a {
+
+    >a {
       color: var(--theme-nav-first-active-color);
     }
   }
+
   &:not(.active):hover {
     background-color: var(--theme-nav-first-hover-bg);
-    > a {
+
+    >a {
       color: var(--theme-nav-first-hover-color);
     }
   }
 }
+
 // 折叠状态
 .sidebar-collapsed li {
   justify-content: center;
-  > a {
+
+  >a {
     justify-content: center;
-    > span {
+
+    >span {
       display: none !important;
     }
-    > .svg-icon {
+
+    >.svg-icon {
       margin-right: 0 !important;
     }
   }

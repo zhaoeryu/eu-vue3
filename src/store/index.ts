@@ -1,10 +1,10 @@
 import { createPinia } from 'pinia';
 import { createPersistedState } from 'pinia-plugin-persistedstate';
 
-import useUserStore from '@/store/modules/user';
 import useRouteStore from '@/store/modules/routes';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useTabsStore } from '@/store/modules/tabs';
+import useUserStore from '@/store/modules/user';
 
 const pinia = createPinia();
 pinia.use(

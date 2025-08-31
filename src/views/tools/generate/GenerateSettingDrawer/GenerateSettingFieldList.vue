@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { inject, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
+import { inject, onMounted } from 'vue';
 
-import type { State } from '@/views/tools/generate/GenerateSettingDrawer/index.vue';
-import { useResettableReactive } from '@/hooks/resettable';
-import { queryTypeList as queryTypeListApi, formTypeList as formTypeListApi } from '@/api/system/generate';
 import { page as dictPage } from '@/api/system/dict';
-import type { GenerateColumn } from '@/types/system/generate';
-import mFormItemComponents from '@/utils/m-form-item-components';
+import { queryTypeList as queryTypeListApi, formTypeList as formTypeListApi } from '@/api/system/generate';
+import { useResettableReactive } from '@/hooks/resettable';
 import type { Dict } from '@/types/system/dict';
+import type { GenerateColumn } from '@/types/system/generate';
 import * as businessEnums from '@/utils/business-enums';
+import mFormItemComponents from '@/utils/m-form-item-components';
+import type { State } from '@/views/tools/generate/GenerateSettingDrawer/index.vue';
 
 const generateInfo = inject<State>('generateInfo')!;
 const [state, _reset] = useResettableReactive({
@@ -72,14 +72,14 @@ function onRowSort(row: GenerateColumn) {
 function onLoadParams() {
   // 查询方式
   queryTypeListApi().then((res) => {
-    state.queryTypeList = res.data || [];
+    state.queryTypeList = res.data ?? [];
   });
   // 字典
   dictPage({
     page: 1,
     size: 999,
   }).then((res) => {
-    state.dictList = res.data.records || [];
+    state.dictList = res.data.records ?? [];
   });
   // 自定义表单类型
   const formTypeList = Object.keys(mFormItemComponents).map((item) => ({
@@ -88,32 +88,79 @@ function onLoadParams() {
   }));
   // 表单类型
   formTypeListApi().then((res) => {
-    state.formTypeList = [...(res.data || []), ...formTypeList];
+    state.formTypeList = [...(res.data ?? []), ...formTypeList];
   });
 }
 </script>
 
 <template>
-  <el-table :data="generateInfo.list" style="width: 100%">
-    <el-table-column prop="columnSort" label="序号" width="60" fixed="left" />
+  <el-table
+    :data="generateInfo.list"
+    style="width: 100%"
+  >
+    <el-table-column
+      prop="columnSort"
+      label="序号"
+      width="60"
+      fixed="left"
+    />
 
     <!-- 数据库字段列组 -->
-    <el-table-column label="数据库字段" fixed="left">
-      <el-table-column prop="columnName" label="字段名" width="120" show-overflow-tooltip />
-      <el-table-column prop="columnType" label="字段类型" width="110" />
-      <el-table-column prop="columnComment" label="注释" width="100" show-overflow-tooltip />
+    <el-table-column
+      label="数据库字段"
+      fixed="left"
+    >
+      <el-table-column
+        prop="columnName"
+        label="字段名"
+        width="120"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        prop="columnType"
+        label="字段类型"
+        width="110"
+      />
+      <el-table-column
+        prop="columnComment"
+        label="注释"
+        width="100"
+        show-overflow-tooltip
+      />
     </el-table-column>
 
     <!-- Java配置列组 -->
     <el-table-column label="Java配置">
-      <el-table-column prop="javaField" label="字段名" width="120" show-overflow-tooltip />
-      <el-table-column prop="javaType" label="字段类型" width="120" show-overflow-tooltip />
-      <el-table-column prop="finalColumnComment" label="注释" width="120">
+      <el-table-column
+        prop="javaField"
+        label="字段名"
+        width="120"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        prop="javaType"
+        label="字段类型"
+        width="120"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        prop="finalColumnComment"
+        label="注释"
+        width="120"
+      >
         <template #default="{ row }">
-          <el-input v-model="row.finalColumnComment" placeholder="请点击填写..." maxlength="32" />
+          <el-input
+            v-model="row.finalColumnComment"
+            placeholder="请点击填写..."
+            maxlength="32"
+          />
         </template>
       </el-table-column>
-      <el-table-column prop="excelExport" label="导出" width="60">
+      <el-table-column
+        prop="excelExport"
+        label="导出"
+        width="60"
+      >
         <template #default="{ row }">
           <el-checkbox v-model="row.excelExport" />
         </template>
@@ -122,25 +169,54 @@ function onLoadParams() {
 
     <!-- 列表配置列组 -->
     <el-table-column label="列表配置">
-      <el-table-column prop="tableShow" label="列表" width="60">
+      <el-table-column
+        prop="tableShow"
+        label="列表"
+        width="60"
+      >
         <template #default="{ row }">
           <el-checkbox v-model="row.tableShow" />
         </template>
       </el-table-column>
-      <el-table-column prop="defaultVisible" label="可见" width="60">
+      <el-table-column
+        prop="defaultVisible"
+        label="可见"
+        width="60"
+      >
         <template #default="{ row }">
           <el-checkbox v-model="row.defaultVisible" />
         </template>
       </el-table-column>
-      <el-table-column prop="tableShowField" label="表格字段" width="140">
+      <el-table-column
+        prop="tableShowField"
+        label="表格字段"
+        width="140"
+      >
         <template #default="{ row }">
-          <el-input v-model="row.tableShowField" placeholder="请点击填写..." maxlength="32" />
+          <el-input
+            v-model="row.tableShowField"
+            placeholder="请点击填写..."
+            maxlength="32"
+          />
         </template>
       </el-table-column>
-      <el-table-column prop="queryType" label="查询方式" width="100">
+      <el-table-column
+        prop="queryType"
+        label="查询方式"
+        width="100"
+      >
         <template #default="{ row }">
-          <el-select v-model="row.queryType" placeholder="请点击选择..." clearable>
-            <el-option v-for="item in state.queryTypeList" :key="item" :label="item" :value="item" />
+          <el-select
+            v-model="row.queryType"
+            placeholder="请点击选择..."
+            clearable
+          >
+            <el-option
+              v-for="item in state.queryTypeList"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
           </el-select>
         </template>
       </el-table-column>
@@ -158,20 +234,46 @@ function onLoadParams() {
 
     <!-- 表单配置列组 -->
     <el-table-column label="表单配置">
-      <el-table-column prop="jsType" label="Js类型" width="100" />
-      <el-table-column prop="formShow" label="表单" width="60">
+      <el-table-column
+        prop="jsType"
+        label="Js类型"
+        width="100"
+      />
+      <el-table-column
+        prop="formShow"
+        label="表单"
+        width="60"
+      >
         <template #default="{ row }">
           <el-checkbox v-model="row.formShow" />
         </template>
       </el-table-column>
-      <el-table-column prop="formType" label="表单类型" width="140">
+      <el-table-column
+        prop="formType"
+        label="表单类型"
+        width="140"
+      >
         <template #default="{ row }">
-          <el-select v-model="row.formType" placeholder="选择表单类型" clearable filterable>
-            <el-option v-for="item in state.formTypeList" :key="item.value" :label="item.label" :value="item.value" />
+          <el-select
+            v-model="row.formType"
+            placeholder="选择表单类型"
+            clearable
+            filterable
+          >
+            <el-option
+              v-for="item in state.formTypeList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </template>
       </el-table-column>
-      <el-table-column prop="notNull" label="必填" width="60">
+      <el-table-column
+        prop="notNull"
+        label="必填"
+        width="60"
+      >
         <template #default="{ row }">
           <el-checkbox v-model="row.notNull" />
         </template>
@@ -180,20 +282,51 @@ function onLoadParams() {
 
     <!-- 数据源配置列组 -->
     <el-table-column label="数据源配置">
-      <el-table-column prop="dictKey" label="字典" width="140">
+      <el-table-column
+        prop="dictKey"
+        label="字典"
+        width="140"
+      >
         <template #default="{ row }">
-          <el-select v-model="row.dictKey" placeholder="请点击选择..." clearable filterable>
-            <el-option v-for="item in state.dictList" :key="item.dictKey" :label="item.dictKey" :value="item.dictKey">
+          <el-select
+            v-model="row.dictKey"
+            placeholder="请点击选择..."
+            clearable
+            filterable
+          >
+            <el-option
+              v-for="item in state.dictList"
+              :key="item.dictKey"
+              :label="item.dictKey"
+              :value="item.dictKey"
+            >
               <span style="float: left">{{ item.dictKey }}</span>
-              <span v-if="item.remark" style="float: right; color: #8492a6; font-size: 13px">&nbsp;&nbsp;{{ item.remark || '-' }}</span>
+              <span
+                v-if="item.remark"
+                style="float: right; color: #8492a6; font-size: 13px"
+              >&nbsp;&nbsp;{{ item.remark || '-' }}</span>
             </el-option>
           </el-select>
         </template>
       </el-table-column>
-      <el-table-column prop="enumKey" label="枚举" width="140">
+      <el-table-column
+        prop="enumKey"
+        label="枚举"
+        width="140"
+      >
         <template #default="{ row }">
-          <el-select v-model="row.enumKey" placeholder="请点击选择..." clearable filterable>
-            <el-option v-for="item in Object.keys(businessEnums)" :key="item" :label="item" :value="item">
+          <el-select
+            v-model="row.enumKey"
+            placeholder="请点击选择..."
+            clearable
+            filterable
+          >
+            <el-option
+              v-for="item in Object.keys(businessEnums)"
+              :key="item"
+              :label="item"
+              :value="item"
+            >
               <span>{{ item }}</span>
             </el-option>
           </el-select>
@@ -202,18 +335,42 @@ function onLoadParams() {
     </el-table-column>
 
     <!-- 操作列 -->
-    <el-table-column label="操作" width="100" fixed="right">
+    <el-table-column
+      label="操作"
+      width="100"
+      fixed="right"
+    >
       <template #default="{ row }">
-        <el-popover :key="row.columnName" placement="left" width="200" trigger="click" :visible="row._sort_visible">
+        <el-popover
+          :key="row.columnName"
+          placement="left"
+          width="200"
+          trigger="click"
+          :visible="row._sort_visible"
+        >
           <div class="padding-bottom-sm">
-            <el-input v-model="row._sort" placeholder="想插入的序号" type="number" />
+            <el-input
+              v-model="row._sort"
+              placeholder="想插入的序号"
+              type="number"
+            />
           </div>
           <div style="text-align: right; margin: 0">
-            <el-button text @click="row._sort_visible = false">取消</el-button>
-            <el-button type="primary" @click="onRowSort(row)">确定</el-button>
+            <el-button
+              text
+              @click="row._sort_visible = false"
+            >取消</el-button>
+            <el-button
+              type="primary"
+              @click="onRowSort(row)"
+            >确定</el-button>
           </div>
           <template #reference>
-            <el-button text type="primary" @click="row._sort_visible = true">设置排序</el-button>
+            <el-button
+              text
+              type="primary"
+              @click="row._sort_visible = true"
+            >设置排序</el-button>
           </template>
         </el-popover>
       </template>

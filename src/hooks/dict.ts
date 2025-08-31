@@ -1,5 +1,5 @@
-import { useCacheStore } from '@/store/modules/options';
 import { listByDictKey } from '@/api/system/dictDetail';
+import { useCacheStore } from '@/store/modules/options';
 
 export default function useDict() {
   async function fetchOptions(dictKey: string) {

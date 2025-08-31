@@ -102,9 +102,9 @@ export interface TreeNode {
  */
 export function handleTreeData(data: any[], { configChildrenKey, configIdKey, configParentIdKey }: TreeConfig = {}): TreeNode[] {
   const config = {
-    id: configIdKey || 'id',
-    parentId: configParentIdKey || 'parentId',
-    children: configChildrenKey || 'children',
+    id: configIdKey ?? 'id',
+    parentId: configParentIdKey ?? 'parentId',
+    children: configChildrenKey ?? 'children',
   };
 
   const childrenListMap: Record<string, TreeNode[]> = {};
@@ -179,10 +179,10 @@ export function getChildrenFields(
 ): any[] {
   const { fieldKey, childrenKey = 'children' } = options;
   const result = [];
-  if (node[childrenKey] && node[childrenKey].length) {
+  if (node[childrenKey]?.length) {
     node[childrenKey].forEach((item: TreeNode) => {
       result.push(item[fieldKey]);
-      if (item[childrenKey] && item[childrenKey].length) {
+      if (item[childrenKey]?.length) {
         result.push(...getChildrenFields(item, { fieldKey, childrenKey }));
       }
     });
@@ -214,7 +214,7 @@ export function getFirstChildrenFields(
   const childrenProps = [];
   childrenProps.push(node[fieldKey]);
   const extraCondition = condition(node);
-  if (node[childrenKey] && node[childrenKey].length && extraCondition) {
+  if (node[childrenKey]?.length && extraCondition) {
     childrenProps.push(
       ...getFirstChildrenFields(node[childrenKey][0], {
         fieldKey,
@@ -321,7 +321,7 @@ export function downloadFile(url: string, fileName: string): void {
 export function dataURLtoFile(base64Str: string, fileName: string): File {
   const arr = base64Str.split(','),
     // base64解析出来的图片类型
-    mime = arr[0].match(/:(.*?);/)?.[1],
+    mime = (/:(.*?);/.exec(arr[0]))?.[1],
     // 对base64串进行操作，去掉url头，并转换为byte   atob为window内置方法
     bstr = atob(arr[1]);
   let len = bstr.length;

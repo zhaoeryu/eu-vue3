@@ -1,8 +1,10 @@
-<script>
+<script lang="ts">
 export default {
   name: 'Four1',
   data() {
-    return {};
+    return {
+
+    };
   },
 };
 </script>

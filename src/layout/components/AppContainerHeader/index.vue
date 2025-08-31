@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineOptions } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 defineOptions({
@@ -25,7 +25,10 @@ const activeMenus = computed(() => {
 <template>
   <header id="app-container__header">
     <el-breadcrumb separator="/">
-      <el-breadcrumb-item v-for="(item, index) in activeMenus" :key="index">{{ item.meta.title }}</el-breadcrumb-item>
+      <el-breadcrumb-item
+        v-for="(item, index) in activeMenus"
+        :key="index"
+      >{{ item.meta.title }}</el-breadcrumb-item>
     </el-breadcrumb>
   </header>
 </template>

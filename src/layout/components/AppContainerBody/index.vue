@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, defineOptions } from 'vue';
+import { computed } from 'vue';
 
 import { defaultSetting } from '@/settings';
 import { useTabsStore } from '@/store';
-import { type Tab } from '@/types/store/tabs';
+import type { Tab } from '@/types/store/tabs';
 
 defineOptions({
   name: 'AppContainerBody',
@@ -21,9 +21,18 @@ const cachedRoutes = computed(() => {
 <template>
   <section id="app-container__body">
     <router-view v-slot="{ Component, route }">
-      <transition name="fade-transform" mode="out-in">
-        <keep-alive :include="cachedRoutes" :max="defaultSetting.keepAliveMaxNum">
-          <component :is="Component" :key="route.path" />
+      <transition
+        name="fade-transform"
+        mode="out-in"
+      >
+        <keep-alive
+          :include="cachedRoutes"
+          :max="defaultSetting.keepAliveMaxNum"
+        >
+          <component
+            :is="Component"
+            :key="route.path"
+          />
         </keep-alive>
       </transition>
     </router-view>
@@ -37,6 +46,7 @@ const cachedRoutes = computed(() => {
   flex-grow: 1;
   position: relative;
 }
+
 .eu-layout-horizontal {
   #app-container__body {
     margin-left: 10%;

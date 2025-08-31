@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { computed, ref, defineProps } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import AppLink from '@/layout/components/Sidebar/Link.vue';
-import { isMenuSegmentMatch } from '@/utils/route-helpers';
 import type { RouteNode } from '@/types/route';
+import { isMenuSegmentMatch } from '@/utils/route-helpers';
 
 export interface Props {
   item: RouteNode;
@@ -26,7 +26,7 @@ const resolvedPath = computed(() => {
 });
 
 const hasChildren = computed(() => {
-  return props.item.children && props.item.children.filter((m) => !m.hidden).length;
+  return props.item.children?.filter((m) => !m.hidden)?.length;
 });
 
 const isActive = computed(() => {
@@ -52,19 +52,38 @@ const isActive = computed(() => {
   >
     <!-- 有子菜单 -->
     <template v-if="hasChildren">
-      <div class="eu-submenu__title" @click="isOpened = !isOpened">
+      <div
+        class="eu-submenu__title"
+        @click="isOpened = !isOpened"
+      >
         <svg-icon icon-class="arrow-right2" />
         <span class="text-overflow">{{ item.meta.title }}</span>
       </div>
       <ul class="eu-submenu__body">
-        <second-sidebar-item v-for="child in item.children" :key="child.path" :item="child" :root-path="resolvedPath" @item-click="$emit('item-click', $event)" />
+        <second-sidebar-item
+          v-for="child in item.children"
+          :key="child.path"
+          :item="child"
+          :root-path="resolvedPath"
+          @item-click="$emit('item-click', $event)"
+        />
       </ul>
     </template>
     <!-- 没有子菜单 -->
-    <app-link v-else :to="resolvedPath">
+    <app-link
+      v-else
+      :to="resolvedPath"
+    >
       <span class="text-overflow">{{ item.meta.title }}</span>
-      <el-tag v-if="item.meta.badge" type="danger" effect="dark">{{ item.meta.badge }}</el-tag>
-      <span v-else-if="item.meta.dot" class="eu-dot eu-dot-error">
+      <el-tag
+        v-if="item.meta.badge"
+        type="danger"
+        effect="dark"
+      >{{ item.meta.badge }}</el-tag>
+      <span
+        v-else-if="item.meta.dot"
+        class="eu-dot eu-dot-error"
+      >
         <span />
       </span>
     </app-link>
@@ -78,6 +97,7 @@ li {
   cursor: pointer;
   user-select: none;
   position: relative;
+
   &.eu-menu-item {
     height: 36px;
     border-radius: 6px;
@@ -85,32 +105,39 @@ li {
     display: flex;
     align-items: center;
     padding: 0 8px;
-    > a {
+
+    >a {
       color: var(--theme-nav-second-color);
       display: flex;
       align-items: center;
       width: 100%;
       height: 100%;
     }
+
     &.active {
       background-color: var(--theme-nav-second-active-bg);
-      > a {
+
+      >a {
         color: var(--theme-nav-second-active-color);
       }
     }
+
     &:not(.active):hover {
       background-color: var(--theme-nav-second-hover-bg);
-      > a {
+
+      >a {
         color: var(--theme-nav-second-hover-color);
       }
     }
   }
+
   &.eu-submenu {
-    & > .eu-submenu__title {
+    &>.eu-submenu__title {
       height: 32px;
       line-height: 32px;
       padding: 0 8px;
       color: #4d5466;
+
       .svg-icon {
         transform: rotate(0deg);
         transition: transform 0.3s;
@@ -119,30 +146,36 @@ li {
         margin-right: 4px;
       }
     }
-    & > .eu-submenu__body {
+
+    &>.eu-submenu__body {
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
-      & > .eu-menu-item {
+
+      &>.eu-menu-item {
         margin-left: 16px;
       }
     }
+
     &.is-opened {
-      & > .eu-submenu__body {
+      &>.eu-submenu__body {
         max-height: 1000px;
         transition: max-height 0.8s ease-in-out;
       }
-      & > .eu-submenu__title > .svg-icon {
+
+      &>.eu-submenu__title>.svg-icon {
         transform: rotate(90deg);
       }
     }
+
     &.active {
       .eu-submenu__title {
         color: var(--theme-nav-second-active-color);
       }
     }
-    & > .eu-submenu__body {
-      & > :not(.eu-menu-item) {
+
+    &>.eu-submenu__body {
+      &> :not(.eu-menu-item) {
         margin-left: 8px;
       }
     }
@@ -158,6 +191,7 @@ li {
   line-height: 16px;
   border: 0;
 }
+
 .eu-dot {
   position: absolute;
   right: 4px;

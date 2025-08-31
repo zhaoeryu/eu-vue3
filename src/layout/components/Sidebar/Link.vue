@@ -1,11 +1,14 @@
 <template>
-  <component :is="type" v-bind="linkProps(to)">
+  <component
+    :is="type"
+    v-bind="linkProps(to)"
+  >
     <slot />
   </component>
 </template>
 
 <script lang="ts" setup>
-import { computed, defineProps } from 'vue';
+import { computed } from 'vue';
 
 import { isExternal } from '@/utils';
 
@@ -16,14 +19,14 @@ export interface Props {
 const props = defineProps<Props>();
 
 const type = computed(() => {
-  if (isExternal(props.to)) {
+  if (typeof props.to === 'string' && isExternal(props.to)) {
     return 'a';
   }
   return 'router-link';
 });
 
-function linkProps(to) {
-  if (isExternal(to)) {
+function linkProps(to: string | object) {
+  if (typeof to === 'string' && isExternal(to)) {
     return {
       href: to,
       target: '_blank',

@@ -1,13 +1,13 @@
+import _ from 'lodash';
 import { defineStore } from 'pinia';
 import { fromArray } from 'tree-lodash';
-import _ from 'lodash';
 
 import { getRouters } from '@/api/system/menu';
 import { layoutRouteList } from '@/router/routers';
+import type { RouteNode } from '@/types/route';
+import type { Menu } from '@/types/system/menu';
 import { MenuTypeEnums } from '@/utils/enums';
 import { formatMenuToRoute, buildFullPath, processDirectoryNode, processMenuNode } from '@/utils/route-helpers';
-import { type RouteNode } from '@/types/route';
-import { type Menu } from '@/types/system/menu';
 
 interface RoutesState {
   routes: RouteNode[];
@@ -23,7 +23,7 @@ const useRouteStore = defineStore('route', {
       return new Promise((resolve, reject) => {
         getRouters()
           .then((res) => {
-            const menus = res.data || [];
+            const menus = res.data ?? [];
 
             // 将后台返回的菜单数据转换为vue-router的格式
             const routers = convertMenuToVueRouterFormat(menus);
@@ -42,7 +42,7 @@ const useRouteStore = defineStore('route', {
             resolve(routes);
           })
           .catch((error) => {
-            reject(error);
+            reject(new Error(error));
           });
       });
     },
@@ -64,7 +64,7 @@ function convertMenuToVueRouterFormat(menus: Menu[]): RouteNode[] {
     .sortBy('sortNum')
     .map(formatMenuToRoute)
     .filter((item) => item !== null)
-    .value() as RouteNode[];
+    .value();
 
   const tree = fromArray<'id', 'parentId', 'children'>(processedMenus, {
     itemKey: 'id',

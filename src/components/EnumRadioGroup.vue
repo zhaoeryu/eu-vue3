@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, defineModel, defineProps } from 'vue';
+import { computed } from 'vue';
 
-import { enumsConvertToList } from '@/utils/enums';
 import type { Enum } from '@/types/generic';
+import { enumsConvertToList } from '@/utils/enums';
 
-type Props = {
+interface Props {
   enums: Enum;
-};
+}
 const model = defineModel<string | number | boolean | null>();
 const props = defineProps<Props>();
 
@@ -21,7 +21,11 @@ export default {
 
 <template>
   <el-radio-group v-model="model">
-    <el-radio v-for="item in options" :key="item.value" :value="item.value">{{ item.label }}</el-radio>
+    <el-radio
+      v-for="item in options"
+      :key="item.value"
+      :value="item.value"
+    >{{ item.label }}</el-radio>
   </el-radio-group>
 </template>
 

@@ -1,22 +1,16 @@
 <script lang="ts" setup>
-import { computed, defineProps } from 'vue';
+import { computed } from 'vue';
 
 import AppLink from '@/layout/components/Sidebar/Link.vue';
+import type { RouteNode } from '@/types/route';
 
-const props = defineProps({
-  item: {
-    type: Object,
-    required: true,
-  },
-  level: {
-    type: Number,
-    required: false,
-    default: 0,
-  },
-});
+const props = defineProps<{
+  item: RouteNode;
+  level: number;
+}>();
 
 const childrenList = computed(() => {
-  return (props.item.children || []).filter((item) => !item.hidden);
+  return (props.item.children ?? []).filter((item) => !item.hidden);
 });
 
 const isHiddenChildren = computed(() => {
@@ -39,19 +33,27 @@ const resolvedPath = computed(() => {
 </script>
 
 <template>
-  <div
-    :style="{
-      '--eu-menu-level': level,
-    }"
-  >
+  <div :style="{
+    '--eu-menu-level': level,
+  }">
     <template v-if="isHiddenChildren">
       <app-link :to="resolvedPath">
         <el-menu-item :index="resolvedPath">
-          <svg-icon v-if="isRoot" :icon-class="item.meta.icon || 'menu'" />
+          <svg-icon
+            v-if="isRoot"
+            :icon-class="item.meta.icon || 'menu'"
+          />
           <template #title>
             <span class="text-overflow">{{ item.meta.title }}</span>
-            <el-tag v-if="item.meta.badge" type="danger" effect="dark">{{ item.meta.badge }}</el-tag>
-            <span v-else-if="item.meta.dot" class="eu-dot eu-dot-error">
+            <el-tag
+              v-if="item.meta.badge"
+              type="danger"
+              effect="dark"
+            >{{ item.meta.badge }}</el-tag>
+            <span
+              v-else-if="item.meta.dot"
+              class="eu-dot eu-dot-error"
+            >
               <span />
             </span>
           </template>
@@ -59,12 +61,25 @@ const resolvedPath = computed(() => {
       </app-link>
     </template>
 
-    <el-sub-menu v-else :index="resolvedPath" popper-class="eu-submenu" :teleported="true">
+    <el-sub-menu
+      v-else
+      :index="resolvedPath"
+      popper-class="eu-submenu"
+      :teleported="true"
+    >
       <template #title>
-        <svg-icon v-if="isRoot" :icon-class="item.meta.icon || 'menu'" />
+        <svg-icon
+          v-if="isRoot"
+          :icon-class="item.meta.icon || 'menu'"
+        />
         <span class="text-overflow">{{ item.meta.title }}</span>
       </template>
-      <sidebar-item v-for="child in childrenList" :key="child.path" :item="child" :level="level + 1" />
+      <sidebar-item
+        v-for="child in childrenList"
+        :key="child.path"
+        :item="child"
+        :level="level + 1"
+      />
     </el-sub-menu>
   </div>
 </template>
@@ -79,6 +94,7 @@ const resolvedPath = computed(() => {
   text-align: center;
   margin-right: 8px;
 }
+
 .el-tag {
   position: absolute;
   right: 4px;
@@ -88,6 +104,7 @@ const resolvedPath = computed(() => {
   line-height: 16px;
   border: 0;
 }
+
 .eu-dot {
   position: absolute;
   right: 4px;
@@ -99,6 +116,7 @@ const resolvedPath = computed(() => {
   font-size: 14px;
   font-weight: 400;
   user-select: none;
+
   .el-menu--popup {
     background-color: var(--theme-nav-second-bg);
     color: var(--theme-nav-second-color);
@@ -123,6 +141,7 @@ const resolvedPath = computed(() => {
       display: flex;
       align-items: center;
       padding: 0 8px !important;
+
       i {
         color: inherit;
       }
@@ -133,18 +152,21 @@ const resolvedPath = computed(() => {
         //color: var(--theme-nav-second-active-color);
       }
     }
+
     .el-sub-menu__icon-arrow {
       right: 8px;
     }
 
     // 有子菜单的选中
     .el-sub-menu.is-active {
+
       .el-menu-item,
       .el-sub-menu__title {
         background-color: var(--theme-nav-second-active-bg);
         color: var(--theme-nav-second-active-color);
       }
     }
+
     // 无子菜单的选中
     .el-menu-item.is-active {
       background-color: var(--theme-nav-second-active-bg);

@@ -2,8 +2,8 @@ import type { App } from 'vue';
 import VueDataDict from 'vue3-data-dict';
 
 import useDict from '@/hooks/dict';
-import type { DictDetail } from '@/types/system/dict';
 import type { ResultBody } from '@/types/api';
+import type { DictDetail } from '@/types/system/dict';
 
 export default {
   install: (Vue: App) => {

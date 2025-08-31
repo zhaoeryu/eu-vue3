@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps, withDefaults } from 'vue';
+import { computed, withDefaults } from 'vue';
 
 export type Size = 'large' | 'default' | 'small' | number;
 export type Shape = 'square' | 'circle';
@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const showName = computed(() => {
   // 显示最后一个字符
-  return props.nickname && props.nickname.slice(-1);
+  return props.nickname?.slice(-1);
 });
 
 const avatarTextStyle = computed(() => {
@@ -37,7 +37,13 @@ export default {
 </script>
 
 <template>
-  <el-avatar :shape="shape" :size="size" :src="src" style="vertical-align: middle" @error="() => true">
+  <el-avatar
+    :shape="shape"
+    :size="size"
+    :src="src"
+    style="vertical-align: middle"
+    @error="() => true"
+  >
     <div :style="avatarTextStyle">{{ showName }}</div>
   </el-avatar>
 </template>

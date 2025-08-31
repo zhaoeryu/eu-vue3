@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import { Sort } from '@element-plus/icons-vue';
+import type { DialogInstance, TableInstance } from 'element-plus';
 import Sortable from 'sortablejs';
 import { nextTick, ref, toRef, useTemplateRef } from 'vue';
-import { Sort } from '@element-plus/icons-vue';
-import { type DialogInstance, type TableInstance } from 'element-plus';
 
 import useVisible from '@/hooks/visible';
 
@@ -38,9 +38,9 @@ function open(refTable: TableInstance, { ignoreColumns = [] } = {}) {
         id: column.id,
         label: column.label,
         property: column.property,
-        visible: _newColumn?._eu_visible || column._eu_visible || !!_newColumn,
-        enabled: column._eu_enabled || true,
-        no: _newColumn?.no || column.no,
+        visible: _newColumn?._eu_visible ?? column._eu_visible ?? !!_newColumn,
+        enabled: column._eu_enabled ?? true,
+        no: _newColumn?.no ?? column.no,
       };
     })
     .sort((a, b) => {
@@ -53,7 +53,7 @@ function open(refTable: TableInstance, { ignoreColumns = [] } = {}) {
 }
 
 function columnFilter(column, ignoreColumns: string[]) {
-  return (column && column.type === 'default' && column.property && !ignoreColumns.includes(column.property)) || false;
+  return (column && column.type === 'default' && column.property && !ignoreColumns.includes(column.property)) ?? false;
 }
 
 async function initSortable() {
@@ -131,7 +131,15 @@ export default {
 </script>
 
 <template>
-  <el-dialog ref="refDialog" v-model="visible" title="列表设置" :close-on-click-modal="false" width="560px" append-to-body class="dialog-footer-flex">
+  <el-dialog
+    ref="refDialog"
+    v-model="visible"
+    title="列表设置"
+    :close-on-click-modal="false"
+    width="560px"
+    append-to-body
+    class="dialog-footer-flex"
+  >
     <div class="table-column-setting-wrapper">
       <div class="table-column-setting-header">
         <div>表头名称</div>
@@ -139,11 +147,21 @@ export default {
         <div>调整顺序</div>
       </div>
       <ul class="table-column-setting-content">
-        <li v-for="item in list" v-show="item.enabled" :key="item.id">
+        <li
+          v-for="item in list"
+          v-show="item.enabled"
+          :key="item.id"
+        >
           <div>{{ item.label }}</div>
-          <el-switch v-model="item.visible" :active-value="true" :inactive-value="false" />
+          <el-switch
+            v-model="item.visible"
+            :active-value="true"
+            :inactive-value="false"
+          />
           <div class="handle">
-            <el-icon><Sort /></el-icon>
+            <el-icon>
+              <Sort />
+            </el-icon>
           </div>
         </li>
       </ul>
@@ -152,7 +170,10 @@ export default {
       <el-button @click="onRestore">重置预设</el-button>
       <div>
         <el-button @click="setVisible(false)">取 消</el-button>
-        <el-button type="primary" @click="onSave">确 定</el-button>
+        <el-button
+          type="primary"
+          @click="onSave"
+        >确 定</el-button>
       </div>
     </template>
   </el-dialog>
@@ -164,6 +185,7 @@ export default {
   overflow-y: auto;
   color: var(--color-text-1);
 }
+
 .table-column-setting-header {
   font-weight: 500;
   font-size: 12px;
@@ -172,13 +194,16 @@ export default {
   align-items: center;
   justify-content: flex-start;
   padding: 0 20px;
-  > div {
+
+  >div {
     flex: 1;
   }
+
   > :first-child {
     flex: 2;
   }
 }
+
 .table-column-setting-content {
   li {
     font-size: 12px;
@@ -190,14 +215,17 @@ export default {
     box-shadow: 0 -1px 0 0 var(--color-border-1);
     cursor: move;
     user-select: none;
-    > div {
+
+    >div {
       flex: 1;
     }
+
     > :first-child {
       flex: 2;
     }
   }
 }
+
 .sortable-drag {
   background-color: var(--color-secondary-hover);
 }

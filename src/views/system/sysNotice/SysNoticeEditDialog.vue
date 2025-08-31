@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { computed, nextTick, useTemplateRef } from 'vue';
-import { ElMessage, type FormInstance } from 'element-plus';
 import * as DOMPurify from 'dompurify';
+import { ElMessage  } from 'element-plus';
+import type {FormInstance} from 'element-plus';
+import { computed, nextTick, useTemplateRef } from 'vue';
 
 import { add, update } from '@/api/system/sysNotice';
-import { EnableFlagEnums, NoticeTypeEnums } from '@/utils/enums';
-import useVisible from '@/hooks/visible';
+import EnumRadioGroup from '@/components/EnumRadioGroup.vue';
 import useLoading from '@/hooks/loading';
 import { useResettableReactive } from '@/hooks/resettable';
+import useVisible from '@/hooks/visible';
 import type { Notice } from '@/types/system/notice';
-import EnumRadioGroup from '@/components/EnumRadioGroup.vue';
+import { EnableFlagEnums, NoticeTypeEnums } from '@/utils/enums';
 
 const DEFAULT_FORM = {
   id: null,
@@ -57,7 +58,7 @@ function onSubmit() {
 
     setFormLoading(true);
     // 净化内容
-    state.form.content = DOMPurify.default.sanitize(state.form.content as string);
+    state.form.content = DOMPurify.default.sanitize(state.form.content!);
     const reqPromise = state.form.id ? update(state.form) : add(state.form);
     reqPromise
       .then(() => {

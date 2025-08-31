@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ElMessage, type FormInstance } from 'element-plus';
+import { ElMessage  } from 'element-plus';
+import type {FormInstance} from 'element-plus';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
 import { add, update } from '@/api/system/job';
-import useVisible from '@/hooks/visible';
 import useLoading from '@/hooks/loading';
 import { useResettableReactive } from '@/hooks/resettable';
+import useVisible from '@/hooks/visible';
 import type { Jobs } from '@/types/system/jobs';
 
 const emit = defineEmits(['complete']);
