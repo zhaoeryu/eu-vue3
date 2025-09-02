@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watchEffect } from 'vue';
 
+import { useCheckVersion } from '@/hooks/checkVersion';
 import { useSameIndex } from '@/hooks/sameIndex';
 import { useSettingsStore } from '@/store';
 import { darkMode } from '@/utils/darkMode';
@@ -10,6 +11,7 @@ watchEffect(() => {
 });
 
 useSameIndex();
+useCheckVersion();
 </script>
 
 <template>
