@@ -217,8 +217,8 @@ function onDropdownVisibleChange(isVisible: boolean) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--theme-base-second-bg);
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  background-color: var(--eu-color-bg-primary);
+  box-shadow: var(--eu-shadow-md);
   margin-left: 1px;
   padding-left: 20px;
   padding-right: 20px;
@@ -243,16 +243,8 @@ function onDropdownVisibleChange(isVisible: boolean) {
 
     .eu-tabs-more-icon__mouse-enter {
       transform: rotate(90deg);
-      color: var(--color-primary);
+      color: var(--eu-color-primary);
     }
-
-    //&:hover:after {
-    //  position: absolute;
-    //  bottom: 0;
-    //  left: 0;
-    //  height: 0;
-    //  content: "";
-    //}
   }
 
   .eu-tabs-content-smart {
@@ -279,7 +271,7 @@ function onDropdownVisibleChange(isVisible: boolean) {
           position: relative;
           transition: padding 0.3s cubic-bezier(0.645, 0.045, 0.355, 1) !important;
           margin-right: 5px;
-          border-radius: 2px 2px 0 0;
+          border-radius: 6px 6px 0 0;
           user-select: none;
 
           &:after {
@@ -294,12 +286,12 @@ function onDropdownVisibleChange(isVisible: boolean) {
               border 0s,
               color 0.1s,
               font-size 0s;
-            background-color: var(--color-primary) !important;
+            background-color: var(--eu-color-primary) !important;
           }
 
           &.is-active {
             background: rgba(21, 91, 212, 0.08) !important;
-            color: var(--color-primary) !important;
+            color: var(--eu-color-primary) !important;
 
             &:after {
               width: 100%;
@@ -308,7 +300,7 @@ function onDropdownVisibleChange(isVisible: boolean) {
 
           &:not(.is-active):hover {
             background-color: rgba(21, 91, 212, 0.08);
-            color: var(--color-primary) !important;
+            color: var(--eu-color-primary) !important;
 
             &:after {
               width: 100%;
@@ -329,7 +321,7 @@ function onDropdownVisibleChange(isVisible: boolean) {
   #app-container__tabs {
     position: fixed;
     top: 0;
-    left: var(--sidebar-width, 264px);
+    left: var(--eu-layout-sidebar-column-width, 264px);
     right: 0;
     z-index: 3;
     transition: left 0.15s linear;

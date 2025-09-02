@@ -7,16 +7,25 @@ const content = ref(null);
 <template>
   <div class="page-container">
     <el-row :gutter="16">
-      <el-col :span="12" :xs="24">
+      <el-col
+        :span="12"
+        :xs="24"
+      >
         <div class="page-body">
           <eu-editor v-model="content" />
         </div>
       </el-col>
-      <el-col :span="12" :xs="24">
+      <el-col
+        :span="12"
+        :xs="24"
+      >
         <div class="page-body">
           <m-block-header title="预览" />
           <!-- eslint-disable vue/no-v-html -->
-          <div class="eu-editor-content-view" v-html="content" />
+          <div
+            class="eu-editor-content-view"
+            v-html="content"
+          />
         </div>
       </el-col>
     </el-row>
@@ -24,5 +33,5 @@ const content = ref(null);
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/styles/eu-editor.scss';
+@use '@/assets/styles/components/eu-editor.scss';
 </style>

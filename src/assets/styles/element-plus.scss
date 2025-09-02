@@ -1,21 +1,23 @@
+@use "colors" as *;
+
 $--colors: (
-  'primary': (
-    'base': #155bd4,
+  "primary": (
+    "base": $color-primary
   ),
-  'success': (
-    'base': #5BD415,
+  "success": (
+    "base": $color-success
   ),
-  'warning': (
-    'base': #ED6A18,
+  "warning": (
+    "base": $color-warning
   ),
-  'danger': (
-    'base': #D42F15,
+  "danger": (
+    "base": $color-danger
   ),
-  'error': (
-    'base': #D42F15,
+  "error": (
+    "base": $color-danger
   ),
-  'info': (
-    'base': #909399
+  "info": (
+    "base": $color-info
   )
 );
 

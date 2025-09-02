@@ -1,10 +1,6 @@
 .eu-ui {
-  background: var(--theme-base-bg);
-  color: var(--theme-text-primary-color);
-  &::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-  }
+  background: var(--eu-color-bg-secondary);
+  color: var(--eu-color-text-primary);
 }
 
 #app {
@@ -14,7 +10,7 @@
 .page-body {
   //margin: 0 16px;
   padding: 16px;
-  background: var(--theme-base-second-bg);
+  background: var(--eu-color-bg-primary);
   box-sizing: border-box;
 }
 
@@ -57,13 +53,13 @@
 
 @keyframes euDot {
   0% {
-    opacity: .6;
-    transform: scale(.8)
+    opacity: 0.6;
+    transform: scale(0.8);
   }
 
   to {
     opacity: 0;
-    transform: scale(2.4)
+    transform: scale(2.4);
   }
 }
 
@@ -78,13 +74,20 @@
 }
 
 .text-primary {
-  color: var(--color-primary);
+  color: var(--eu-color-primary);
 }
 .text-success {
-  color: var(--color-success-light-4);
+  color: var(--eu-color-success);
 }
-
+.text-overflow {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.cursor {
+  cursor: pointer;
+}
 // 进度条
 #nprogress .bar {
-  background: var(--color-primary) !important; // 自定义颜色
+  background: var(--eu-color-primary) !important; // 自定义颜色
 }

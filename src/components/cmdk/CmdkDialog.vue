@@ -284,6 +284,6 @@ function logout() {
 </template>
 
 <style lang="scss">
-@use '@/assets/styles/cmdk-global';
-@use '@/assets/styles/cmdk-eu';
+@use '@/assets/styles/components/cmdk-global';
+@use '@/assets/styles/components/cmdk-eu';
 </style>

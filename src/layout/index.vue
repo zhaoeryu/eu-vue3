@@ -93,14 +93,14 @@ export default {
 
 #app-container {
   box-sizing: border-box;
-  padding-top: var(--layout-header-nav-height);
+  padding-top: var(--eu-layout-navbar-height);
 }
 
 #app-container__main {
-  margin-left: var(--sidebar-width);
+  margin-left: var(--eu-layout-sidebar-column-width);
   box-sizing: border-box;
-  height: calc(100vh - var(--layout-header-nav-height));
-  width: calc(100vw - var(--sidebar-width));
+  height: calc(100vh - var(--eu-layout-navbar-height));
+  width: calc(100vw - var(--eu-layout-sidebar-column-width));
   overflow: auto;
 
   display: flex;
@@ -109,7 +109,7 @@ export default {
 
 .sidebar-collapsed {
   // 折叠情况下菜单栏的宽度
-  --sidebar-width: var(--sidebar-collapse-width) !important;
+  --eu-layout-sidebar-column-width: var(--eu-layout-sidebar-collapse-width) !important;
 }
 
 #eu-layout {
@@ -119,27 +119,27 @@ export default {
 
     // 不折叠并且二级菜单隐藏情况下的菜单栏宽度
     &:not(.sidebar-collapsed).eu-nav-second-sidebar-hidden {
-      --sidebar-width: var(--sidebar-first-width);
+      --eu-layout-sidebar-column-width: var(--eu-layout-sidebar-column-first-width);
     }
   }
 
   // 侧边布局
   &.eu-layout_vertical {
-    --sidebar-width: var(--sidebar-vertical-width);
+    --eu-layout-sidebar-column-width: var(--eu-layout-sidebar-vertical-width);
   }
 }
 
 // 固定TabsBar
 .eu-tabs-fixed {
   #app-container__tabs {
-    width: calc(100vw - var(--sidebar-width));
+    width: calc(100vw - var(--eu-layout-sidebar-column-width));
     position: fixed;
-    top: var(--layout-header-nav-height);
+    top: var(--eu-layout-navbar-height);
     z-index: 10;
   }
 
   #app-container__main {
-    height: calc(100vh - var(--layout-header-nav-height));
+    height: calc(100vh - var(--eu-layout-navbar-height));
     padding-top: 38px;
   }
 }

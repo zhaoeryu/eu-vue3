@@ -1,0 +1,11 @@
+@use "colors" as *;
+
+@use "vxe-pc-ui/styles/variable.scss" as vxe_ui_variable with (
+  $vxe-ui-font-primary-color: $color-primary,
+  $vxe-ui-status-success-color: $color-success,
+  $vxe-ui-status-info-color: $color-info,
+  $vxe-ui-status-warning-color: $color-warning,
+  $vxe-ui-status-danger-color: $color-danger,
+  $vxe-ui-status-error-color: $color-danger
+);
+@use "vxe-pc-ui/styles/all.scss" as vxe_ui_all;

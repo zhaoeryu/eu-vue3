@@ -192,7 +192,7 @@ export default {
 <style lang="scss">
 .eu-sort-dialog {
   .el-dialog__footer {
-    border-top: 1px solid var(--color-border-1);
+    border-top: 1px solid var(--eu-color-border-primary);
     display: flex;
     justify-content: space-between;
   }
@@ -209,7 +209,7 @@ export default {
 <style scoped lang="scss">
 .sort-column-wrapper {
   padding: 24px 0;
-  color: var(--color-text-1);
+  color: var(--eu-color-text-secondary);
 }
 
 .sort-column-content {
@@ -228,7 +228,7 @@ export default {
     }
 
     &:not(:first-child) {
-      box-shadow: 0 -1px 0 0 var(--color-border-1);
+      box-shadow: 0 -1px 0 0 var(--eu-color-border-primary);
       flex: 1;
       text-align: right;
     }
@@ -251,6 +251,6 @@ export default {
 }
 
 .sortable-drag {
-  background-color: var(--color-secondary-hover);
+  background-color: var(--eu-color-bg-secondary);
 }
 </style>

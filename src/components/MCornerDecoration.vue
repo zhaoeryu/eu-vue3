@@ -37,11 +37,11 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const TYPE_MAP = {
-  success: 'var(--color-success)',
-  warning: 'var(--color-warning)',
-  error: 'var(--color-danger)',
-  primary: 'var(--color-primary)',
-  info: 'var(--color-info)',
+  success: 'var(--eu-color-success)',
+  warning: 'var(--eu-color-warning)',
+  error: 'var(--eu-color-danger)',
+  primary: 'var(--eu-color-primary)',
+  info: 'var(--eu-color-info)',
 };
 
 const elStyle = computed(() => {

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import type {PopoverInstance} from 'element-plus';
+import type { PopoverInstance } from 'element-plus';
 import { computed, onMounted, ref, useTemplateRef } from 'vue';
 
 import { page as noticePage } from '@/api/system/sysNotice';
 import useLoading from '@/hooks/loading';
-import type {Notice} from '@/types/system/notice';
+import type { Notice } from '@/types/system/notice';
 import { STORAGE_KEY_READ_MESSAGE } from '@/utils/constants';
 import { NoticeTypeEnums } from '@/utils/enums';
 import SysNoticeViewDialog from '@/views/system/sysNotice/SysNoticeViewDialog.vue';
@@ -104,19 +104,47 @@ export default {
 </script>
 
 <template>
-  <el-popover ref="refMessagePopover" placement="bottom-start" width="fit-content" popper-class="message-box-popover" trigger="click">
+  <el-popover
+    ref="refMessagePopover"
+    placement="bottom-start"
+    width="fit-content"
+    popper-class="message-box-popover"
+    trigger="click"
+  >
     <div class="message-box-wrapper">
       <nav class="message-box-wrapper__header">
         <ul>
-          <li :class="{ active: active === 0 }" @click="onChecked(0)">通知{{ unReadMessageCount1 }}</li>
-          <li :class="{ active: active === 1 }" @click="onChecked(1)">公告{{ unReadMessageCount2 }}</li>
+          <li
+            :class="{ active: active === 0 }"
+            @click="onChecked(0)"
+          >通知{{ unReadMessageCount1 }}</li>
+          <li
+            :class="{ active: active === 1 }"
+            @click="onChecked(1)"
+          >公告{{ unReadMessageCount2 }}</li>
         </ul>
       </nav>
-      <div v-loading="loading" element-loading-text="加载中..." element-loading-background="rgba(255, 255, 255, 0.8)">
+      <div
+        v-loading="loading"
+        element-loading-text="加载中..."
+        element-loading-background="rgba(255, 255, 255, 0.8)"
+      >
         <div class="message-box-wrapper__body">
           <ul v-if="showList.length">
-            <li v-for="(item, index) in showList" :key="index" class="message-box-wrapper__body-item" :class="{ read: item.read }" @click="onItemChecked(item)">
-              <eu-avatar shape="square" :size="40" :src="item.publisher" :nickname="item.publisher" class="message-box-wrapper__body-item__avatar" />
+            <li
+              v-for="(item, index) in showList"
+              :key="index"
+              class="message-box-wrapper__body-item"
+              :class="{ read: item.read }"
+              @click="onItemChecked(item)"
+            >
+              <eu-avatar
+                shape="square"
+                :size="40"
+                :src="item.publisher"
+                :nickname="item.publisher"
+                class="message-box-wrapper__body-item__avatar"
+              />
               <div class="message-box-wrapper__body-item__content">
                 <div class="message-box-wrapper__body-item__content-title">{{ item.title }}</div>
                 <div class="message-box-wrapper__body-item__content-description">
@@ -126,9 +154,15 @@ export default {
               </div>
             </li>
           </ul>
-          <el-empty v-else description="暂无数据" />
+          <el-empty
+            v-else
+            description="暂无数据"
+          />
         </div>
-        <div v-if="showList.length" class="message-box-wrapper__footer">
+        <div
+          v-if="showList.length"
+          class="message-box-wrapper__footer"
+        >
           <div @click="refMessagePopover?.hide()">关闭</div>
           <div @click="onAllRead">全部已读</div>
         </div>
@@ -136,7 +170,10 @@ export default {
     </div>
     <template #reference>
       <div @click="onRefresh()">
-        <slot name="reference" :message-count="allUnReadMessageCount" />
+        <slot
+          name="reference"
+          :message-count="allUnReadMessageCount"
+        />
       </div>
     </template>
     <sys-notice-view-dialog ref="refSysNoticeViewDialog" />
@@ -146,18 +183,19 @@ export default {
 <style lang="scss">
 .message-box-popover {
   padding: 0 !important;
-  background: var(--theme-base-second-bg) !important;
+  background: var(--eu-color-bg-primary) !important;
 }
 </style>
 <style scoped lang="scss">
-@use '@/assets/styles/mixin.scss';
 .message-box-wrapper {
   width: 350px;
   box-sizing: border-box;
 }
+
 .message-box-wrapper__header {
   padding: 0 16px;
   position: relative;
+
   &:after {
     content: '';
     position: absolute;
@@ -166,19 +204,22 @@ export default {
     right: 0;
     width: 100%;
     height: 1px;
-    background-color: var(--color-border-1, #ebeef5);
+    background-color: var(--eu-color-border-primary, #ebeef5);
   }
+
   ul {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     line-height: 3em;
+
     li {
       text-align: center;
       position: relative;
       min-width: 70px;
       box-sizing: border-box;
       cursor: pointer;
+
       &.active:after {
         content: '';
         display: block;
@@ -187,27 +228,30 @@ export default {
         left: 0;
         right: 0;
         box-sizing: border-box;
-        border-color: transparent transparent var(--color-primary);
+        border-color: transparent transparent var(--eu-color-primary);
         border-style: none solid solid;
         border-width: 0 8px 5px;
         height: 0;
         width: 70px;
       }
+
       &.active,
       &:hover {
-        color: var(--color-primary);
+        color: var(--eu-color-primary);
       }
-      & + li {
+
+      &+li {
         margin-left: 12px;
       }
     }
   }
 }
+
 .message-box-wrapper__body {
   min-height: 200px;
   max-height: 500px;
   overflow: auto;
-  @include mixin.scrollBar;
+
   .message-box-wrapper__body-item {
     padding: 12px;
     box-sizing: border-box;
@@ -216,22 +260,27 @@ export default {
     font-size: 12px;
     position: relative;
     cursor: pointer;
+
     .message-box-wrapper__body-item__content {
       margin-left: 12px;
       flex: 1;
+
       .message-box-wrapper__body-item__content-title {
         font-size: 14px;
         font-weight: 500;
       }
+
       .message-box-wrapper__body-item__content-description {
         color: #909399;
         margin: 5px 0;
       }
+
       .message-box-wrapper__body-item__content-time {
         color: #c0c4cc;
       }
     }
-    & + .message-box-wrapper__body-item {
+
+    &+.message-box-wrapper__body-item {
       &:before {
         content: '';
         position: absolute;
@@ -240,24 +289,28 @@ export default {
         right: 0;
         width: calc(100% - 12px - 12px);
         height: 1px;
-        background: var(--color-border-1, #ebeef5);
+        background: var(--eu-color-border-primary, #ebeef5);
       }
     }
+
     &:hover {
-      background: var(--color-secondary-hover, #f5f7fa);
+      background: var(--eu-color-bg-tertiary, #f5f7fa);
     }
+
     &.read {
       opacity: 0.4;
     }
   }
 }
+
 .message-box-wrapper__footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
-  line-height: 2.5em;
+  line-height: 3em;
   font-size: 13px;
+
   &:before {
     content: '';
     position: absolute;
@@ -266,13 +319,15 @@ export default {
     right: 0;
     width: 100%;
     height: 1px;
-    background: var(--color-border-1, #ebeef5);
+    background: var(--eu-color-border-primary, #ebeef5);
   }
-  > div {
+
+  >div {
     flex: 1;
     text-align: center;
     position: relative;
     cursor: pointer;
+
     &:first-child:after {
       content: '';
       position: absolute;
@@ -280,10 +335,11 @@ export default {
       right: 0;
       width: 1px;
       height: 60%;
-      background: var(--color-border-1, #ebeef5);
+      background: var(--eu-color-border-primary, #ebeef5);
     }
+
     &:hover {
-      color: var(--color-primary);
+      color: var(--eu-color-primary);
     }
   }
 }

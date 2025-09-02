@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, withDefaults } from 'vue';
+import { computed } from 'vue';
 
 export type Size = 'large' | 'default' | 'small' | number;
 export type Shape = 'square' | 'circle';

@@ -1,6 +1,5 @@
 import type { App, Component } from 'vue';
 
-import '@/assets/styles/element-plus.scss';
 import '@/assets/styles/index.scss';
 
 import EuTableToolbar from '@/components/Crud/EuTableToolbar.vue';

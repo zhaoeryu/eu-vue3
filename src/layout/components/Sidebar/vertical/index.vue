@@ -71,16 +71,16 @@ async function tryHighlightMenu() {
 <style scoped lang="scss">
 .el-scrollbar {
   flex: 1;
-  background-color: var(--theme-nav-first-bg);
-  color: var(--theme-nav-first-color);
+  background-color: var(--eu-layout-sidebar-bg);
+  color: var(--eu-layout-sidebar-text-color);
   width: 100%;
-  height: calc(100vh - var(--layout-header-nav-height));
+  height: calc(100vh - var(--eu-layout-navbar-height));
   --eu-menu-level: 0;
   --eu-menu-base-level-padding: calc(1.3em + 8px);
 }
 
 :deep(.el-menu) {
-  background-color: var(--theme-nav-first-bg);
+  background-color: var(--eu-layout-sidebar-bg);
   border-right: unset !important;
 }
 
@@ -113,8 +113,8 @@ async function tryHighlightMenu() {
 
     .el-sub-menu {
       &.is-active>.el-sub-menu__title {
-        background-color: var(--theme-nav-first-active-bg);
-        color: var(--theme-nav-first-active-color);
+        background-color: var(--eu-layout-sidebar-active-bg);
+        color: var(--eu-layout-sidebar-active-text-color);
       }
     }
   }
@@ -130,19 +130,18 @@ async function tryHighlightMenu() {
     display: flex;
     align-items: center;
     transition: unset;
-    color: var(--theme-nav-first-color);
+    color: var(--eu-layout-sidebar-text-color);
     //&:not(.is-active):hover {
-    //  background-color: var(--theme-nav-first-active-bg);
-    //  color: var(--theme-nav-first-active-color);
+    //  background-color: var(--eu-layout-sidebar-active-bg);
+    //  color: var(--eu-layout-sidebar-active-text-color);
     //}
   }
 
   .el-menu-item:focus,
   .el-menu-item:hover,
   .el-submenu__title:hover {
-    background-color: var(--theme-nav-first-hover-bg);
-    color: var(--theme-nav-first-hover-color);
-    font-weight: 500;
+    background-color: var(--eu-layout-sidebar-hover-bg);
+    color: var(--eu-layout-sidebar-hover-text-color);
   }
 
   .el-sub-menu__icon-arrow {
@@ -154,7 +153,8 @@ async function tryHighlightMenu() {
   // 有子菜单
   .el-sub-menu {
     &.is-active>.el-sub-menu__title {
-      color: var(--color-primary);
+      color: var(--eu-layout-sidebar-active-text-color);
+      font-weight: 500;
     }
 
     .el-menu-item,
@@ -166,8 +166,9 @@ async function tryHighlightMenu() {
 
   // 无子菜单的选中
   .el-menu-item.is-active {
-    background-color: var(--theme-nav-first-active-bg);
-    color: var(--theme-nav-first-active-color);
+    background-color: var(--eu-layout-sidebar-active-bg);
+    color: var(--eu-layout-sidebar-active-text-color);
+    font-weight: 500;
   }
 }
 

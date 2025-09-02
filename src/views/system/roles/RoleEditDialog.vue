@@ -339,9 +339,9 @@ defineExpose({
 
       &.is-text {
         color: #fff;
-        background-color: var(--color-primary);
+        background-color: var(--eu-color-primary);
         border-radius: 50%;
-        border: 1px solid var(--color-primary);
+        border: 1px solid var(--eu-color-primary);
       }
     }
 
@@ -349,7 +349,7 @@ defineExpose({
       font-size: 13px;
 
       &.is-success {
-        color: #333;
+        color: var(--eu-color-text-primary);
       }
     }
 
@@ -359,16 +359,16 @@ defineExpose({
 
     .is-success {
       .el-step__line:before {
-        background: var(--color-primary);
+        background: var(--eu-color-primary);
       }
     }
 
     .is-process {
       font-weight: unset;
-      color: var(--color-primary);
+      color: var(--eu-color-primary);
 
       .el-step__line:before {
-        background: linear-gradient(to left, var(--color-primary), #ebeff7);
+        background: linear-gradient(to left, var(--eu-color-primary), #ebeff7);
         color: transparent;
       }
     }

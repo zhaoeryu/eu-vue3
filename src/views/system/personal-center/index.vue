@@ -143,7 +143,7 @@ function onPasswordSave() {
             <div style="margin-left: 16px">
               <div>
                 <span
-                  style="font-size: 23px; color: var(--theme-text-primary-color); font-weight: 500; display: inline-block; margin-right: 0.3em"
+                  style="font-size: 23px; color: var(--eu-color-text-primary); font-weight: 500; display: inline-block; margin-right: 0.3em"
                 >{{ user.nickname || '-' }}</span>
                 <svg-icon
                   v-if="user.sex === 1"
@@ -154,10 +154,10 @@ function onPasswordSave() {
                   icon-class="sex_woman"
                 />
               </div>
-              <div style="margin-top: 15px; color: var(--theme-text-second-color); font-size: 14px">
+              <div style="margin-top: 15px; color: var(--eu-color-text-secondary); font-size: 14px">
                 {{ user.mobile || '未绑定手机号' }}
               </div>
-              <div style="margin-top: 10px; color: var(--theme-text-second-color); font-size: 14px">
+              <div style="margin-top: 10px; color: var(--eu-color-text-secondary); font-size: 14px">
                 {{ deptNames }}
               </div>
             </div>
@@ -318,14 +318,14 @@ function onPasswordSave() {
 <style scoped lang="scss">
 .el-col {
   >div {
-    background-color: var(--theme-base-second-bg);
+    background-color: var(--eu-color-bg-primary);
     padding: 16px;
   }
 }
 
 .person-info {
   font-size: 14px;
-  color: var(--theme-text-primary-color);
+  color: var(--eu-color-text-primary);
 
   &>div {
     display: flex;
@@ -334,7 +334,7 @@ function onPasswordSave() {
     line-height: 2em;
 
     >div:nth-child(2) {
-      color: var(--theme-text-second-color);
+      color: var(--eu-color-text-secondary);
     }
   }
 }

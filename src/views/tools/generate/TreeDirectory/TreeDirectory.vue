@@ -28,15 +28,12 @@ defineProps<State>();
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/styles/mixin.scss';
-
 .eu-directory {
   width: 200px;
   overflow: auto;
-  color: var(--theme-nav-first-color);
+  color: var(--eu-color-text-primary);
   font-size: 14px;
   user-select: none;
-  @include mixin.scrollBarX;
 
   :deep(details) {
     padding-left: 10px;
@@ -105,13 +102,13 @@ defineProps<State>();
     }
 
     &:hover {
-      background-color: var(--theme-nav-first-hover-bg) !important;
-      color: var(--theme-nav-first-hover-color);
+      background-color: var(--eu-layout-sidebar-hover-bg) !important;
+      color: var(--eu-layout-sidebar-hover-text-color);
     }
 
     &.active {
-      background-color: var(--theme-nav-first-active-bg) !important;
-      color: var(--theme-nav-first-active-color);
+      background-color: var(--eu-layout-sidebar-active-bg) !important;
+      color: var(--eu-layout-sidebar-active-text-color);
     }
   }
 

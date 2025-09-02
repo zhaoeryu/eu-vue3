@@ -45,5 +45,5 @@ defineExpose({
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/styles/eu-editor.scss';
+@use '@/assets/styles/components/eu-editor.scss';
 </style>

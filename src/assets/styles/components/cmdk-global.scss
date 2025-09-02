@@ -1,5 +1,5 @@
 //:root {
-//  --eu-cmdk-bg: var(--theme-base-second-bg);
+//  --eu-cmdk-bg: var(--eu-color-bg-primary);
 //}
 
 div [command-dialog-mask] {
@@ -15,7 +15,7 @@ div [command-dialog-mask] {
 
 div [command-dialog-wrapper] {
   position: relative;
-  background: var(--theme-base-second-bg);
+  background: var(--eu-color-bg-primary);
   border-radius: 6px;
   // 四周阴影
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
@@ -23,18 +23,17 @@ div [command-dialog-wrapper] {
   margin: 64px auto;
   padding: 12px;
   gap: 16px;
-  width: min(100vw - 60px,900px);
+  width: min(100vw - 60px, 900px);
   max-width: 700px;
   height: min-content;
-  max-height: min(100vh - 128px,900px);
+  max-height: min(100vh - 128px, 900px);
   animation: 333ms cubic-bezier(0.16, 1, 0.3, 1) 0s 1 normal none running shown;
 }
 
 div [command-dialog-footer] {
-  border-top: 1px solid var(--gray6);
+  border-top: 1px solid var(--eu-color-border-primary);
   align-items: center;
-  background: var(--gray4);
-  color: var(--gray11);
+  color: var(--eu-color-text-secondary);
   border-radius: 0 0 8px 8px;
   box-shadow: none;
   display: flex;

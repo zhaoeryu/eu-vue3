@@ -215,7 +215,7 @@ function onSubmit(formEl: FormInstance | null) {
 
 // 登录表单
 .el-form {
-  background-color: var(--theme-base-second-bg);
+  background-color: var(--eu-color-bg-primary);
   border-radius: 4px;
   padding: 25px;
   width: 360px;
@@ -225,7 +225,7 @@ function onSubmit(formEl: FormInstance | null) {
     text-align: center;
     font-size: 20px;
     margin-bottom: 30px;
-    color: var(--color-text-1);
+    color: var(--eu-color-text-secondary);
   }
 
   .el-form-item {
@@ -293,7 +293,7 @@ html.dark .page-login {
 // 桌面端
 @media (min-width: screen.$screen-md) {
   .login-body {
-    background-color: var(--theme-base-second-bg);
+    background-color: var(--eu-color-bg-primary);
     border-radius: 4px;
     position: relative;
     z-index: 1;
@@ -311,13 +311,13 @@ html.dark .page-login {
         font-size: 20px;
         font-weight: 500;
         line-height: 2em;
-        color: var(--color-text-1);
+        color: var(--eu-color-text-secondary);
       }
 
       .left-container__desc {
         font-size: 14px;
         line-height: 2em;
-        color: var(--color-text-3);
+        color: var(--eu-color-text-tertiary);
       }
     }
 
@@ -329,7 +329,7 @@ html.dark .page-login {
       bottom: 0;
       width: 1px;
       height: 100%;
-      background: var(--color-border-1);
+      background: var(--eu-color-border-primary);
       z-index: 10;
     }
   }

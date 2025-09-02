@@ -183,7 +183,7 @@ export default {
 .table-column-setting-wrapper {
   max-height: 460px;
   overflow-y: auto;
-  color: var(--color-text-1);
+  color: var(--eu-color-text-secondary);
 }
 
 .table-column-setting-header {
@@ -212,7 +212,7 @@ export default {
     align-items: center;
     justify-content: flex-start;
     padding: 0 20px;
-    box-shadow: 0 -1px 0 0 var(--color-border-1);
+    box-shadow: 0 -1px 0 0 var(--eu-color-border-primary);
     cursor: move;
     user-select: none;
 
@@ -227,6 +227,6 @@ export default {
 }
 
 .sortable-drag {
-  background-color: var(--color-secondary-hover);
+  background-color: var(--eu-color-bg-secondary);
 }
 </style>

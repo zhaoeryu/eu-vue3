@@ -118,13 +118,13 @@ const resolvedPath = computed(() => {
   user-select: none;
 
   .el-menu--popup {
-    background-color: var(--theme-nav-second-bg);
-    color: var(--theme-nav-second-color);
-    border: 1px solid var(--color-border-2);
+    background-color: var(--eu-layout-sidebar-bg);
+    color: var(--eu-layout-sidebar-text-color);
+    border: 1px solid var(--eu-color-border-primary);
     border-radius: var(--border-radius-medium);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     padding: 12px 0;
-    min-width: var(--sidebar-second-width, 140px);
+    min-width: var(--eu-layout-sidebar-column-second-width, 140px);
 
     a {
       color: inherit;
@@ -148,8 +148,8 @@ const resolvedPath = computed(() => {
 
       // 悬浮状态
       &:hover {
-        background-color: var(--theme-nav-second-hover-bg);
-        //color: var(--theme-nav-second-active-color);
+        background-color: var(--eu-layout-sidebar-secondary-hover-bg);
+        //color: var(--eu-layout-sidebar-secondary-active-text-color);
       }
     }
 
@@ -162,15 +162,15 @@ const resolvedPath = computed(() => {
 
       .el-menu-item,
       .el-sub-menu__title {
-        background-color: var(--theme-nav-second-active-bg);
-        color: var(--theme-nav-second-active-color);
+        background-color: var(--eu-layout-sidebar-secondary-active-bg);
+        color: var(--eu-layout-sidebar-secondary-active-text-color);
       }
     }
 
     // 无子菜单的选中
     .el-menu-item.is-active {
-      background-color: var(--theme-nav-second-active-bg);
-      color: var(--theme-nav-second-active-color);
+      background-color: var(--eu-layout-sidebar-secondary-active-bg);
+      color: var(--eu-layout-sidebar-secondary-active-text-color);
     }
   }
 }

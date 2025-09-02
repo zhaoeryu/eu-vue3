@@ -19,10 +19,10 @@ const settingsStore = useSettingsStore();
 
 <style scoped lang="scss">
 #eu-nav-sidebar {
-  width: var(--sidebar-width, 264px);
-  height: calc(100vh - var(--layout-header-nav-height));
+  width: var(--eu-layout-sidebar-column-width, 264px);
+  height: calc(100vh - var(--eu-layout-navbar-height));
   position: fixed;
-  top: var(--layout-header-nav-height);
+  top: var(--eu-layout-navbar-height);
   left: 0;
   display: flex;
   z-index: 100;

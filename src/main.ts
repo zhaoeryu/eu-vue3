@@ -4,6 +4,7 @@ import { createApp } from 'vue';
 import 'normalize.css/normalize.css';
 // 注册svg图标
 import 'virtual:svg-icons-register';
+import 'virtual:uno.css'
 import directive from '@/directive';
 import plugins from '@/plugins';
 

@@ -138,13 +138,13 @@ function onThemeClick() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: var(--layout-header-nav-height);
-  background: var(--theme-nav-first-bg);
+  height: var(--eu-layout-navbar-height);
+  background: var(--eu-layout-navbar-bg);
   border-bottom: 1px solid var(--color-border);
   overflow: hidden;
   padding: 0 16px;
   z-index: 200;
-  color: var(--theme-nav-first-color);
+  color: var(--eu-color-text-primary);
 
   .left-side {
     display: flex;
@@ -166,7 +166,7 @@ function onThemeClick() {
       }
 
       &:hover {
-        color: var(--color-primary);
+        color: var(--eu-color-primary);
       }
     }
   }

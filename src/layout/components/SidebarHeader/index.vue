@@ -115,8 +115,8 @@ function onToPersonal() {
 
 <style scoped lang="scss">
 .eu-pop-inner {
-  background-color: var(--theme-nav-second-bg);
-  color: var(--color-text-2);
+  background-color: var(--eu-layout-sidebar-bg);
+  color: var(--eu-color-text-secondary);
 }
 
 .el-row {

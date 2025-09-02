@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { UploadFilled } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
-import { computed, withDefaults } from 'vue';
+import { computed } from 'vue';
 
 import { useResettableReactive } from '@/hooks/resettable';
 import useVisible from '@/hooks/visible';
@@ -107,7 +107,7 @@ export default {
           <li>
             <span>为保证数据导入顺利，推荐您使用</span>
             <span
-              style="cursor: pointer; color: var(--color-primary)"
+              style="cursor: pointer; color: var(--eu-color-primary)"
               @click="onExportTemplate"
             >标准模板</span>
           </li>
@@ -190,7 +190,7 @@ export default {
   list-style-type: square;
   list-style-position: inside;
   padding-top: 20px;
-  color: var(--color-text-3);
+  color: var(--eu-color-text-tertiary);
   line-height: 22px;
 }
 
@@ -215,9 +215,9 @@ export default {
 
       &.is-text {
         color: #fff;
-        background-color: var(--color-primary);
+        background-color: var(--eu-color-primary);
         border-radius: 50%;
-        border: 1px solid var(--color-primary);
+        border: 1px solid var(--eu-color-primary);
       }
     }
 
@@ -225,7 +225,7 @@ export default {
       font-size: 13px;
 
       &.is-success {
-        color: #333;
+        color: var(--eu-color-text-primary);
       }
     }
 
@@ -235,16 +235,16 @@ export default {
 
     .is-success {
       .el-step__line:before {
-        background: var(--color-primary);
+        background: var(--eu-color-primary);
       }
     }
 
     .is-process {
       font-weight: unset;
-      color: var(--color-primary);
+      color: var(--eu-color-primary);
 
       .el-step__line:before {
-        background: linear-gradient(to left, var(--color-primary), #ebeff7);
+        background: linear-gradient(to left, var(--eu-color-primary), #ebeff7);
         color: transparent;
       }
     }

@@ -9,7 +9,7 @@ interface CacheStore {
   objectRequestLocks: Record<string, boolean>;
 
   fetchOptions: (params: any, api: (params: any) => Promise<any>) => Promise<any>;
-  fetchObject: (key: string, fetchApi: (key: string | number) => Promise<any>) => Promise<any>;
+  fetchObject: (key: string | number, fetchApi: (key: string | number) => Promise<any>) => Promise<any>;
   clear: () => void;
 }
 
@@ -64,7 +64,7 @@ export const useCacheStore = defineStore('cache', (): CacheStore => {
   };
 
   // 获取对象数据（带缓存和锁机制）
-  const fetchObject = async (key: string, fetchApi: (key: string | number) => Promise<any>) => {
+  const fetchObject = async (key: string | number, fetchApi: (key: string | number) => Promise<any>) => {
     // 存在缓存直接返回
     if (objectsCache[key]) {
       return objectsCache[key];

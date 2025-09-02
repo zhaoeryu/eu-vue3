@@ -111,9 +111,9 @@ async function onFirstItemClick() {
 
 // 一级菜单
 .eu-nav-sidebar__first {
-  width: var(--sidebar-first-width, 124px);
-  background-color: var(--theme-nav-first-bg);
-  height: calc(100vh - var(--layout-header-nav-height));
+  width: var(--eu-layout-sidebar-column-first-width, 124px);
+  background-color: var(--eu-layout-sidebar-bg);
+  height: calc(100vh - var(--eu-layout-navbar-height));
   display: flex;
   flex-direction: column;
 
@@ -131,13 +131,13 @@ async function onFirstItemClick() {
 
 // 二级菜单
 .eu-nav-sidebar__second {
-  width: var(--sidebar-second-width, 140px);
-  background-color: var(--theme-nav-second-bg);
+  width: var(--eu-layout-sidebar-column-second-width, 140px);
+  background-color: var(--eu-layout-sidebar-bg);
   padding: 16px 0 20px;
   display: flex;
   flex-direction: column;
   position: relative;
-  height: calc(100vh - var(--layout-header-nav-height) - 1px);
+  height: calc(100vh - var(--eu-layout-navbar-height) - 1px);
   transition: width 0.15s linear;
 
   &:before {
@@ -153,7 +153,7 @@ async function onFirstItemClick() {
 
 // 二级菜单pop层
 .eu-nav-pop-inner {
-  background-color: var(--theme-nav-second-bg);
+  background-color: var(--eu-layout-sidebar-bg);
   font-size: 14px;
   font-weight: 400;
   border-radius: 2px;

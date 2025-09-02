@@ -1,0 +1,215 @@
+// 引入sass的map模块，使用新语法
+@use "sass:map";
+@use "sass:list";
+
+@use "colors" as *;
+
+// 配置前缀（只需要修改这里即可改变所有变量的前缀）
+$namespace: "eu";
+
+// 定义尺寸配置（用于循环生成）
+$size-config: (
+  spacing: (
+    xs: 0.5,
+    sm: 1,
+    md: 2,
+    lg: 3,
+    xl: 4,
+    xxl: 6
+  ),
+  radius: (
+    xs: 2px,
+    sm: 4px,
+    md: 6px,
+    lg: 8px,
+    xl: 12px,
+    full: 9999px
+  ),
+  border-width: (
+    xs: 1px,
+    sm: 2px
+  )
+);
+
+// 定义字体配置（用于精确循环）
+$font-config: (
+  size: (
+    xs: 12px,
+    sm: 14px,
+    md: 16px,
+    lg: 18px,
+    xl: 20px,
+    xxl: 24px
+  ),
+  line-height: (
+    xs: 1.2,
+    sm: 1.4,
+    md: 1.5,
+    lg: 1.6
+  ),
+  weight: (
+    regular: 400,
+    medium: 500,
+    semibold: 600,
+    bold: 700
+  )
+);
+
+// 定义主题模式命名空间
+$theme-map: (
+  // 基础配置
+  base:
+    (
+      spacing-unit: 8px,
+      transition-default: all 0.3s ease,
+      disabled-opacity: 0.5
+    ),
+
+  // 浅色模式
+  light:
+    (
+      color-primary: $color-primary,
+      color-primary-light: #e8f3ff,
+      color-primary-dark: #0e42d2,
+
+      color-success: $color-success,
+      color-warning: $color-warning,
+      color-danger: $color-danger,
+      color-info: $color-info,
+
+      color-text-primary: #1d2129,
+      color-text-secondary: #4e5969,
+      color-text-tertiary: #86909c,
+      color-text-placeholder: #c9cdd4,
+
+      color-bg-primary: #ffffff,
+      color-bg-secondary: #f2f3f5,
+      color-bg-tertiary: #e5e6eb,
+
+      color-border-primary: #e5e6eb,
+      color-border-secondary: #c9cdd4,
+
+      shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05),
+      shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08)
+    ),
+
+  // 深色模式
+  dark:
+    (
+      color-primary: $color-primary,
+      color-primary-light: #0e2e8f,
+      color-primary-dark: #6aa1ff,
+
+      color-success: $color-success,
+      color-warning: $color-warning,
+      color-danger: $color-danger,
+      color-info: $color-info,
+
+      color-text-primary: #f2f3f5,
+      color-text-secondary: #c9cdd4,
+      color-text-tertiary: #86909c,
+      color-text-placeholder: #4e5969,
+
+      color-bg-primary: #1d2129,
+      color-bg-secondary: #272e3b,
+      color-bg-tertiary: #343e50,
+
+      color-border-primary: #343e50,
+      color-border-secondary: #4e5969,
+
+      shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2),
+      shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3)
+    ),
+
+  font: $font-config,
+
+  size: () // 空map，将通过外部循环填充
+);
+
+// 生成spacing尺寸
+@each $name, $multiplier in map.get($size-config, spacing) {
+  $value: if(
+    $multiplier == 1,
+    map.get(map.get($theme-map, base), spacing-unit),
+    calc(map.get(map.get($theme-map, base), spacing-unit) * #{$multiplier})
+  );
+  $theme-map: map.merge(
+    $theme-map,
+    (
+      size: map.merge(map.get($theme-map, size), (spacing-#{$name}: $value))
+    )
+  );
+}
+
+// 生成radius尺寸
+@each $name, $value in map.get($size-config, radius) {
+  $theme-map: map.merge(
+    $theme-map,
+    (
+      size: map.merge(map.get($theme-map, size), (radius-#{$name}: $value))
+    )
+  );
+}
+
+// 生成border-width尺寸
+@each $name, $value in map.get($size-config, border-width) {
+  $theme-map: map.merge(
+    $theme-map,
+    (
+      size: map.merge(map.get($theme-map, size), (border-width-#{$name}: $value))
+    )
+  );
+}
+
+// 变量获取函数
+@function theme-get($namespace, $section, $key) {
+  @return map.get(map.get($theme-map, $section), $key);
+}
+
+// 生成CSS变量
+:root {
+  // 基础变量
+  --#{$namespace}-spacing-unit: #{theme-get($namespace, base, spacing-unit)};
+  --#{$namespace}-transition-default: #{theme-get($namespace, base, transition-default)};
+  --#{$namespace}-disabled-opacity: #{theme-get($namespace, base, disabled-opacity)};
+
+  // 循环生成字体大小变量
+  @each $name, $value in map.get($font-config, size) {
+    --#{$namespace}-font-size-#{$name}: #{$value};
+  }
+
+  // 循环生成行高变量
+  @each $name, $value in map.get($font-config, line-height) {
+    --#{$namespace}-font-line-height-#{$name}: #{$value};
+  }
+
+  // 循环生成字重变量
+  @each $name, $value in map.get($font-config, weight) {
+    --#{$namespace}-font-weight-#{$name}: #{$value};
+  }
+
+  // 循环生成尺寸变量
+  @each $category, $items in $size-config {
+    @each $name, $value in $items {
+      --#{$namespace}-#{$category}-#{$name}: #{theme-get($namespace, size, #{$category}-#{$name})};
+    }
+  }
+
+  // 默认使用浅色模式变量
+  @each $key, $value in map.get($theme-map, light) {
+    // 只生成有值的变量
+    @if $value != null and $value != "" {
+      --#{$namespace}-#{$key}: #{$value};
+    }
+  }
+}
+
+// 深色模式变量
+:root.dark {
+  @each $key, $value in map.get($theme-map, dark) {
+    // 只生成有值的变量
+    @if $value != null and $value != "" {
+      --#{$namespace}-#{$key}: #{$value};
+    }
+  }
+}

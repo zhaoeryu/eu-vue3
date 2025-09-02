@@ -65,7 +65,7 @@ li {
 
   >a {
     padding: 0 8px;
-    color: var(--theme-nav-first-color);
+    color: var(--eu-layout-sidebar-text-color);
     display: flex;
     align-items: center;
     width: 100%;
@@ -82,18 +82,22 @@ li {
 
   &.active,
   &.hover {
-    background-color: var(--theme-nav-first-active-bg);
+    background-color: var(--eu-layout-sidebar-active-bg);
 
     >a {
-      color: var(--theme-nav-first-active-color);
+      color: var(--eu-layout-sidebar-active-text-color);
     }
   }
 
+  &.active {
+    font-weight: 500;
+  }
+
   &:not(.active):hover {
-    background-color: var(--theme-nav-first-hover-bg);
+    background-color: var(--eu-layout-sidebar-hover-bg);
 
     >a {
-      color: var(--theme-nav-first-hover-color);
+      color: var(--eu-layout-sidebar-hover-text-color);
     }
   }
 }

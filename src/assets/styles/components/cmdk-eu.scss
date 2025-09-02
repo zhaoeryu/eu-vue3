@@ -11,14 +11,14 @@
     width: 100%;
     padding: 6px 12px;
     border-radius: 4px;
-    border: 2px solid var(--color-neutral-2);
+    border: 2px solid var(--eu-color-border-primary);
     background: transparent;
     outline: none;
     .search-icon {
       margin-right: 8px;
     }
     &:focus-within {
-      border-color: var(--color-primary);
+      border-color: var(--eu-color-border-secondary);
     }
   }
   [command-input] {
@@ -27,7 +27,7 @@
     background: transparent;
     border: none;
     &::placeholder {
-      color: var(--color-text-3);
+      color: var(--eu-color-text-placeholder);
     }
   }
 
@@ -38,10 +38,9 @@
     user-select: none;
   }
 
-
   [command-group-heading] {
     //font-size: 12px;
-    color: var(--color-neutral-6);
+    color: var(--eu-color-text-secondary);
     font-weight: 500;
     margin-bottom: 8px;
   }
@@ -52,18 +51,23 @@
     cursor: pointer;
     margin-bottom: 4px;
     margin-top: 4px;
-    &[aria-selected='true'],&:hover {
-      background-color: rgb(var(--gray-2));
+    &[aria-selected="true"],
+    &:hover {
+      background-color: var(--eu-layout-sidebar-hover-bg);
       .command-palette-item__body__enter {
         display: block;
       }
     }
+    &[aria-selected="true"] {
+      color: var(--eu-color-primary);
+      font-weight: 500;
+    }
     &:active {
       transition-property: background;
-      background: rgb(var(--gray-2));
+      background: var(--eu-layout-sidebar-active-bg);
     }
-    &[aria-disabled='true'] {
-      color: rgb(var(--gray-8));
+    &[aria-disabled="true"] {
+      color: var(--eu-color-text-tertiary);
       cursor: not-allowed;
     }
   }
@@ -73,20 +77,13 @@
     margin-bottom: 8px;
   }
 
-  [command-list] {
-
-  }
-
   [command-separator] {
     height: 1px;
     width: 100%;
-    background: rgb(var(--gray-2));
+    background: var(--eu-color-border-secondary);
     margin: 4px 0;
   }
 
-  [command-dialog-footer] {
-    border-top: 1px solid rgb(var(--gray-2));
-  }
   .command-palette-commands {
     display: flex;
     list-style: none;
@@ -102,14 +99,14 @@
 
   .command-palette-commands-key {
     align-items: center;
-    background: rgb(var(--gray-3));
+    background: var(--eu-color-bg-secondary);
     border-radius: 2px;
     display: flex;
     height: 18px;
     justify-content: center;
     margin-right: 0.4em;
     padding: 0 0 1px;
-    color: rgb(var(--gray-11));
+    color: var(--eu-color-text-secondary);
     border: 0;
     width: 20px;
   }
@@ -120,7 +117,7 @@
     justify-content: center;
     height: 64px;
     white-space: pre-wrap;
-    color: rgb(var(--gray-10));
+    color: var(--eu-color-text-secondary);
   }
 
   .command-palette-item__body {
@@ -133,16 +130,16 @@
   }
 
   .command-palette-logo {
-    color: var(--color-neutral-6);
+    color: var(--eu-color-text-secondary);
   }
 }
 
 .command-dialog-enter-active {
-  transition-duration: .2s;
+  transition-duration: 0.2s;
 }
 
 .command-dialog-enter-active [command-dialog-mask] {
-  animation: backdropFilter .2s;
+  animation: backdropFilter 0.2s;
 }
 
 .command-dialog-enter-from [command-dialog-wrapper],
@@ -152,7 +149,7 @@
 }
 
 .command-dialog-enter-active [command-dialog-wrapper] {
-  transition: transform ease-out .2s;
+  transition: transform ease-out 0.2s;
 }
 
 @keyframes backdropFilter {

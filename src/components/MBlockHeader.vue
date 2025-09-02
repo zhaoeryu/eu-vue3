@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { withDefaults } from 'vue';
-
 export interface Props {
   title: string;
   content?: string | null;
@@ -72,13 +70,11 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-html.dark {
-  .m-block-header {
-    background-color: var(--color-bg-3);
-  }
+*~.m-block-header {
+  margin-top: 16px;
 }
 
-*~.m-block-header {
+.m-block-header~* {
   margin-top: 16px;
 }
 
@@ -95,7 +91,7 @@ html.dark {
   font-size: 14px;
 
   &.background {
-    background-color: var(--color-fill-2);
+    background-color: var(--eu-color-bg-secondary);
     margin-bottom: 16px;
   }
 
@@ -115,7 +111,7 @@ html.dark {
     h3 {
       font-size: 14px;
       line-height: 20px;
-      color: var(--color-text-1);
+      color: var(--eu-color-text-secondary);
       font-weight: 500;
       margin: 0;
       padding: 0;

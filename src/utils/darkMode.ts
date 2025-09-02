@@ -1,4 +1,6 @@
 export type ThemeMode = 'light' | 'dark' | 'syncOS';
+import { VxeUI } from 'vxe-table';
+
 /**
  * 适配深色模式
  * @param {String} theme 主题 light | dark | syncOS
@@ -33,8 +35,10 @@ function handleDarkMode(isDark = false) {
   if (isDark) {
     // document.body.setAttribute('eu-theme', 'dark');
     document.documentElement.classList.add('dark');
+    VxeUI.setTheme('dark');
   } else {
     // document.body.removeAttribute('eu-theme');
     document.documentElement.classList.remove('dark');
+    VxeUI.setTheme('light');
   }
 }

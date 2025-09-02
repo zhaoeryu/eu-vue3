@@ -361,3 +361,61 @@ export function requireImage(path: string): string {
 export async function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+/**
+ * 确保异步操作至少执行指定的最小时间
+ * @param asyncOperation - 要执行的异步函数
+ * @param minExecutionTime - 最小执行时间（毫秒），默认100ms
+ * @param args - 传递给异步函数的参数
+ * @returns 返回异步操作的执行结果
+ */
+export async function ensureMinExecutionTime(
+  asyncOperation: (...args: any[]) => Promise<any>,
+  minExecutionTime = 100,
+  ...args: any[]
+) {
+  // 记录操作开始时间
+  const operationStart = performance.now();
+  let operationResult: any;
+  let operationError: any = null;
+
+  try {
+    // 执行异步操作并传递参数
+    operationResult = await asyncOperation(...args);
+  } catch (error) {
+    // 捕获操作过程中出现的错误
+    operationError = error;
+  }
+
+  // 计算已消耗的时间和需要补充的等待时间
+  const elapsedTime = performance.now() - operationStart;
+  const requiredWaitTime = Math.max(0, minExecutionTime - elapsedTime);
+
+  // 如果需要，等待剩余时间以满足最小执行时间要求
+  if (requiredWaitTime > 0) {
+    await delay(requiredWaitTime);
+  }
+
+  // 如果有错误，在等待完成后重新抛出
+  if (operationError) {
+    throw operationError;
+  }
+
+  // 返回异步操作的结果
+  return operationResult;
+}
+
+export function isBlank(value: any): boolean {
+  // 先检查是否为 null 或 undefined
+  if (_.isNil(value)) {
+    return true;
+  }
+
+  // 检查是否为字符串且 trim 后为空
+  if (_.isString(value)) {
+    return value.trim() === '';
+  }
+
+  // 非字符串类型返回 false（根据需求可调整）
+  return false;
+}

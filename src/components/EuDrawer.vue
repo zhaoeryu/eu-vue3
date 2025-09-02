@@ -18,12 +18,20 @@ export default {
 </script>
 
 <template>
-  <el-drawer :size="size" direction="rtl" class="eu-drawer" v-bind="$attrs">
-    <div class="drawer-body flex flex-direction">
-      <div class="flex-sub" style="overflow-y: auto">
+  <el-drawer
+    :size="size"
+    direction="rtl"
+    class="eu-drawer"
+    v-bind="$attrs"
+  >
+    <div class="drawer-body">
+      <div style="flex: 1;overflow-y: auto;">
         <slot />
       </div>
-      <div v-if="showFooter" class="drawer-body__footer padding align-center flex justify-between">
+      <div
+        v-if="showFooter"
+        class="drawer-body__footer"
+      >
         <div>
           <slot name="footer-left" />
         </div>

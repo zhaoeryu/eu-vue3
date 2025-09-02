@@ -42,11 +42,21 @@ const greeting2 = computed(() => randomGreeting);
 <template>
   <div class="page-container">
     <el-row :gutter="16">
-      <el-col :span="18" :xs="24">
+      <el-col
+        :span="18"
+        :xs="24"
+      >
         <div class="statistics-overview">
           <div class="statistics-overview-header">
             <div class="statistics-overview-header__body">
-              <eu-avatar v-if="user" shape="circle" :size="72" :font-size="28" src="" :nickname="user.nickname" />
+              <eu-avatar
+                v-if="user"
+                shape="circle"
+                :size="72"
+                :font-size="28"
+                src=""
+                :nickname="user.nickname"
+              />
               <div style="margin-left: 24px; flex: 1">
                 <div class="statistics-overview-header__body__greeting1">{{ greeting1 }}</div>
                 <div class="statistics-overview-header__body__greeting2">{{ greeting2 }}</div>
@@ -73,19 +83,25 @@ const greeting2 = computed(() => randomGreeting);
           <div class="business-overview-header">
             <div class="business-overview-header__title">
               <span>实时概况</span>
-              <span style="margin-left: 16px; font-size: 14px; font-weight: 400; color: rgb(var(--gray-5))">更新于：2023/07/07 23:59:59</span>
+              <span
+                style="margin-left: 16px; font-size: 14px; font-weight: 400; color: rgb(var(--gray-5))">更新于：2023/07/07
+                23:59:59</span>
             </div>
             <div class="business-overview-header__layout">布局</div>
           </div>
           <div class="business-overview-body">
             <div class="business-overview-body-list">
-              <div v-for="(item, index) in 6" :key="index" class="business-overview-body__item">
+              <div
+                v-for="(item, index) in 6"
+                :key="index"
+                class="business-overview-body__item"
+              >
                 <div>
-                  <div style="font-size: 14px; color: var(--color-text-2)">本月目标</div>
+                  <div style="font-size: 14px; color: var(--eu-color-text-secondary)">本月目标</div>
                   <div style="font-size: 12px; color: rgb(var(--gray-5))">昨日 0.00</div>
                 </div>
                 <div>
-                  <div style="font-size: 20px; font-weight: 700; color: var(--color-text-2)">12</div>
+                  <div style="font-size: 20px; font-weight: 700; color: var(--eu-color-text-secondary)">12</div>
                   <div style="font-size: 14px; color: rgb(var(--red-5))">12</div>
                 </div>
               </div>
@@ -93,14 +109,21 @@ const greeting2 = computed(() => randomGreeting);
           </div>
         </div>
       </el-col>
-      <el-col :span="6" :xs="24">
+      <el-col
+        :span="6"
+        :xs="24"
+      >
         <div class="panel">
           <div class="panel__title">
             <div>快捷操作</div>
             <div class="text-primary">查看更多</div>
           </div>
           <el-row :gutter="20">
-            <el-col v-for="item in 9" :key="item" :span="8">
+            <el-col
+              v-for="item in 9"
+              :key="item"
+              :span="8"
+            >
               <div class="wrapper">
                 <div class="icon">
                   <svg-icon icon-class="monitor" />
@@ -116,7 +139,11 @@ const greeting2 = computed(() => randomGreeting);
             <div class="text-primary">查看更多</div>
           </div>
           <ul class="panel__list">
-            <li v-for="(item, index) in 5" :key="index" class="panel__list-item">
+            <li
+              v-for="(item, index) in 5"
+              :key="index"
+              class="panel__list-item"
+            >
               <el-tag size="small">通知</el-tag>
               <span style="font-size: 13px; margin: 0 6px">7/{{ item + 1 }}系统升级计划通知,本次升级新增xx功能</span>
             </li>
@@ -130,52 +157,62 @@ const greeting2 = computed(() => randomGreeting);
 <style lang="scss" scoped>
 // 数据统计总览
 .statistics-overview {
-  background-color: var(--theme-base-second-bg);
+  background-color: var(--eu-color-bg-primary);
   padding: 20px 0;
 }
+
 .statistics-overview-header {
   padding: 0 24px;
 }
+
 .statistics-overview-header__body {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+
   .statistics-overview-header__body__greeting1 {
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
-    color: var(--theme-text-primary-color);
+    color: var(--eu-color-text-primary);
     margin-bottom: 12px;
   }
+
   .statistics-overview-header__body__greeting2 {
     font-size: 14px;
     line-height: 22px;
-    color: var(--theme-text-second-color);
+    color: var(--eu-color-text-secondary);
   }
 }
+
 .el-tag {
   border: none;
   border-radius: 2px;
 }
+
 .m-grid-table {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  > div {
+
+  >div {
     position: relative;
     padding: 12px;
     margin: 0 12px;
     font-size: 14px;
-    color: var(--color-neutral-5);
+    color: var(--eu-color-text-secondary);
+
     :last-child {
       font-size: 26px;
-      color: var(--color-text-2);
+      color: var(--eu-color-text-secondary);
       padding-top: 12px;
     }
+
     &:hover {
-      background-color: var(--color-secondary-hover);
+      background-color: var(--eu-color-bg-tertiary);
     }
   }
-  > div + div {
+
+  >div+div {
     &:before {
       content: '';
       position: absolute;
@@ -184,26 +221,31 @@ const greeting2 = computed(() => randomGreeting);
       bottom: 0;
       width: 1px;
       height: 80%;
-      background-color: var(--color-border-1);
+      background-color: var(--eu-color-border-primary);
     }
   }
 }
+
 .panel {
-  background: var(--theme-base-second-bg);
+  background: var(--eu-color-bg-primary);
   padding: 20px;
-  & + .panel {
+
+  &+.panel {
     margin-top: 20px;
   }
+
   .panel__title {
     display: flex;
     align-items: center;
     justify-content: space-between;
     font-size: 14px;
+
     :first-child {
       font-size: 16px;
       font-weight: 500;
     }
   }
+
   .wrapper {
     display: flex;
     align-items: center;
@@ -211,26 +253,29 @@ const greeting2 = computed(() => randomGreeting);
     flex-direction: column;
     margin-top: 20px;
   }
+
   .icon {
     width: 40px;
     height: 40px;
     border-radius: 4px;
-    background-color: rgb(var(--gray-1));
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 8px;
     text-align: center;
   }
+
   .text {
     font-size: 12px;
     text-align: center;
-    color: rgb(var(--gray-8));
+    color: var(--eu-color-text-primary);
   }
+
   .panel__list {
     padding-top: 20px;
-    color: rgb(var(--gray-6));
+    color: var(--eu-color-text-primary);
   }
+
   .panel__list-item {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -238,47 +283,58 @@ const greeting2 = computed(() => randomGreeting);
     line-height: 1.5em;
   }
 }
+
 // 实时概况
 .business-overview {
-  background: var(--theme-base-second-bg);
+  background: var(--eu-color-bg-primary);
   margin-top: 16px;
   padding-top: 24px;
 }
+
 .business-overview-header {
   padding: 0 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .business-overview-header__title {
   font-size: 16px;
   font-weight: 500;
 }
+
 .business-overview-header__layout {
   font-size: 14px;
   color: #999;
+
   &:hover {
     cursor: pointer;
-    color: var(--color-primary);
+    color: var(--eu-color-primary);
   }
 }
+
 .business-overview-body {
   padding: 12px 0;
 }
+
 .business-overview-body-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-row-gap: 12px;
   box-sizing: border-box;
 }
+
 .business-overview-body__item {
   margin: 0 12px;
   padding: 12px;
+
   &:hover {
-    background: var(--color-secondary-hover);
+    background: var(--eu-color-bg-tertiary);
   }
+
   &:nth-child(3n + 2) {
     position: relative;
+
     &:before {
       content: '';
       position: absolute;
@@ -287,8 +343,9 @@ const greeting2 = computed(() => randomGreeting);
       bottom: 0;
       width: 1px;
       height: 100%;
-      background: var(--color-border-1);
+      background: var(--eu-color-border-primary);
     }
+
     &:after {
       content: '';
       position: absolute;
@@ -297,26 +354,30 @@ const greeting2 = computed(() => randomGreeting);
       bottom: 0;
       width: 1px;
       height: 100%;
-      background: var(--color-border-1);
+      background: var(--eu-color-border-primary);
     }
   }
-  > div:first-child {
+
+  >div:first-child {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  > div:last-child {
+
+  >div:last-child {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 16px;
   }
 }
+
 .business-overview-body__item-action {
   color: #909399;
+
   &:hover {
     cursor: pointer;
-    color: #333 !important;
+    color: var(--eu-color-text-primary) !important;
   }
 }
 </style>

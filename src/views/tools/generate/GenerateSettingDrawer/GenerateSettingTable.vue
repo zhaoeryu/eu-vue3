@@ -41,7 +41,7 @@ defineExpose({
     :rules="rules"
     label-width="150px"
   >
-    <div class="grid grid-cols-3">
+    <div style="display: grid;grid-template-columns: repeat(3, minmax(0, 1fr));">
       <el-form-item
         prop="tableComment"
         label="表注释"

@@ -10,7 +10,8 @@ import type { GenerateColumn, GenerateTable } from '@/types/system/generate';
 import { download } from '@/utils/request';
 import GeneratePreview from '@/views/tools/generate/GeneratePreview.vue';
 import GenerateSettingFieldList from '@/views/tools/generate/GenerateSettingDrawer/GenerateSettingFieldList.vue';
-import type GenerateSettingTable from '@/views/tools/generate/GenerateSettingDrawer/GenerateSettingTable.vue';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import GenerateSettingTable from '@/views/tools/generate/GenerateSettingDrawer/GenerateSettingTable.vue';
 
 export interface State {
   gen: GenerateTable;
@@ -145,7 +146,7 @@ export default {
     :title="pageTitle"
     size="90%"
   >
-    <div class="padding-sm">
+    <div style="padding: 12px;">
       <eu-loading
         v-if="loading"
         style="height: 300px"

@@ -232,8 +232,8 @@ export default {
 // 头像模式
 .single {
   :deep(.el-upload--picture-card) {
-    background-color: var(--theme-nav-second-bg, #fbfdff);
-    border: 1px dashed var(--color-border-2, #c0ccda);
+    background-color: var(--eu-layout-sidebar-bg, #fbfdff);
+    border: 1px dashed var(--eu-color-border-primary, #c0ccda);
     border-radius: 6px;
     box-sizing: border-box;
     width: 80px;
@@ -250,7 +250,7 @@ export default {
 
     i {
       font-size: 28px;
-      color: var(--theme-text-primary-color, #8c939d);
+      color: var(--eu-color-text-primary, #8c939d);
     }
 
     .avatar {

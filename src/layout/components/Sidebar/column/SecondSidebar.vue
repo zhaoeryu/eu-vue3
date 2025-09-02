@@ -123,7 +123,7 @@ defineExpose({
       background-color: rgba(0, 0, 0, 0.06);
       text-align: center;
       font-size: 14px;
-      color: #333;
+      color: var(--eu-color-text-primary);
 
       >i {
         pointer-events: none;
@@ -134,13 +134,13 @@ defineExpose({
   .eu-nav-up-indicator {
     top: 0;
     align-items: flex-start;
-    background: linear-gradient(0deg, rgba(255, 255, 255, 0), var(--theme-nav-second-bg) 70%);
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0), var(--eu-layout-sidebar-bg) 70%);
   }
 
   .eu-nav-down-indicator {
     bottom: 0;
     align-items: flex-end;
-    background: linear-gradient(-180deg, rgba(255, 255, 255, 0), var(--theme-nav-second-bg) 70%);
+    background: linear-gradient(-180deg, rgba(255, 255, 255, 0), var(--eu-layout-sidebar-bg) 70%);
   }
 }
 
