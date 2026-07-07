@@ -192,11 +192,11 @@ defineExpose({
       >
         <el-radio-group v-model="state.form.dataScope">
           <el-radio-button
-            v-for="item in dataScopeEnums"
+            v-for="item in dataScopeEnums.options()"
             :key="item.value"
             :value="item.value"
           >{{ item.label
-            }}</el-radio-button>
+          }}</el-radio-button>
         </el-radio-group>
       </el-form-item>
       <el-form-item

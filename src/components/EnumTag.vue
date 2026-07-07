@@ -2,7 +2,6 @@
 import { computed } from 'vue';
 
 import type { Enum } from '@/types/generic';
-import { enumsFindByValue } from '@/utils/enums';
 
 interface Props {
   value: number | string | boolean;
@@ -11,7 +10,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const checkedItem = computed(() => {
-  return enumsFindByValue(props.enums, props.value);
+  return props.enums.findByValue(props.value);
 });
 </script>
 

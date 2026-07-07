@@ -2,7 +2,6 @@
 import { computed } from 'vue';
 
 import type { Enum } from '@/types/generic';
-import { enumsConvertToList } from '@/utils/enums';
 
 interface Props {
   enums: Enum;
@@ -10,7 +9,7 @@ interface Props {
 const model = defineModel<string | number | boolean | null>();
 const props = defineProps<Props>();
 
-const options = computed(() => enumsConvertToList(props.enums));
+const options = computed(() => props.enums.options());
 </script>
 
 <script lang="ts">

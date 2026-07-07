@@ -11,10 +11,10 @@ export const useSettingsStore = defineStore(
   'settings',
   () => {
     const theme = ref<EuTheme>(Object.assign({}, defaultTheme));
-    const device = ref<DeviceType>(DeviceTypeEnums.DESKTOP);
+    const device = ref<DeviceType>(DeviceTypeEnums.DESKTOP.value);
     const sidebarCollapsed = ref<boolean>(false);
 
-    const isMobileDevice = computed(() => device.value === DeviceTypeEnums.MOBILE);
+    const isMobileDevice = computed(() => device.value === DeviceTypeEnums.MOBILE.value);
 
     function saveTheme(newTheme: PartialEuTheme) {
       theme.value = Object.assign({}, defaultTheme, theme.value, newTheme);

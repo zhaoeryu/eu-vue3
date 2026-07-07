@@ -36,7 +36,7 @@ watchEffect(() => {
   const isMobile = width.value - 1 < MOBILE_WIDTH;
   const isCollapse = width.value - 1 < COLLAPSE_WIDTH;
 
-  settingsStore.toggleDevice(isMobile ? DeviceTypeEnums.MOBILE : DeviceTypeEnums.DESKTOP);
+  settingsStore.toggleDevice(isMobile ? DeviceTypeEnums.MOBILE.value : DeviceTypeEnums.DESKTOP.value);
   settingsStore.toggleCollapsed(isCollapse);
 });
 </script>

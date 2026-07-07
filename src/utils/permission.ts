@@ -8,7 +8,7 @@ import { PermissionModeEnums } from '@/utils/enums';
  * @param {string} mode 权限检查模式：PermissionModeEnums
  * @returns {boolean} 是否拥有指定的权限
  */
-export function hasPermission(permissions: string[], mode = PermissionModeEnums.OR): boolean {
+export function hasPermission(permissions: string[], mode = PermissionModeEnums.OR.value): boolean {
   if (!Array.isArray(permissions)) {
     return false;
   }
@@ -17,7 +17,7 @@ export function hasPermission(permissions: string[], mode = PermissionModeEnums.
     // 拥有所有权限，直接返回
     return true;
   }
-  if (mode === PermissionModeEnums.AND) {
+  if (mode === PermissionModeEnums.AND.value) {
     return permissions.every((permission) => havePermissions.has(permission));
   }
   return permissions.some((permission) => havePermissions.has(permission));
@@ -29,7 +29,7 @@ export function hasPermission(permissions: string[], mode = PermissionModeEnums.
  * @param {string} mode 角色检查模式：PermissionModeEnums
  * @returns {boolean} 是否拥有指定的角色
  */
-export function hasRole(roles: string[], mode = PermissionModeEnums.OR) {
+export function hasRole(roles: string[], mode = PermissionModeEnums.OR.value) {
   if (!Array.isArray(roles)) {
     return false;
   }
@@ -40,7 +40,7 @@ export function hasRole(roles: string[], mode = PermissionModeEnums.OR) {
     return true;
   }
 
-  if (mode === PermissionModeEnums.AND) {
+  if (mode === PermissionModeEnums.AND.value) {
     return roles.every((role) => haveRoles.has(role));
   }
   return roles.some((role) => haveRoles.has(role));

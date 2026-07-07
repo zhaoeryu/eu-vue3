@@ -1,26 +1,124 @@
 import type { DeviceType } from '@/store/modules/settings';
-import type { Enum, EnumItem } from '@/types/generic';
+import type { EnumItem } from '@/types/generic';
+
+/**
+ * 创建枚举的工厂函数
+ * @param obj 枚举对象
+ * @returns 带有辅助方法的枚举对象
+ */
+export function createEnum<T extends Record<string, EnumItem<any>>>(obj: T): T & {
+  findByValue: (value: any) => EnumItem | undefined;
+  findByLabel: (label: string) => EnumItem | undefined;
+  keys: () => string[];
+  options: () => EnumItem[];
+  values: () => any[];
+  labels: () => string[];
+  getLabelByValue: (value: any) => string | undefined;
+  getValueByLabel: (label: string) => any;
+  getKeyByValue: (value: any, key: string) => any;
+  validate: (value: any) => boolean;
+} {
+  const enumObj = { ...obj } as any;
+
+  /**
+   * 根据值查找枚举项
+   */
+  enumObj.findByValue = (value: any) => {
+    if (value === null || value === undefined) {
+      return undefined;
+    }
+    return Object.values(obj).find((item) => item.value === value);
+  };
+
+  /**
+   * 根据标签查找枚举项
+   */
+  enumObj.findByLabel = (label: string) => {
+    if (label === null || label === undefined) {
+      return undefined;
+    }
+    return Object.values(obj).find((item) => item.label === label);
+  };
+
+  /**
+   * 获取所有键
+   */
+  enumObj.keys = () => {
+    return Object.keys(obj);
+  };
+
+  /**
+   * 获取所有键
+   */
+  enumObj.options = () => {
+    return Object.values(obj);
+  };
+
+  /**
+   * 获取所有标签
+   */
+  enumObj.labels = () => {
+    return Object.values(obj).map(({ label }) => label);
+  };
+
+  /**
+   * 获取所有值
+   */
+  enumObj.values = () => {
+    return Object.values(obj).map(({ value }) => value);
+  };
+
+  /**
+   * 根据值获取标签
+   */
+  enumObj.getLabelByValue = (value: any) => {
+    return enumObj.findByValue(value)?.label;
+  };
+
+  /**
+   * 根据标签获取值
+   */
+  enumObj.getValueByLabel = (label: string) => {
+    return enumObj.findByLabel(label)?.value;
+  };
+
+  /**
+   * 根据值获取指定属性
+   */
+  enumObj.getKeyByValue = (value: any, key: string) => {
+    return enumObj.findByValue(value)?.[key];
+  };
+
+  /**
+   * 判断值是否在枚举中
+   */
+  enumObj.validate = (value: any) => {
+    return Object.values(obj).some((item) => item.value === value);
+  };
+
+  return enumObj;
+}
 
 /**
  * 设备类型
  */
-export const DeviceTypeEnums = {
-  DESKTOP: 'desktop' as DeviceType,
-  MOBILE: 'mobile' as DeviceType,
-};
+export const DeviceTypeEnums = createEnum({
+  DESKTOP: { label: '桌面', value: 'desktop' as DeviceType },
+  MOBILE: { label: '移动', value: 'mobile' as DeviceType },
+});
 
 /**
  * 权限判断模式
  */
-export const PermissionModeEnums = {
-  AND: 'and',
-  OR: 'or',
-};
+export const PermissionModeEnums = createEnum({
+  AND: { label: '且', value: 'and' },
+  OR: { label: '或', value: 'or' },
+});
 
 /**
  * 操作日志 - 业务类型
  */
-export const BusinessTypeEnums: Enum = {
+export const BusinessTypeEnums = createEnum({
   OTHER: { label: '其他', value: 0 },
   QUERY: { label: '查询', value: 1 },
   INSERT: { label: '新增', value: 2 },
@@ -35,70 +133,36 @@ export const BusinessTypeEnums: Enum = {
   FORCE_LOGOUT: { label: '强制注销', value: 11 },
   PAUSE_RESUME_JOB: { label: '暂停/恢复任务', value: 12 },
   EXEC_JOB: { label: '执行任务', value: 13 },
-};
+});
 
 /**
  * 菜单类型
  */
-export const MenuTypeEnums: Enum = {
+export const MenuTypeEnums = createEnum({
   DIR: { label: '目录', value: 1, type: 'info' },
   MENU: { label: '菜单', value: 2 },
   BUTTON: { label: '按钮', value: 3, type: 'success' },
-};
+});
 
-export const DataScopeEnums: Enum = {
+export const DataScopeEnums = createEnum({
   ALL: { label: '全部数据权限', value: 1 },
   CUSTOM: { label: '自定数据权限', value: 2 },
   DEPT: { label: '部门数据权限', value: 3 },
   DEPT_AND_CHILD: { label: '部门及以下数据权限', value: 4 },
   SELF: { label: '仅本人数据权限', value: 5 },
-};
+});
 
-export const NoticeTypeEnums: Enum = {
+export const NoticeTypeEnums = createEnum({
   INFO: { label: '通知', value: 0 },
   ANNOUNCEMENT: { label: '公告', value: 1 },
-};
+});
 
-export const EnableFlagEnums: Enum = {
+export const EnableFlagEnums = createEnum({
   ENABLE: { label: '启用', value: 0 },
   DISABLE: { label: '禁用', value: 1, type: 'danger' },
-};
+});
 
-export const BooleanFlagEnums: Enum = {
+export const BooleanFlagEnums = createEnum({
   NO: { label: '否', value: 0 },
   YES: { label: '是', value: 1 },
-};
-
-/**
- * 根据value获取label
- * @param {Object} enums 枚举对象
- * @param {Number} value 要查找的value
- * @param {String} field 要返回的字段
- * @param {String} defaultValue 如果没有找到对应的label，返回默认值
- * @returns {String} label
- */
-export function enumsParse(enums: Enum, value: number | string | null, field = 'label', defaultValue = null) {
-  let fieldValue = null;
-  Object.keys(enums).forEach((key) => {
-    if (enums[key].value === value) {
-      fieldValue = enums[key][field];
-    }
-  });
-  return fieldValue ?? defaultValue;
-}
-export function enumsParseLabel(enums: Enum, value: number | string | null, defaultValue = null) {
-  return enumsParse(enums, value, 'label', defaultValue);
-}
-
-/**
- * enums 转换为 list
- * @param {Object} enums 待转换的enums
- * @returns {Array}
- */
-export function enumsConvertToList(enums: Enum): EnumItem[] {
-  return Object.keys(enums).map((key) => enums[key]);
-}
-
-export function enumsFindByValue(enums: Enum, value: number | string | boolean | null): EnumItem | null {
-  return enumsConvertToList(enums).find((item) => item.value === value) ?? null;
-}
+});

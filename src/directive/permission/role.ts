@@ -7,9 +7,9 @@ export default {
   // 默认 v-role:or
   mounted(el: HTMLElement, binding: DirectiveBinding) {
     const { value, arg } = binding;
-    const mode = arg ?? PermissionModeEnums.OR;
+    const mode = arg ?? PermissionModeEnums.OR.value;
 
-    if (!Object.values(PermissionModeEnums).includes(mode)) {
+    if (!PermissionModeEnums.validate(mode)) {
       throw new Error('请设置正确的权限检查模式');
     }
 

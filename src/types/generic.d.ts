@@ -9,4 +9,15 @@ export type EnumItem<T = number> = {
   type?: string;
 } & Partial<ANY_OBJECT>;
 
-export type Enum<T = number> = Record<string, EnumItem<T>>;
+export interface Enum {
+  findByValue: (value: any) => EnumItem | undefined;
+  findByLabel: (label: string) => EnumItem | undefined;
+  keys: () => string[];
+  values: () => any[];
+  options: () => EnumItem[];
+  labels: () => string[];
+  getLabelByValue: (value: any) => string | undefined;
+  getValueByLabel: (label: string) => any;
+  getKeyByValue: (value: any, key: string) => any;
+  validate: (value: any) => boolean;
+}
